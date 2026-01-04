@@ -1,0 +1,154 @@
+{
+    "section1": {
+        "files": [
+            {
+                "url": "assets/Images/Common/alpha_mask.png",
+                "type": "image",
+                "key": "alpha_mask"
+            },
+            {
+                "url": "assets/Fonts/Anton-Regular.ttf",
+                "format": "truetype",
+                "descriptors": {},
+                "type": "font",
+                "key": "Anton-Regular"
+            },
+            {
+                "url": "assets/Images/Common/UI/AutoPlay.png",
+                "type": "image",
+                "key": "AutoPlay"
+            },
+            {
+                "url": "assets/Images/Common/UI/Btn_Main.png",
+                "type": "image",
+                "key": "Btn_Main"
+            },
+            {
+                "url": "assets/Images/Common/CardBack.png",
+                "type": "image",
+                "key": "CardBack"
+            },
+            {
+                "url": "assets/Images/Background/DI_Background_banana.png",
+                "type": "image",
+                "key": "DI_Background_banana"
+            },
+            {
+                "url": "assets/Images/CardCover/DI_CardCover_Default.png",
+                "type": "image",
+                "key": "DI_CardCover_Default"
+            },
+            {
+                "url": "assets/Images/Icons/DI_Icons_Default.png",
+                "frameConfig": {
+                    "frameWidth": 100,
+                    "frameHeight": 100,
+                    "startFrame": 0,
+                    "endFrame": -1,
+                    "spacing": 0,
+                    "margin": 0
+                },
+                "type": "spritesheet",
+                "key": "DI_Icons_Default"
+            },
+            {
+                "url": "assets/Images/LoseImage/DI_Lose_Default.png",
+                "type": "image",
+                "key": "DI_Lose_Default"
+            },
+            {
+                "url": "assets/Images/Peel/DI_Peel_Default.png",
+                "type": "image",
+                "key": "DI_Peel_Default"
+            },
+            {
+                "url": "assets/Images/PeelBack/DI_PeelBack_Default.png",
+                "type": "image",
+                "key": "DI_PeelBack_Default"
+            },
+            {
+                "url": "assets/Images/WinImage/DI_Win_Default.png",
+                "type": "image",
+                "key": "DI_Win_Default"
+            },
+            {
+                "url": [
+                    "assets/Videos/LoseVideo/DV_LoseVideo_Default.mp4"
+                ],
+                "type": "video",
+                "key": "DV_LoseVideo_Default"
+            },
+            {
+                "url": [
+                    "assets/Videos/WinVideo/DV_WinVideo_Default.mp4"
+                ],
+                "type": "video",
+                "key": "DV_WinVideo_Default"
+            },
+            {
+                "url": "assets/Images/Common/UI/exitIcon.png",
+                "type": "image",
+                "key": "exitIcon"
+            },
+            {
+                "url": "assets/Images/Common/UI/Hud_InfoButton.png",
+                "type": "image",
+                "key": "Hud_InfoButton"
+            },
+            {
+                "url": "assets/Images/Common/UI/Hud_Sandwich.png",
+                "type": "image",
+                "key": "Hud_Sandwich"
+            },
+            {
+                "url": "assets/Images/Common/UI/icon_sound_off_128.png",
+                "type": "image",
+                "key": "icon_sound_off_128"
+            },
+            {
+                "url": "assets/Images/Common/UI/icon_sound_on_128.png",
+                "type": "image",
+                "key": "icon_sound_on_128"
+            },
+            {
+                "url": "assets/Fonts/Lato-Bold.ttf",
+                "format": "truetype",
+                "descriptors": {},
+                "type": "font",
+                "key": "Lato-Bold"
+            },
+            {
+                "url": "assets/Fonts/Lato-Regular.ttf",
+                "format": "truetype",
+                "descriptors": {},
+                "type": "font",
+                "key": "Lato-Regular"
+            },
+            {
+                "url": "assets/Images/Common/UI/UI_Arrow.png",
+                "type": "image",
+                "key": "UI_Arrow"
+            },
+            {
+                "url": "assets/Images/Common/UI/UI_CounterPanel.png",
+                "type": "image",
+                "key": "UI_CounterPanel"
+            },
+            {
+                "url": [
+                    "assets/WhatsApp Video 2025-12-19 at 1.03.50 PM.mp4"
+                ],
+                "type": "video",
+                "key": "WhatsApp Video 2025-12-19 at 1.03.50 PM"
+            }
+        ]
+    },
+    "meta": {
+        "app": "Phaser Editor 2D - Asset Pack Editor",
+        "contentType": "phasereditor2d.pack.core.AssetContentType",
+        "url": "https://phasereditor2d.com",
+        "version": 2,
+        "showAllFilesInBlocks": false,
+        "visible": true
+    }
+}

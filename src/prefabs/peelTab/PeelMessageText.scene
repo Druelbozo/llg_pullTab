@@ -1,0 +1,40 @@
+{
+    "id": "551a8cff-5f67-4624-83f5-5b0f83d34196",
+    "sceneType": "PREFAB",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "importFileExtension": true,
+        "preloadMethodName": "",
+        "preloadPackFiles": [],
+        "createMethodName": "",
+        "borderWidth": 1170,
+        "borderHeight": 2532
+    },
+    "displayList": [
+        {
+            "type": "Text",
+            "id": "d6b0e190-e388-4434-ab57-3af2930b650a",
+            "label": "MessageText",
+            "scope": "CLASS",
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "OPEN THE TAB FOR WINS UP TO 999$",
+            "fontFamily": "Lato-Bold",
+            "fontSize": "50px",
+            "color": "#33b5d4ff",
+            "stroke": "#e3e6c6ff",
+            "strokeThickness": 14,
+            "shadow.offsetY": 3,
+            "shadow.stroke": true,
+            "shadow.color": "#00000072"
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}

@@ -1,0 +1,117 @@
+{
+    "id": "1500c08b-a94b-4283-8e2a-4f79791d6bbd",
+    "sceneType": "PREFAB",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "importFileExtension": true,
+        "preloadMethodName": "",
+        "preloadPackFiles": [],
+        "createMethodName": "",
+        "borderWidth": 1280,
+        "borderHeight": 720
+    },
+    "displayList": [
+        {
+            "type": "ScriptNode",
+            "id": "7d4339be-7a30-4f94-9ded-4c8f4a7f5816",
+            "label": "scriptnode_1"
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    },
+    "prefabProperties": [
+        {
+            "name": "fromX",
+            "label": "FromX",
+            "tooltip": "",
+            "defValue": 0,
+            "customDefinition": false,
+            "type": {
+                "id": "number"
+            }
+        },
+        {
+            "name": "fromY",
+            "label": "FromY",
+            "tooltip": "",
+            "defValue": 0,
+            "customDefinition": false,
+            "type": {
+                "id": "number"
+            }
+        },
+        {
+            "name": "x",
+            "label": "X",
+            "tooltip": "",
+            "defValue": 0,
+            "customDefinition": false,
+            "type": {
+                "id": "number"
+            }
+        },
+        {
+            "name": "y",
+            "label": "Y",
+            "tooltip": "",
+            "defValue": 0,
+            "customDefinition": false,
+            "type": {
+                "id": "number"
+            }
+        },
+        {
+            "name": "duration",
+            "label": "Duration",
+            "tooltip": "",
+            "defValue": 0,
+            "customDefinition": false,
+            "type": {
+                "id": "number"
+            }
+        },
+        {
+            "name": "ease",
+            "label": "Ease",
+            "tooltip": "",
+            "defValue": "",
+            "customDefinition": false,
+            "type": {
+                "id": "option",
+                "options": [
+                    "Linear",
+                    "Quad.easeIn",
+                    "Quad.easeOut",
+                    "Quad.easeInOut",
+                    "Cubic.easeIn",
+                    "Cubic.easeOut",
+                    "Cubic.easeInOut",
+                    "Quart.easeIn",
+                    "Quart.easeOut",
+                    "Quart.easeInOut",
+                    "Quint.easeIn",
+                    "Quint.easeOut",
+                    "Quint.easeInOut",
+                    "Elastic.easeIn",
+                    "Elastic.easeOut",
+                    "Elastic.easeInOut",
+                    "Bounce.easeIn",
+                    "Bounce.easeOut",
+                    "Bounce.easeInOut",
+                    "Back.easeIn",
+                    "Back.easeOut",
+                    "Back.easeInOut",
+                    "Sine.easeIn",
+                    "Sine.easeOut",
+                    "Sine.easeInOut"
+                ]
+            }
+        }
+    ]
+}

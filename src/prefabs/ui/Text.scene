@@ -1,0 +1,127 @@
+{
+    "id": "0408176d-cee7-4226-ab81-2cc48ffffbb1",
+    "sceneType": "PREFAB",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "importFileExtension": true,
+        "preloadMethodName": "",
+        "preloadPackFiles": [],
+        "createMethodName": "",
+        "borderWidth": 700,
+        "borderHeight": 1280
+    },
+    "displayList": [
+        {
+            "type": "Container",
+            "id": "004c112e-00d8-426f-86b2-44888ad715ac",
+            "label": "container_2",
+            "list": [
+                {
+                    "type": "Text",
+                    "id": "6390436d-ae6e-4a61-a4c3-5d81c712d5a9",
+                    "label": "regularText",
+                    "scope": "CLASS",
+                    "originX": 0.5,
+                    "originY": 0.5,
+                    "text": "Text",
+                    "fontFamily": "Lato-Regular",
+                    "fontSize": "25px",
+                    "fontStyle": "bold",
+                    "color": "#ffffffff",
+                    "stroke": "#000000ff",
+                    "shadow.offsetY": 4,
+                    "shadow.stroke": true
+                }
+            ]
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    },
+    "prefabProperties": [
+        {
+            "name": "textValue",
+            "label": "TextValue",
+            "tooltip": "",
+            "defValue": "",
+            "customDefinition": false,
+            "type": {
+                "id": "string"
+            }
+        },
+        {
+            "name": "textSize",
+            "label": "TextSize",
+            "tooltip": "",
+            "defValue": 24,
+            "customDefinition": false,
+            "type": {
+                "id": "number"
+            }
+        },
+        {
+            "name": "font",
+            "label": "Font",
+            "tooltip": "",
+            "defValue": "Lato-Bold",
+            "customDefinition": false,
+            "type": {
+                "id": "string"
+            }
+        },
+        {
+            "name": "alignment",
+            "label": "Alignment",
+            "tooltip": "",
+            "defValue": "center",
+            "customDefinition": false,
+            "type": {
+                "id": "option",
+                "options": [
+                    "center",
+                    "left",
+                    "right"
+                ]
+            }
+        },
+        {
+            "name": "color",
+            "label": "Color",
+            "tooltip": "",
+            "defValue": "#ffffffff",
+            "customDefinition": false,
+            "type": {
+                "id": "color"
+            }
+        },
+        {
+            "name": "debug",
+            "label": "Debug",
+            "tooltip": "",
+            "defValue": false,
+            "customDefinition": false,
+            "type": {
+                "id": "boolean"
+            }
+        },
+        {
+            "name": "textType",
+            "label": "TextType",
+            "tooltip": "",
+            "defValue": "regular",
+            "customDefinition": false,
+            "type": {
+                "id": "option",
+                "options": [
+                    "regular",
+                    "DOM"
+                ]
+            }
+        }
+    ]
+}

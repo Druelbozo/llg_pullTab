@@ -1,0 +1,59 @@
+{
+    "id": "fde543dc-2fcd-4de9-9c2e-76a1e3d62023",
+    "sceneType": "PREFAB",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "importFileExtension": true,
+        "preloadMethodName": "",
+        "preloadPackFiles": [],
+        "createMethodName": "",
+        "borderWidth": 1280,
+        "borderHeight": 720
+    },
+    "displayList": [
+        {
+            "type": "ScriptNode",
+            "id": "58ee29ed-fac2-4f7d-89be-1e8d0ba5d841",
+            "label": "scriptnode_1"
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    },
+    "prefabProperties": [
+        {
+            "name": "eventName",
+            "label": "Event Name",
+            "tooltip": "Event name",
+            "defValue": "MyCoolEvent",
+            "customDefinition": false,
+            "type": {
+                "id": "event"
+            }
+        },
+        {
+            "name": "eventEmitter",
+            "label": "Event Emitter",
+            "tooltip": "The source of the events (EventEmitter).",
+            "defValue": "gameObject",
+            "customDefinition": false,
+            "type": {
+                "id": "option",
+                "options": [
+                    "game.events",
+                    "scene.events",
+                    "scene.loader",
+                    "scene.input",
+                    "scene.input.keyboard",
+                    "scene.anims",
+                    "gameObject"
+                ]
+            }
+        }
+    ]
+}

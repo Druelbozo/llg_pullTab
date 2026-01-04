@@ -1,0 +1,68 @@
+{
+    "id": "81db12a3-840c-4c67-8b96-cd8b9718e352",
+    "sceneType": "PREFAB",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "importFileExtension": true,
+        "preloadMethodName": "",
+        "preloadPackFiles": [],
+        "createMethodName": "",
+        "borderWidth": 1080,
+        "borderHeight": 1920
+    },
+    "displayList": [
+        {
+            "type": "Container",
+            "id": "9afa580a-8c86-41b4-b664-ba579312b751",
+            "label": "container_1",
+            "list": [
+                {
+                    "prefabId": "0408176d-cee7-4226-ab81-2cc48ffffbb1",
+                    "id": "2be6e3f5-a5c2-4905-9c14-33c89b0419e8",
+                    "unlock": [
+                        "x",
+                        "y",
+                        "textValue",
+                        "color",
+                        "textSize",
+                        "textType"
+                    ],
+                    "label": "title",
+                    "scope": "CLASS",
+                    "textValue": "Balance:",
+                    "textSize": 40,
+                    "color": "#ffb220ff",
+                    "textType": "DOM",
+                    "x": 0,
+                    "y": -30
+                },
+                {
+                    "prefabId": "0408176d-cee7-4226-ab81-2cc48ffffbb1",
+                    "id": "803ac1c8-d78e-4477-804c-e6616987ec72",
+                    "unlock": [
+                        "x",
+                        "y",
+                        "textValue",
+                        "textSize",
+                        "textType"
+                    ],
+                    "label": "balance",
+                    "scope": "CLASS",
+                    "textValue": "$0.00",
+                    "textSize": 40,
+                    "textType": "DOM",
+                    "x": 0,
+                    "y": 30
+                }
+            ]
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}

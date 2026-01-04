@@ -1,0 +1,95 @@
+{
+    "id": "7c866dad-c85f-4ad8-9a54-a13881b27b22",
+    "sceneType": "PREFAB",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "importFileExtension": true,
+        "preloadMethodName": "",
+        "preloadPackFiles": [],
+        "createMethodName": "",
+        "borderWidth": 1080,
+        "borderHeight": 1920
+    },
+    "displayList": [
+        {
+            "prefabId": "88ae86c5-6c67-4c52-95af-5fa1dd086d06",
+            "id": "da30f0fe-b582-4425-b2ec-fc3f194d68d7",
+            "unlock": [
+                "x",
+                "y",
+                "allowAppendChildren"
+            ],
+            "label": "button",
+            "x": 0,
+            "y": 0,
+            "allowAppendChildren": true,
+            "list": [
+                {
+                    "type": "Container",
+                    "id": "797dc57f-ea6c-4863-aa25-5505a0a48a68",
+                    "label": "visualContainer",
+                    "scope": "CLASS",
+                    "list": [
+                        {
+                            "type": "NineSlice",
+                            "id": "f009b90f-f8cf-4ee3-a47b-5dce3bffd274",
+                            "label": "btn_Main",
+                            "texture": {
+                                "key": "Btn_Main"
+                            },
+                            "tint": "#ff1515",
+                            "leftWidth": 39,
+                            "rightWidth": 37,
+                            "topHeight": 34,
+                            "bottomHeight": 36,
+                            "width": 150,
+                            "height": 150
+                        },
+                        {
+                            "type": "Image",
+                            "id": "a6d84655-3621-470b-a546-6b973cd7bb89",
+                            "label": "autoPlay",
+                            "scope": "CLASS",
+                            "texture": {
+                                "key": "exitIcon"
+                            },
+                            "scaleX": 0.75,
+                            "scaleY": 0.75
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    },
+    "prefabProperties": [
+        {
+            "name": "target",
+            "label": "Target",
+            "tooltip": "",
+            "defValue": "",
+            "customDefinition": false,
+            "type": {
+                "id": "object-var",
+                "expressionType": "Phaser.GameObjects.GameObject"
+            }
+        },
+        {
+            "name": "icon",
+            "label": "Icon",
+            "tooltip": "",
+            "defValue": "{\"key\":\"exitIcon\"}",
+            "customDefinition": false,
+            "type": {
+                "id": "texture-config"
+            }
+        }
+    ]
+}

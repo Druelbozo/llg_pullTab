@@ -1,0 +1,60 @@
+{
+    "id": "f5ea3016-b01a-459d-9eb4-72d947ea4675",
+    "sceneType": "PREFAB",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "importFileExtension": true,
+        "preloadMethodName": "",
+        "preloadPackFiles": [],
+        "createMethodName": "",
+        "borderWidth": 1170,
+        "borderHeight": 2532
+    },
+    "displayList": [
+        {
+            "type": "Container",
+            "id": "2e3e68c7-a7a7-4c17-8849-6a6c2a820b2b",
+            "label": "container_1"
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    },
+    "prefabProperties": [
+        {
+            "name": "masterVolume",
+            "label": "MasterVolume",
+            "tooltip": "",
+            "defValue": 0.5,
+            "customDefinition": false,
+            "type": {
+                "id": "number"
+            }
+        },
+        {
+            "name": "musicVolume",
+            "label": "MusicVolume",
+            "tooltip": "",
+            "defValue": 0.5,
+            "customDefinition": false,
+            "type": {
+                "id": "number"
+            }
+        },
+        {
+            "name": "sfxVolume",
+            "label": "SFXVolume",
+            "tooltip": "",
+            "defValue": 0.5,
+            "customDefinition": false,
+            "type": {
+                "id": "number"
+            }
+        }
+    ]
+}

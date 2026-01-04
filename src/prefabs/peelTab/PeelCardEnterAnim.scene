@@ -1,0 +1,67 @@
+{
+    "id": "e9dc7cf7-6836-49d8-a864-3d39cb2a9ad9",
+    "sceneType": "PREFAB",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "importFileExtension": true,
+        "preloadMethodName": "",
+        "preloadPackFiles": [],
+        "createMethodName": "",
+        "borderWidth": 1080,
+        "borderHeight": 1920
+    },
+    "displayList": [
+        {
+            "type": "Container",
+            "id": "6862dd87-51cb-4c70-b252-d9240e900fb5",
+            "label": "container_1",
+            "list": [
+                {
+                    "type": "NineSlice",
+                    "id": "78f4676c-63e3-4048-af57-f5f26f30d16d",
+                    "label": "cardBack",
+                    "texture": {
+                        "key": "CardBack"
+                    },
+                    "width": 1000,
+                    "height": 650
+                },
+                {
+                    "type": "Image",
+                    "id": "5724822e-1b91-4e3a-bcdc-6d9cfdae5ea4",
+                    "label": "dI_CardCover_Default",
+                    "texture": {
+                        "key": "DI_CardCover_Default"
+                    },
+                    "x": -80,
+                    "y": -300,
+                    "originX": 1,
+                    "originY": 0
+                },
+                {
+                    "type": "Container",
+                    "id": "fd127b68-399a-4da0-8ffa-185873bbd5a5",
+                    "label": "prizeContainer",
+                    "scope": "CLASS",
+                    "y": -300
+                },
+                {
+                    "type": "Container",
+                    "id": "966a07ee-3bd4-4ef5-b2e4-81a07a2d1523",
+                    "label": "peelContainer",
+                    "scope": "CLASS",
+                    "x": 80,
+                    "y": -300
+                }
+            ]
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}

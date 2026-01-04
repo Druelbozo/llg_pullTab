@@ -1,0 +1,79 @@
+{
+    "id": "581d32b7-2720-4863-bd90-60b0e86df0de",
+    "sceneType": "PREFAB",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "importFileExtension": true,
+        "preloadMethodName": "",
+        "preloadPackFiles": [],
+        "createMethodName": "",
+        "borderWidth": 1080,
+        "borderHeight": 1920
+    },
+    "displayList": [
+        {
+            "prefabId": "88ae86c5-6c67-4c52-95af-5fa1dd086d06",
+            "id": "813dd15f-1b40-446b-8c98-824ca7a45ad9",
+            "unlock": [
+                "x",
+                "y",
+                "allowAppendChildren"
+            ],
+            "label": "button",
+            "x": 0,
+            "y": 0,
+            "allowAppendChildren": true,
+            "list": [
+                {
+                    "type": "Container",
+                    "id": "2a88505f-e1e7-4596-abce-6eb873afdfb2",
+                    "label": "visualContainer",
+                    "scope": "CLASS",
+                    "list": [
+                        {
+                            "type": "NineSlice",
+                            "id": "b288d28d-9100-4468-979d-21e619566015",
+                            "label": "btn_Main",
+                            "texture": {
+                                "key": "Btn_Main"
+                            },
+                            "tint": "#ff1515",
+                            "leftWidth": 39,
+                            "rightWidth": 37,
+                            "topHeight": 34,
+                            "bottomHeight": 36,
+                            "width": 150,
+                            "height": 150
+                        },
+                        {
+                            "prefabId": "0408176d-cee7-4226-ab81-2cc48ffffbb1",
+                            "id": "8b346f22-1db0-483d-89c4-7d6ed8df7c9d",
+                            "unlock": [
+                                "x",
+                                "y",
+                                "textSize",
+                                "textValue",
+                                "textType"
+                            ],
+                            "label": "text",
+                            "scope": "CLASS",
+                            "textValue": "1x",
+                            "textSize": 100,
+                            "textType": "DOM",
+                            "x": 0,
+                            "y": 0
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}

@@ -1,0 +1,72 @@
+{
+    "id": "21c823c2-7e8b-42a3-b012-3e6ada8214d6",
+    "sceneType": "PREFAB",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "importFileExtension": true,
+        "preloadMethodName": "",
+        "preloadPackFiles": [],
+        "createMethodName": "",
+        "borderWidth": 1080,
+        "borderHeight": 1920
+    },
+    "displayList": [
+        {
+            "prefabId": "88ae86c5-6c67-4c52-95af-5fa1dd086d06",
+            "id": "a11fea83-48b3-41da-9968-f36b6e2aa0a0",
+            "unlock": [
+                "x",
+                "y",
+                "allowAppendChildren"
+            ],
+            "label": "button",
+            "x": 0,
+            "y": 0,
+            "allowAppendChildren": true,
+            "list": [
+                {
+                    "type": "Container",
+                    "id": "909a8ba2-ee18-4c29-b03a-f08a55b64847",
+                    "label": "visualContainer",
+                    "scope": "CLASS",
+                    "list": [
+                        {
+                            "type": "NineSlice",
+                            "id": "7d6526bd-56a8-4a0c-890e-ad5f8d05403f",
+                            "label": "btn_Main",
+                            "texture": {
+                                "key": "Btn_Main"
+                            },
+                            "tint": "#ff1515",
+                            "leftWidth": 39,
+                            "rightWidth": 37,
+                            "topHeight": 34,
+                            "bottomHeight": 36,
+                            "width": 150,
+                            "height": 150
+                        },
+                        {
+                            "type": "Image",
+                            "id": "5ba42830-aba5-49c6-959e-b4ebac398a33",
+                            "label": "icon",
+                            "scope": "CLASS",
+                            "texture": {
+                                "key": "icon_sound_on_128"
+                            },
+                            "scaleX": 0.75,
+                            "scaleY": 0.75
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}

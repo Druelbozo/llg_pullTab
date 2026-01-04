@@ -1,0 +1,68 @@
+{
+    "id": "959d638e-478d-449d-859a-6dfc5cb9288e",
+    "sceneType": "PREFAB",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "importFileExtension": true,
+        "preloadMethodName": "",
+        "preloadPackFiles": [],
+        "createMethodName": "",
+        "borderWidth": 1170,
+        "borderHeight": 2532
+    },
+    "displayList": [
+        {
+            "type": "ScriptNode",
+            "id": "c7403b39-9d83-4928-bed3-cea260a734c5",
+            "label": "scriptnode_1"
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    },
+    "prefabProperties": [
+        {
+            "name": "property",
+            "label": "Property",
+            "tooltip": "",
+            "defValue": "button",
+            "customDefinition": false,
+            "type": {
+                "id": "option",
+                "options": [
+                    "button"
+                ]
+            }
+        },
+        {
+            "name": "onStart",
+            "label": "onStart",
+            "tooltip": "",
+            "defValue": false,
+            "customDefinition": false,
+            "type": {
+                "id": "boolean"
+            }
+        },
+        {
+            "name": "objectType",
+            "label": "ObjectType",
+            "tooltip": "",
+            "defValue": "Image",
+            "customDefinition": false,
+            "type": {
+                "id": "option",
+                "options": [
+                    "Image",
+                    "Text",
+                    "Shape"
+                ]
+            }
+        }
+    ]
+}

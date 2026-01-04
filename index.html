@@ -1,0 +1,82 @@
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=cover">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+	<link rel="icon" type="image/x-icon" href="favicon.ico">
+	
+	<title>My Game</title>
+	<script>
+		// Set dynamic page title based on config parameter
+		(function() {
+			function formatConfigTitle(configName) {
+				if (!configName) return 'My Game';
+				
+				// Split by dashes and underscores, then filter out empty strings
+				const words = configName.split(/[-_]/).filter(w => w.length > 0);
+				
+				// Words that should remain lowercase unless they're the first word
+				const lowercaseWords = ['or', 'the'];
+				
+				// Capitalize first letter of each word, except for lowercase words (unless first)
+				const formattedWords = words.map((word, index) => {
+					const lowerWord = word.toLowerCase();
+					if (index > 0 && lowercaseWords.includes(lowerWord)) {
+						return lowerWord;
+					}
+					return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+				});
+				
+				return formattedWords.join(' ');
+			}
+			
+			function getConfigName() {
+				try {
+					// Read from current window, then parent/top (Phaser Editor external runner may iframe the game)
+					const readParam = (win) => {
+						try {
+							return new URLSearchParams(win.location.search).get('config');
+						} catch (_) { return null; }
+					};
+					
+					const fromQuery = readParam(window) || readParam(window.parent) || readParam(window.top);
+					return fromQuery || 'ducky-luck-scratch-poker'; // Default fallback
+				} catch (_) {
+					return 'ducky-luck-scratch-poker'; // Default fallback
+				}
+			}
+			
+			const configName = getConfigName();
+			const title = formatConfigTitle(configName);
+			document.title = title;
+		})();
+	</script>
+
+    <script src="https://cdn.jsdelivr.net/npm/phaser@v3.88.2/dist/phaser.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
+	<script src="src/main.js" type="module"></script>
+
+<body>
+  <div id="game-container"></div>
+</body>
+
+	<style>
+		body {
+			background: #2f2f2f;
+			margin: 0;
+			padding: 0;
+		}
+	</style>
+
+</head>
+
+<body>
+</body>
+
+</html>
+
+
+
+

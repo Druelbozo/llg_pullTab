@@ -1,0 +1,94 @@
+{
+  "fontLoader": {
+    "fonts":
+    [
+      "Titan One",
+      "New Amsterdam"
+    ]
+  },
+  "gameOptions": {
+    "testValue": 3
+  },
+  "themeColors": {
+    "buttonColor": "#0",
+    "textMainColor": "#0",
+    "textSubColor": "#0"
+  },
+  "text":
+  {
+    "mainText": {
+      "fontFamily": "New Amsterdam",
+      "fontSize": 80,
+      "color": "#fe7a00",
+      "strokeColor": "#f6f4eb",
+      "strokeThickness": 15,
+      "content": "",
+      "offset":
+      {
+        "x": 0,
+        "y": 0
+      }
+    }
+  },
+  "images": {
+    "Peel": {
+      "type": "image",
+      "key": "Peel",
+      "imageKey": "DI_ImageName_CrazyBanana",
+      "description": "Peel that is removed"
+    },
+    "PeelBack": {
+      "type": "image",
+      "key": "PeelBack",
+      "imageKey": "DI_ImageName_Default",
+      "description": "Revealed after peel is removed"
+    },
+    "CardCover": {
+      "type": "image",
+      "key": "CardCover",
+      "imageKey": "DI_CardCover_CrazyBanana",
+      "description": "Visual Card cover"
+    },
+    "Icons": {
+      "type": "image",
+      "key": "Icons",
+      "imageKey": "DI_Icons_CrazyBanana",
+      "description": "Icons Under Peel",
+      "imageWidth": 100,
+      "imageHeight": 100
+    },
+    "Background": {
+      "type": "image",
+      "key": "Background",
+      "imageKey": "DI_Background_CrazyBanana",
+      "description": "Background"
+    },
+    "WinImage": {
+      "type": "image",
+      "key": "WinImage",
+      "imageKey": "DI_WinImage_Default",
+      "description": "Win Image"
+    },
+    "LoseImage": {
+      "type": "image",
+      "key": "LoseImage",
+      "imageKey": "DI_LoseImage_Default",
+      "description": "Lose Image"
+    }          
+  },
+  "videos":
+  {
+    "WinVideo": {
+      "type": "video",
+      "key": "WinVideo",
+      "imageKey": "DI_WinVideo_CrazyBanana",
+      "description": "Background"
+    },
+    "LoseVideo": {
+      "type": "video",
+      "key": "LoseVideo",
+      "imageKey": "DI_LoseVideo_CrazyBanana",
+      "description": "Background"
+    }      
+  }
+}

@@ -1,0 +1,84 @@
+{
+    "id": "a3707501-e93b-4da9-827a-9329976a6097",
+    "sceneType": "PREFAB",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "importFileExtension": true,
+        "preloadMethodName": "",
+        "preloadPackFiles": [],
+        "createMethodName": "",
+        "borderWidth": 700,
+        "borderHeight": 1280
+    },
+    "displayList": [
+        {
+            "type": "ScriptNode",
+            "id": "22ac85b9-21f0-49a8-b92f-b3e9176cfd15",
+            "label": "scriptnode_1"
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    },
+    "prefabProperties": [
+        {
+            "name": "audio",
+            "label": "Audio",
+            "tooltip": "",
+            "defValue": "Afro Beats Riddim Main",
+            "customDefinition": false,
+            "type": {
+                "id": "audio-key"
+            }
+        },
+        {
+            "name": "loop",
+            "label": "Loop",
+            "tooltip": "",
+            "defValue": false,
+            "customDefinition": false,
+            "type": {
+                "id": "boolean"
+            }
+        },
+        {
+            "name": "channel",
+            "label": "Channel",
+            "tooltip": "",
+            "defValue": "sfx",
+            "customDefinition": false,
+            "type": {
+                "id": "option",
+                "options": [
+                    "music",
+                    "sfx"
+                ]
+            }
+        },
+        {
+            "name": "playOnAwake",
+            "label": "PlayOnAwake",
+            "tooltip": "",
+            "defValue": false,
+            "customDefinition": false,
+            "type": {
+                "id": "boolean"
+            }
+        },
+        {
+            "name": "fadeIn",
+            "label": "FadeIn",
+            "tooltip": "",
+            "defValue": false,
+            "customDefinition": false,
+            "type": {
+                "id": "boolean"
+            }
+        }
+    ]
+}

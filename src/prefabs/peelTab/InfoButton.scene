@@ -1,0 +1,72 @@
+{
+    "id": "bb7a3af0-164d-4765-84f3-9b92bf004ac7",
+    "sceneType": "PREFAB",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "importFileExtension": true,
+        "preloadMethodName": "",
+        "preloadPackFiles": [],
+        "createMethodName": "",
+        "borderWidth": 1080,
+        "borderHeight": 1920
+    },
+    "displayList": [
+        {
+            "prefabId": "88ae86c5-6c67-4c52-95af-5fa1dd086d06",
+            "id": "c6e0b1f7-d177-445f-8d9a-b2cbc79aa4c7",
+            "unlock": [
+                "x",
+                "y",
+                "allowAppendChildren"
+            ],
+            "label": "button",
+            "x": 0,
+            "y": 0,
+            "allowAppendChildren": true,
+            "list": [
+                {
+                    "type": "Container",
+                    "id": "c33c83e7-a60f-45b1-a003-dc6e885a9aa6",
+                    "label": "visualContainer",
+                    "scope": "CLASS",
+                    "list": [
+                        {
+                            "type": "NineSlice",
+                            "id": "cb5ed370-25de-4e21-bfd8-e4d1e9be671f",
+                            "label": "btn_Main",
+                            "texture": {
+                                "key": "Btn_Main"
+                            },
+                            "tint": "#ff1515",
+                            "leftWidth": 39,
+                            "rightWidth": 37,
+                            "topHeight": 34,
+                            "bottomHeight": 36,
+                            "width": 150,
+                            "height": 150
+                        },
+                        {
+                            "type": "Image",
+                            "id": "ffac7bf4-9107-4f31-9952-577da410fa98",
+                            "label": "autoPlay",
+                            "scope": "CLASS",
+                            "texture": {
+                                "key": "Hud_InfoButton"
+                            },
+                            "scaleX": 0.75,
+                            "scaleY": 0.75
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}

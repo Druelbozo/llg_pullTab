@@ -1,0 +1,159 @@
+{
+    "id": "01aefa93-6044-4159-8358-7e91310aa05f",
+    "sceneType": "SCENE",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "importFileExtension": true,
+        "preloadPackFiles": [],
+        "createMethodName": "editorCreate",
+        "sceneKey": "Level",
+        "borderWidth": 1080,
+        "borderHeight": 1920
+    },
+    "displayList": [
+        {
+            "type": "Container",
+            "id": "2b41a385-2745-474d-bf66-9a94211a9139",
+            "label": "bg_Container_1",
+            "x": 540,
+            "y": 960,
+            "list": [
+                {
+                    "type": "TileSprite",
+                    "id": "9e6a6ac8-4cf5-457a-adb9-4d9b3ccf3ce1",
+                    "label": "dI_Background_banana_1",
+                    "texture": {
+                        "key": "DI_Background_banana"
+                    },
+                    "scaleX": 2,
+                    "scaleY": 2,
+                    "width": 1920,
+                    "height": 1080
+                },
+                {
+                    "prefabId": "5967fa3c-02aa-4048-9aeb-55243d2ffc72",
+                    "id": "9a38d869-332e-4e2b-8471-8a3177347253",
+                    "label": "screenAnchor_2"
+                }
+            ]
+        },
+        {
+            "prefabId": "d91725a2-c3c1-4f8b-a15b-55c9678a51e9",
+            "id": "62ac9550-e89d-4a68-aa8c-482ded619302",
+            "unlock": [
+                "x",
+                "y"
+            ],
+            "label": "peelCard",
+            "x": 540,
+            "y": 869,
+            "list": [
+                {
+                    "prefabId": "5967fa3c-02aa-4048-9aeb-55243d2ffc72",
+                    "id": "43771a4c-b9ae-4959-a492-e96d9e911642",
+                    "unlock": [
+                        "match",
+                        "maxScale",
+                        "minScale",
+                        "debug",
+                        "scale"
+                    ],
+                    "label": "screenAnchor_1",
+                    "scale": false,
+                    "match": 0.35,
+                    "debug": true,
+                    "maxScale": 1.25,
+                    "minScale": 0.01
+                },
+                {
+                    "prefabId": "698218a9-1f36-4d2c-96f8-a739cd082d8a",
+                    "id": "74470f59-f944-4234-a598-a6bc2a3fed67",
+                    "unlock": [
+                        "yPadding"
+                    ],
+                    "label": "screenFit",
+                    "yPadding": 100
+                }
+            ]
+        },
+        {
+            "prefabId": "c3aeb557-aa9c-4e40-9230-3c91db37d2d0",
+            "id": "611b0862-42b9-4aed-871a-1828519b0150",
+            "unlock": [
+                "x",
+                "y"
+            ],
+            "label": "peelManager",
+            "scope": "CLASS",
+            "x": 1745,
+            "y": 1079
+        },
+        {
+            "prefabId": "f5ea3016-b01a-459d-9eb4-72d947ea4675",
+            "id": "daad26f1-19cc-481f-9a13-7429fa59acad",
+            "unlock": [
+                "x",
+                "y"
+            ],
+            "label": "musicManager",
+            "scope": "CLASS",
+            "x": 0,
+            "y": 0
+        },
+        {
+            "prefabId": "af344b25-e35f-43a0-9b59-0e9bb5365062",
+            "id": "af7a3849-2296-454e-9c15-b563d5f0e85d",
+            "unlock": [
+                "x",
+                "y"
+            ],
+            "label": "stateManager",
+            "scope": "CLASS",
+            "x": 0,
+            "y": 0
+        },
+        {
+            "prefabId": "ff939401-cd86-484f-8821-2fdb485b744e",
+            "id": "ff5a6d0f-efb0-4467-ae2d-2fa40d006df0",
+            "unlock": [
+                "x",
+                "y"
+            ],
+            "label": "peelTabUI",
+            "x": 0,
+            "y": 0
+        },
+        {
+            "prefabId": "7bda545c-992d-4235-b142-ed7d5dc10559",
+            "id": "882d20af-5012-462f-8ea7-053676f21f90",
+            "unlock": [
+                "x",
+                "y"
+            ],
+            "label": "serverManager",
+            "scope": "CLASS",
+            "x": 0,
+            "y": 0
+        },
+        {
+            "prefabId": "d3db175e-6a2d-43d0-9e9f-d8a7b6108d27",
+            "id": "8809c9c9-03a2-49cd-ac12-b05e4dc35191",
+            "unlock": [
+                "x",
+                "y"
+            ],
+            "label": "themeManager",
+            "scope": "CLASS",
+            "x": 540,
+            "y": 960
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}

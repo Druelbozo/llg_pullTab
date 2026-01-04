@@ -1,0 +1,70 @@
+{
+    "id": "7e57dc4b-3f41-476b-8431-f03ca75083fd",
+    "sceneType": "PREFAB",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "importFileExtension": true,
+        "preloadMethodName": "",
+        "preloadPackFiles": [],
+        "createMethodName": "",
+        "borderWidth": 1280,
+        "borderHeight": 720
+    },
+    "displayList": [
+        {
+            "type": "ScriptNode",
+            "id": "e7939e1f-f0b9-41f4-bfb0-ab7b89a2391d",
+            "label": "scriptnode_1"
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    },
+    "prefabProperties": [
+        {
+            "name": "eventName",
+            "label": "Event Name",
+            "tooltip": "Event name",
+            "defValue": "",
+            "customDefinition": false,
+            "type": {
+                "id": "event"
+            }
+        },
+        {
+            "name": "eventEmitter",
+            "label": "Event Emitter",
+            "tooltip": "The events emitter to register on.",
+            "defValue": "gameObject",
+            "customDefinition": false,
+            "type": {
+                "id": "option",
+                "options": [
+                    "game.events",
+                    "scene.events",
+                    "scene.loader",
+                    "scene.input",
+                    "scene.input.keyboard",
+                    "scene.anims",
+                    "scene.physics.world",
+                    "gameObject"
+                ]
+            }
+        },
+        {
+            "name": "once",
+            "label": "Once",
+            "tooltip": "Listens once?",
+            "defValue": false,
+            "customDefinition": false,
+            "type": {
+                "id": "boolean"
+            }
+        }
+    ]
+}

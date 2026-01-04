@@ -1,0 +1,138 @@
+{
+    "id": "d91725a2-c3c1-4f8b-a15b-55c9678a51e9",
+    "sceneType": "PREFAB",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "importFileExtension": true,
+        "preloadMethodName": "",
+        "preloadPackFiles": [],
+        "createMethodName": "",
+        "borderWidth": 1080,
+        "borderHeight": 1920
+    },
+    "displayList": [
+        {
+            "type": "Container",
+            "id": "30ab3262-2ca6-4c04-963b-0ee5db157574",
+            "label": "container_1",
+            "list": [
+                {
+                    "type": "Container",
+                    "id": "fccb5229-a982-4c1c-ba07-e1ef8e82eeaf",
+                    "label": "gameContainer",
+                    "scope": "CLASS",
+                    "list": [
+                        {
+                            "type": "NineSlice",
+                            "id": "10754c50-27af-48b9-a7c6-21f2800a77e3",
+                            "label": "cardBack",
+                            "texture": {
+                                "key": "CardBack"
+                            },
+                            "width": 1000,
+                            "height": 650
+                        },
+                        {
+                            "type": "Container",
+                            "id": "f33bfac3-4d4b-4d6d-a066-948cbe907927",
+                            "label": "prizeContainer",
+                            "scope": "CLASS",
+                            "y": -300
+                        },
+                        {
+                            "type": "Container",
+                            "id": "be9a9dbe-aa7b-4c9d-8f3f-cbe8a9f5bf78",
+                            "label": "peelContainer",
+                            "scope": "CLASS",
+                            "x": 80,
+                            "y": -300
+                        },
+                        {
+                            "type": "Image",
+                            "id": "765cd651-a78c-44dd-92c5-ce63f842e1f4",
+                            "label": "dI_CardCover_Default",
+                            "texture": {
+                                "key": "DI_CardCover_Default"
+                            },
+                            "x": -80,
+                            "y": -300,
+                            "originX": 1,
+                            "originY": 0
+                        },
+                        {
+                            "type": "Video",
+                            "id": "74dbb472-6735-405a-a2af-d7fec8caf220",
+                            "label": "win_Video",
+                            "scope": "CLASS",
+                            "x": -80,
+                            "y": -300,
+                            "originX": 1,
+                            "originY": 0,
+                            "videoKey": "DV_WinVideo_Default",
+                            "videoAutoPlay": false,
+                            "videoLoop": false
+                        },
+                        {
+                            "type": "Video",
+                            "id": "4600b4db-57fa-47c4-be64-4e0895937411",
+                            "label": "lose_Video",
+                            "scope": "CLASS",
+                            "x": -80,
+                            "y": -300,
+                            "originX": 1,
+                            "originY": 0,
+                            "videoKey": "DV_LoseVideo_Default",
+                            "videoAutoPlay": false,
+                            "videoLoop": false
+                        },
+                        {
+                            "prefabId": "551a8cff-5f67-4624-83f5-5b0f83d34196",
+                            "id": "f59ed578-21e1-41fe-9441-63cbb534b598",
+                            "unlock": [
+                                "x",
+                                "y"
+                            ],
+                            "label": "MessageText",
+                            "scope": "CLASS",
+                            "x": 0,
+                            "y": -381
+                        },
+                        {
+                            "prefabId": "c1eb586e-d9a1-4a56-bacf-76b095a64b3c",
+                            "id": "829f7044-3ce6-4751-95b4-baf4a64785d5",
+                            "unlock": [
+                                "x",
+                                "y"
+                            ],
+                            "label": "prefab_Results",
+                            "x": 0,
+                            "y": -344
+                        }
+                    ]
+                },
+                {
+                    "prefabId": "e9dc7cf7-6836-49d8-a864-3d39cb2a9ad9",
+                    "id": "878e3997-f84d-45bf-ac67-8fab943492c4",
+                    "unlock": [
+                        "x",
+                        "y",
+                        "visible"
+                    ],
+                    "label": "peelCardEnterAnim",
+                    "scope": "CLASS",
+                    "x": 0,
+                    "y": 0,
+                    "visible": false
+                }
+            ]
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}

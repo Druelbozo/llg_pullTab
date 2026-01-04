@@ -1,0 +1,223 @@
+{
+    "id": "6f01f190-8921-405c-abc5-97b2edea5d04",
+    "sceneType": "PREFAB",
+    "settings": {
+        "snapWidth": 45,
+        "snapHeight": 100,
+        "exportClass": true,
+        "autoImport": true,
+        "importFileExtension": true,
+        "preloadMethodName": "",
+        "preloadPackFiles": [],
+        "createMethodName": "",
+        "borderWidth": 700,
+        "borderHeight": 1280
+    },
+    "displayList": [
+        {
+            "type": "Container",
+            "id": "a0753e8a-12f5-49cd-959a-1f8df6eeada0",
+            "label": "container_1",
+            "list": [
+                {
+                    "type": "Image",
+                    "id": "812a545d-7704-4ef2-ac8e-9b1b3940d2cd",
+                    "label": "uI_CounterPanel",
+                    "texture": {
+                        "key": "UI_CounterPanel"
+                    }
+                },
+                {
+                    "type": "NineSlice",
+                    "id": "ba14ddc6-d070-43ba-a81f-441ab7c3bb8d",
+                    "label": "nineslice_1",
+                    "texture": {
+                        "key": "Btn_OtherButton_Square08"
+                    },
+                    "x": -80,
+                    "y": 32,
+                    "alpha": 0.5,
+                    "tint": "#000000",
+                    "width": 350,
+                    "height": 80
+                },
+                {
+                    "type": "Container",
+                    "id": "2f464b3e-e537-45f7-bbfb-5f2a3f7aae1d",
+                    "label": "NumberContainer",
+                    "list": [
+                        {
+                            "prefabId": "0408176d-cee7-4226-ab81-2cc48ffffbb1",
+                            "id": "a54a2aa8-3d0b-4034-8691-a824837d5d53",
+                            "unlock": [
+                                "x",
+                                "y",
+                                "text",
+                                "fontSize",
+                                "textSize",
+                                "alignment",
+                                "textType"
+                            ],
+                            "label": "valueText",
+                            "scope": "CLASS",
+                            "textSize": 62,
+                            "alignment": "left",
+                            "textType": "DOM",
+                            "x": -245,
+                            "y": 31
+                        },
+                        {
+                            "prefabId": "0408176d-cee7-4226-ab81-2cc48ffffbb1",
+                            "id": "03ef0819-7fb5-463a-a871-88624b7ba9f4",
+                            "unlock": [
+                                "x",
+                                "y",
+                                "text",
+                                "fontSize",
+                                "textSize",
+                                "textValue",
+                                "alignment",
+                                "textType"
+                            ],
+                            "label": "titleText",
+                            "scope": "CLASS",
+                            "textValue": "BET AMOUNT",
+                            "textSize": 42,
+                            "alignment": "left",
+                            "textType": "DOM",
+                            "x": -245,
+                            "y": -49
+                        }
+                    ]
+                },
+                {
+                    "type": "Container",
+                    "id": "f3beb32c-cfc8-4bdb-bc48-daa822af2010",
+                    "label": "Up",
+                    "scope": "CLASS",
+                    "hitArea.shape": "RECTANGLE",
+                    "hitArea.x": -44,
+                    "hitArea.y": -20,
+                    "hitArea.width": 87.91161194283583,
+                    "hitArea.height": 39.648444567914524,
+                    "x": 200,
+                    "y": -45,
+                    "list": [
+                        {
+                            "type": "Image",
+                            "id": "b822ef80-c277-4e84-aea8-f9f254edebeb",
+                            "label": "uI_Arrow",
+                            "texture": {
+                                "key": "UI_Arrow"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "Container",
+                    "id": "8de2650d-093b-4646-8ce7-280c4aff705d",
+                    "label": "Down",
+                    "scope": "CLASS",
+                    "hitArea.shape": "RECTANGLE",
+                    "hitArea.x": -43,
+                    "hitArea.y": -16,
+                    "hitArea.width": 86.44286005464967,
+                    "hitArea.height": 40.17737915724459,
+                    "x": 200,
+                    "y": 45,
+                    "list": [
+                        {
+                            "type": "Image",
+                            "id": "25c48eaa-c323-4700-b575-80db8f7835bb",
+                            "label": "uI_Arrow_1",
+                            "texture": {
+                                "key": "UI_Arrow"
+                            },
+                            "y": 3,
+                            "angle": -180
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    },
+    "prefabProperties": [
+        {
+            "name": "valueId",
+            "label": "ValueId",
+            "tooltip": "",
+            "defValue": "",
+            "customDefinition": false,
+            "type": {
+                "id": "string"
+            }
+        },
+        {
+            "name": "title",
+            "label": "Title",
+            "tooltip": "",
+            "defValue": "hi",
+            "customDefinition": false,
+            "type": {
+                "id": "string"
+            }
+        },
+        {
+            "name": "icon",
+            "label": "icon",
+            "tooltip": "",
+            "defValue": "",
+            "customDefinition": false,
+            "type": {
+                "id": "texture-config"
+            }
+        },
+        {
+            "name": "displayAsCurrency",
+            "label": "DisplayAsCurrency",
+            "tooltip": "",
+            "defValue": false,
+            "customDefinition": false,
+            "type": {
+                "id": "boolean"
+            }
+        },
+        {
+            "name": "useArrowButtons",
+            "label": "UseArrowButtons",
+            "tooltip": "",
+            "defValue": false,
+            "customDefinition": false,
+            "type": {
+                "id": "boolean"
+            }
+        },
+        {
+            "name": "prefix",
+            "label": "Prefix",
+            "tooltip": "",
+            "defValue": "",
+            "customDefinition": false,
+            "type": {
+                "id": "string"
+            }
+        },
+        {
+            "name": "activeState",
+            "label": "ActiveState",
+            "tooltip": "",
+            "defValue": "Idle",
+            "customDefinition": false,
+            "type": {
+                "id": "string"
+            }
+        }
+    ]
+}

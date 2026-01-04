@@ -1,0 +1,77 @@
+{
+    "id": "c1eb586e-d9a1-4a56-bacf-76b095a64b3c",
+    "sceneType": "PREFAB",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "importFileExtension": true,
+        "preloadMethodName": "",
+        "preloadPackFiles": [],
+        "createMethodName": "",
+        "borderWidth": 1170,
+        "borderHeight": 2532
+    },
+    "displayList": [
+        {
+            "type": "Container",
+            "id": "50e659e8-91e8-45d0-b5e4-742fc0474eee",
+            "label": "container_2",
+            "list": [
+                {
+                    "type": "Container",
+                    "id": "6e98e59c-14b5-41ff-a9e7-78aac4c32a1c",
+                    "label": "animContainer",
+                    "scope": "CLASS",
+                    "list": [
+                        {
+                            "type": "Image",
+                            "id": "ea0a66f7-ec33-4c58-82a9-f3962b26721d",
+                            "label": "winImage",
+                            "scope": "CLASS",
+                            "texture": {
+                                "key": "DI_Win_Default"
+                            },
+                            "visible": false
+                        },
+                        {
+                            "type": "Image",
+                            "id": "f356b392-0595-4018-93b6-1fba4264236a",
+                            "label": "loseImage",
+                            "scope": "CLASS",
+                            "texture": {
+                                "key": "DI_Lose_Default"
+                            },
+                            "visible": false
+                        },
+                        {
+                            "type": "Text",
+                            "id": "9a7f99d7-247f-4b8d-92fa-5da54becc198",
+                            "label": "winningsText",
+                            "scope": "CLASS",
+                            "y": 131,
+                            "originX": 0.5,
+                            "originY": 0.5,
+                            "visible": false,
+                            "text": "$999.99",
+                            "fontFamily": "New Amsterdam",
+                            "fontSize": "94px",
+                            "color": "#fe7a00ff",
+                            "stroke": "#f6f4ebff",
+                            "strokeThickness": 15,
+                            "shadow.offsetY": 6,
+                            "shadow.stroke": true,
+                            "shadow.color": "#00000066"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}

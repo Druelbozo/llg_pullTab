@@ -1,0 +1,126 @@
+{
+    "id": "15462562-2282-41fd-a5ad-ec4e568c0e18",
+    "sceneType": "PREFAB",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "importFileExtension": true,
+        "preloadMethodName": "",
+        "preloadPackFiles": [],
+        "createMethodName": "",
+        "borderWidth": 1080,
+        "borderHeight": 1920
+    },
+    "displayList": [
+        {
+            "type": "Container",
+            "id": "3a622822-5bfd-4330-8d56-b6686c542c82",
+            "label": "container_1",
+            "list": [
+                {
+                    "type": "Image",
+                    "id": "66e13c86-c5b8-4487-a1cf-baa31d59ba6a",
+                    "label": "back",
+                    "scope": "CLASS",
+                    "hitArea.shape": "RECTANGLE",
+                    "hitArea.width": 300,
+                    "hitArea.height": 100,
+                    "texture": {
+                        "key": "DI_PeelBack_Default"
+                    },
+                    "originX": 0,
+                    "originY": 0
+                },
+                {
+                    "prefabId": "0b46b14a-a6a8-401b-bce6-8714059e2127",
+                    "id": "e620bbbb-1fbb-4d0e-b665-25e03a537490",
+                    "unlock": [
+                        "x",
+                        "y"
+                    ],
+                    "label": "peelIcons",
+                    "scope": "CLASS",
+                    "x": 0,
+                    "y": 0
+                },
+                {
+                    "type": "Image",
+                    "id": "3bc8568c-7f6a-4b66-82dc-a275af6ebf4d",
+                    "label": "front",
+                    "scope": "CLASS",
+                    "texture": {
+                        "key": "DI_Peel_Default"
+                    },
+                    "originX": 0,
+                    "originY": 0
+                },
+                {
+                    "type": "Image",
+                    "id": "6a61f9d2-4941-4b3f-87ac-7f484f7bc6cd",
+                    "label": "peel",
+                    "scope": "CLASS",
+                    "texture": {
+                        "key": "DI_Peel_Default"
+                    },
+                    "originX": 1,
+                    "originY": 0,
+                    "flipX": true,
+                    "tintTopLeft": "#dcdcdc",
+                    "tintTopRight": "#dcdcdc",
+                    "tintBottomLeft": "#9f9f9f",
+                    "tintBottomRight": "#9f9f9f"
+                },
+                {
+                    "type": "Image",
+                    "id": "638e62a0-cc7f-4b66-aa27-615ba0fe7920",
+                    "label": "peelMask",
+                    "scope": "CLASS",
+                    "texture": {
+                        "key": "DI_Peel_Default"
+                    },
+                    "originX": 1,
+                    "originY": 0,
+                    "flipX": true,
+                    "tintTopLeft": "#9b9b9b",
+                    "tintTopRight": "#9b9b9b",
+                    "tintBottomLeft": "#9b9b9b",
+                    "tintBottomRight": "#9b9b9b"
+                },
+                {
+                    "type": "Image",
+                    "id": "419c2fec-755b-48c1-8f3a-22f8028117cf",
+                    "label": "shade",
+                    "scope": "CLASS",
+                    "texture": {
+                        "key": "alpha_mask"
+                    },
+                    "scaleX": 15,
+                    "originY": 0,
+                    "alpha": 0.25,
+                    "alphaTopLeft": 0.25,
+                    "alphaTopRight": 0.25,
+                    "alphaBottomLeft": 0.25,
+                    "alphaBottomRight": 0.25
+                },
+                {
+                    "type": "Rectangle",
+                    "id": "5f6bfb4a-cbd1-41ac-9b83-f5e3bb1563ac",
+                    "label": "maskZone",
+                    "scope": "CLASS",
+                    "originY": 0,
+                    "alpha": 0.2,
+                    "isFilled": true,
+                    "width": 1000,
+                    "height": 1000
+                }
+            ]
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}

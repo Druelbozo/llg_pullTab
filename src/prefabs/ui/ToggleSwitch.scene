@@ -1,0 +1,132 @@
+{
+    "id": "e49ef314-60e4-4c29-a590-ad2cd1825719",
+    "sceneType": "PREFAB",
+    "settings": {
+        "snapWidth": 200,
+        "snapHeight": 95,
+        "exportClass": true,
+        "autoImport": true,
+        "importFileExtension": true,
+        "preloadMethodName": "",
+        "preloadPackFiles": [],
+        "createMethodName": "",
+        "borderWidth": 1170,
+        "borderHeight": 2532
+    },
+    "displayList": [
+        {
+            "type": "Container",
+            "id": "c30852b2-b11d-4d7c-a027-67c9cb18104c",
+            "label": "container_1",
+            "hitArea.shape": "RECTANGLE",
+            "hitArea.x": -278.5,
+            "hitArea.y": -98,
+            "hitArea.width": 557,
+            "hitArea.height": 196,
+            "list": [
+                {
+                    "type": "Image",
+                    "id": "962b68a0-4453-4528-9e6c-44492deb103b",
+                    "label": "uI_CounterPanel",
+                    "texture": {
+                        "key": "UI_CounterPanel"
+                    }
+                },
+                {
+                    "prefabId": "0408176d-cee7-4226-ab81-2cc48ffffbb1",
+                    "id": "e7587db1-4abf-4d39-9a03-73d608e5e0e8",
+                    "unlock": [
+                        "x",
+                        "y",
+                        "textSize",
+                        "alignment",
+                        "font",
+                        "textType"
+                    ],
+                    "label": "text",
+                    "scope": "CLASS",
+                    "textSize": 43,
+                    "font": "Lato-Bold",
+                    "alignment": "left",
+                    "textType": "DOM",
+                    "x": -245,
+                    "y": -50
+                },
+                {
+                    "type": "Container",
+                    "id": "469cb2cf-1d25-4b55-8645-375ec437050a",
+                    "label": "switchContainer",
+                    "x": -155,
+                    "y": 30,
+                    "list": [
+                        {
+                            "type": "NineSlice",
+                            "id": "0d9140fd-e120-4d1e-8aae-95a658aa7053",
+                            "label": "Backing",
+                            "scope": "CLASS",
+                            "texture": {
+                                "key": "Btn_Main"
+                            },
+                            "tint": "#000000",
+                            "leftWidth": 35,
+                            "rightWidth": 35,
+                            "topHeight": 40,
+                            "bottomHeight": 40,
+                            "width": 200,
+                            "height": 95
+                        },
+                        {
+                            "type": "Ellipse",
+                            "id": "7498be63-8ccf-403a-bfff-edc1f7682312",
+                            "label": "switchButton",
+                            "scope": "CLASS",
+                            "x": -53,
+                            "isFilled": true,
+                            "width": 80,
+                            "height": 80
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    },
+    "prefabProperties": [
+        {
+            "name": "title",
+            "label": "Title",
+            "tooltip": "",
+            "defValue": "",
+            "customDefinition": false,
+            "type": {
+                "id": "string"
+            }
+        },
+        {
+            "name": "valueID",
+            "label": "ValueID",
+            "tooltip": "",
+            "defValue": "",
+            "customDefinition": false,
+            "type": {
+                "id": "string"
+            }
+        },
+        {
+            "name": "activeState",
+            "label": "ActiveState",
+            "tooltip": "",
+            "defValue": "Idle",
+            "customDefinition": false,
+            "type": {
+                "id": "string"
+            }
+        }
+    ]
+}

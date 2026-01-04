@@ -1,0 +1,150 @@
+{
+    "id": "5967fa3c-02aa-4048-9aeb-55243d2ffc72",
+    "sceneType": "PREFAB",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "importFileExtension": true,
+        "preloadMethodName": "",
+        "preloadPackFiles": [],
+        "createMethodName": "",
+        "borderWidth": 1118,
+        "borderHeight": 2066
+    },
+    "displayList": [
+        {
+            "type": "ScriptNode",
+            "id": "ef0c2927-932f-44cd-b5dd-71f2cc72e2ca",
+            "label": "scriptnode_1"
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    },
+    "prefabProperties": [
+        {
+            "name": "referenceScreenWidth",
+            "label": "ReferenceScreenWidth",
+            "tooltip": "",
+            "defValue": 1080,
+            "customDefinition": false,
+            "type": {
+                "id": "number"
+            }
+        },
+        {
+            "name": "referenceScreenHeight",
+            "label": "ReferenceScreenHeight",
+            "tooltip": "",
+            "defValue": 1920,
+            "customDefinition": false,
+            "type": {
+                "id": "number"
+            }
+        },
+        {
+            "name": "position",
+            "label": "Position",
+            "tooltip": "",
+            "defValue": true,
+            "customDefinition": false,
+            "type": {
+                "id": "boolean"
+            }
+        },
+        {
+            "name": "scale",
+            "label": "Scale",
+            "tooltip": "",
+            "defValue": true,
+            "customDefinition": false,
+            "type": {
+                "id": "boolean"
+            }
+        },
+        {
+            "name": "stretchX",
+            "label": "StretchX",
+            "tooltip": "",
+            "defValue": false,
+            "customDefinition": false,
+            "type": {
+                "id": "boolean"
+            }
+        },
+        {
+            "name": "stretchY",
+            "label": "StretchY",
+            "tooltip": "",
+            "defValue": false,
+            "customDefinition": false,
+            "type": {
+                "id": "boolean"
+            }
+        },
+        {
+            "name": "widthPos",
+            "label": "WidthPos",
+            "tooltip": "",
+            "defValue": 0,
+            "customDefinition": false,
+            "type": {
+                "id": "number"
+            }
+        },
+        {
+            "name": "heightPos",
+            "label": "HeightPos",
+            "tooltip": "",
+            "defValue": 0,
+            "customDefinition": false,
+            "type": {
+                "id": "number"
+            }
+        },
+        {
+            "name": "match",
+            "label": "Match",
+            "tooltip": "0 = favors Width, 1 = favors Height",
+            "defValue": 1,
+            "customDefinition": false,
+            "type": {
+                "id": "number"
+            }
+        },
+        {
+            "name": "debug",
+            "label": "Debug",
+            "tooltip": "",
+            "defValue": false,
+            "customDefinition": false,
+            "type": {
+                "id": "boolean"
+            }
+        },
+        {
+            "name": "maxScale",
+            "label": "MaxScale",
+            "tooltip": "",
+            "defValue": 999,
+            "customDefinition": false,
+            "type": {
+                "id": "number"
+            }
+        },
+        {
+            "name": "minScale",
+            "label": "MinScale",
+            "tooltip": "",
+            "defValue": 0.01,
+            "customDefinition": false,
+            "type": {
+                "id": "number"
+            }
+        }
+    ]
+}
