@@ -19,6 +19,8 @@ export default class SpeedButton extends Button {
 
 		// btn_Main
 		const btn_Main = scene.add.nineslice(0, 0, "Btn_Main", undefined, 150, 150, 39, 37, 34, 36);
+		btn_Main.scaleX = 0.75;
+		btn_Main.scaleY = 0.75;
 		btn_Main.tint = 16717077;
 		visualContainer.add(btn_Main);
 
@@ -28,7 +30,7 @@ export default class SpeedButton extends Button {
 
 		// text (prefab fields)
 		text.textValue = "1x";
-		text.textSize = 100;
+		text.textSize = 75;
 		text.textType = "DOM";
 
 		this.text = text;

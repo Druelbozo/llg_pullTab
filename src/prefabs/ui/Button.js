@@ -26,6 +26,10 @@ export default class Button extends Phaser.GameObjects.Container {
 
 	/** @type {Phaser.GameObjects.Container} */
 	animContainer;
+	/** @type {boolean} */
+	enableOverAnim = true;
+	/** @type {boolean} */
+	enablePressAnim = true;
 
 	/* START-USER-CODE */
 	pointerDownTween;
@@ -33,7 +37,7 @@ export default class Button extends Phaser.GameObjects.Container {
 	pointerOverTween;
 	enabledTween;
 
-	buttonTimeOut = 100;
+	buttonTimeOut = 200;
 	timeOut = false
 
 	enabled;
@@ -78,6 +82,8 @@ export default class Button extends Phaser.GameObjects.Container {
 	{
 		if(!this.enabled) return;
 		if(this.timeOut) return;
+		if(!this.enablePressAnim) return;
+
 		if(this.pointerDownTween !== undefined) {this.pointerDownTween.complete();}
 
 		this.animContainer.scaleX = 1
@@ -109,6 +115,8 @@ export default class Button extends Phaser.GameObjects.Container {
 	{
 		if(!this.enabled) return;
 		if(this.timeOut) return;
+		if(!this.enableOverAnim) return;
+
 		if(this.pointerOverTween !== undefined) {this.pointerOverTween.complete();}
 		this.animContainer.y = 0;
 

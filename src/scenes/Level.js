@@ -3,6 +3,7 @@
 
 /* START OF COMPILED CODE */
 
+import SetImage from "../scriptNodes/visual/SetImage.js";
 import ScreenAnchor from "../scriptNodes/basics/ScreenAnchor.js";
 import PeelCard from "../prefabs/peelTab/PeelCard.js";
 import ScreenFit from "../scriptNodes/basics/ScreenFit.js";
@@ -21,10 +22,22 @@ export default class Level extends Phaser.Scene {
 		super("Level");
 
 		/* START-USER-CTR-CODE */
-		// Write your code here.
+		// Initialize the Scratch Cards Service
+		// Automatically detects if running locally or on live server
+		const isLocal = window.location.hostname === 'localhost' || 
+		                window.location.hostname === '127.0.0.1' || 
+		                window.location.hostname.includes('localhost');
+		const apiUrl = isLocal
+			? 'http://localhost:3001'  // Local: use CORS proxy
+			: 'https://q0pcptpjxd.execute-api.us-east-1.amazonaws.com/dev';  // Live: direct API
 
+		//this.scratchCardsService = new ScratchCardsService(apiUrl);
 
-
+		// Initialize game services
+		//this.gameStateService = new GameStateService(this);
+		//this.balanceService = new BalanceService(this, 100000, gameConfig.creditValueMinor);
+		//this.paytableService = new PaytableService(this.scratchCardsService);
+		//this.audioService = new AudioService(this);
 		/* END-USER-CTR-CODE */
 	}
 
@@ -35,16 +48,19 @@ export default class Level extends Phaser.Scene {
 		const bg_Container_1 = this.add.container(540, 960);
 
 		// dI_Background_banana_1
-		const dI_Background_banana_1 = this.add.tileSprite(0, 0, 1920, 1080, "DI_Background_banana");
+		const dI_Background_banana_1 = this.add.image(0, 0, "DI_Background_Default");
 		dI_Background_banana_1.scaleX = 2;
 		dI_Background_banana_1.scaleY = 2;
 		bg_Container_1.add(dI_Background_banana_1);
+
+		// setImage
+		const setImage = new SetImage(dI_Background_banana_1);
 
 		// screenAnchor_2
 		new ScreenAnchor(bg_Container_1);
 
 		// peelCard
-		const peelCard = new PeelCard(this, 540, 869);
+		const peelCard = new PeelCard(this, 540, 910);
 		this.add.existing(peelCard);
 
 		// screenAnchor_1
@@ -77,6 +93,10 @@ export default class Level extends Phaser.Scene {
 		const themeManager = new ThemeManager(this, 540, 960);
 		this.add.existing(themeManager);
 
+		// setImage (prefab fields)
+		setImage.imageKey = {"key":"Background"};
+		setImage.hideOnFail = false;
+
 		// screenAnchor_1 (prefab fields)
 		screenAnchor_1.scale = false;
 		screenAnchor_1.match = 0.35;
@@ -85,8 +105,10 @@ export default class Level extends Phaser.Scene {
 		screenAnchor_1.minScale = 0.01;
 
 		// screenFit (prefab fields)
-		screenFit.yPadding = 100;
+		screenFit.xPadding = 25;
+		screenFit.yPadding = 195;
 
+		this.dI_Background_banana_1 = dI_Background_banana_1;
 		this.peelManager = peelManager;
 		this.musicManager = musicManager;
 		this.stateManager = stateManager;
@@ -96,6 +118,8 @@ export default class Level extends Phaser.Scene {
 		this.events.emit("scene-awake");
 	}
 
+	/** @type {Phaser.GameObjects.Image} */
+	dI_Background_banana_1;
 	/** @type {PeelManager} */
 	peelManager;
 	/** @type {MusicManager} */

@@ -1,4 +1,3 @@
-
 // You can write more code here
 
 /* START OF COMPILED CODE */
@@ -7,7 +6,7 @@ import PeelIcons from "./PeelIcons.js";
 /* START-USER-IMPORTS */
 /* END-USER-IMPORTS */
 
-export default class PeelTab extends Phaser.GameObjects.Container {
+export default class Peel extends Phaser.GameObjects.Container {
 
 	constructor(scene, x, y) {
 		super(scene, x ?? 0, y ?? 0);
@@ -152,6 +151,17 @@ export default class PeelTab extends Phaser.GameObjects.Container {
 		this.peelMask.rotation = (transform.rotation);
 
 		this.peelIcons.init(values);
+
+		this.scene.textures.exists("Peel")
+		{
+			this.front.setTexture("Peel")
+			this.peel.setTexture("Peel")
+		}
+
+		this.scene.textures.exists("PeelBack")
+		{
+			this.back.setTexture("PeelBack")
+		}
 	}
 
 	update(time, delta)

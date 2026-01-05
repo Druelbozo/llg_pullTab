@@ -46,6 +46,16 @@
                 "id": "object-var",
                 "expressionType": "Phaser.GameObjects.GameObject"
             }
+        },
+        {
+            "name": "hideOnFail",
+            "label": "HideOnFail",
+            "tooltip": "",
+            "defValue": true,
+            "customDefinition": false,
+            "type": {
+                "id": "boolean"
+            }
         }
     ]
 }

@@ -16,7 +16,7 @@ export default class HamburgerMenu extends PopUpMenu {
 		super(scene, x ?? 0, y ?? 0);
 
 		// rectangle_1
-		const rectangle_1 = scene.add.rectangle(0, 0, 175, 510);
+		const rectangle_1 = scene.add.rectangle(0, 0, 150, 365);
 		rectangle_1.setOrigin(0.5, 1);
 		rectangle_1.alpha = 0.8;
 		rectangle_1.isFilled = true;
@@ -24,15 +24,15 @@ export default class HamburgerMenu extends PopUpMenu {
 		this.add(rectangle_1);
 
 		// openMenuButton
-		const openMenuButton = new SoundButton(scene, 0, -85);
+		const openMenuButton = new SoundButton(scene, 0, -63);
 		this.add(openMenuButton);
 
 		// openMenuButton_1
-		const openMenuButton_1 = new InfoButton(scene, 0, -255);
+		const openMenuButton_1 = new InfoButton(scene, 0, -181);
 		this.add(openMenuButton_1);
 
 		// openMenuButton_2
-		const openMenuButton_2 = new SpeedButton(scene, 0, -421);
+		const openMenuButton_2 = new SpeedButton(scene, 0, -299);
 		this.add(openMenuButton_2);
 
 		/* START-USER-CTR-CODE */

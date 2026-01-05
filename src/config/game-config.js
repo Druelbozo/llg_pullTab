@@ -8,12 +8,12 @@
  * All config files must share the same schema.
  */
 
-import defaultConfig from './archive/default.js';
+//import defaultConfig from './archive/default.js';
 import crazybananaConfig from './crazybanana.js';
 
 
 const AVAILABLE_CONFIGS = {
-    'default': defaultConfig,
+    //'default': defaultConfig,
     'crazybanana': crazybananaConfig,
 };
 

@@ -34,13 +34,13 @@
     "Peel": {
       "type": "image",
       "key": "Peel",
-      "imageKey": "DI_ImageName_CrazyBanana",
+      "imageKey": "DI_Peel_CrazyBanana",
       "description": "Peel that is removed"
     },
     "PeelBack": {
       "type": "image",
       "key": "PeelBack",
-      "imageKey": "DI_ImageName_Default",
+      "imageKey": "DI_PeelBack_Default",
       "description": "Revealed after peel is removed"
     },
     "CardCover": {

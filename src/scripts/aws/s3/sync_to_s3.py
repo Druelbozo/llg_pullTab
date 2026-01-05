@@ -159,7 +159,7 @@ def find_project_root():
     """
     Find the project root directory (directory containing index.html).
     Starts from script location and walks up the directory tree.
-    folder$0
+    
     Returns the project root path, or None if not found.
     """
     # Start from the script's directory

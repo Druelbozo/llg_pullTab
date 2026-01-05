@@ -205,6 +205,13 @@ export default class Preload extends Phaser.Scene {
 				this.loadAudio(value, themeData);
 			}
 		}
+		//VIDEO
+		for (const value of Object.values(themeData.videos))
+		{
+			if (value && typeof value === 'object' && value.type === "video") {
+				this.loadVideo(value, themeData);
+			}
+		}
 	}
 
 	loadImage(value, themeData)
@@ -246,6 +253,33 @@ export default class Preload extends Phaser.Scene {
 			this.load.image(value.key, imageKey);
 		}		
 	}
+
+	loadVideo(value, themeData)
+	{
+
+		console.log(value.key, "!!!!!!!!!!!!!!");
+		if (!value.key || value.key === "") {
+			console.log(`Skipping load for ${value.key}: audioKey is empty`);
+			return;
+		}
+
+		let path = "";
+
+		console.log(`Loading video: key="${value.key}", videoKey="${value.key}"`);
+
+		if (value.key.startsWith('http')) 
+		{
+			path = value.audioKey;
+		}
+		else 
+		{	
+			// Loading Locally - add cache-busting parameter to ensure we get the latest audio
+			const cacheBuster = Date.now();
+			path = `assets/Videos/${value.key}.mp4?t=${cacheBuster}`;
+		}
+
+		this.load.video(value.key, path);
+	}	
 
 	loadAudio(value, themeData)
 	{

@@ -20,16 +20,28 @@
             "y": 960,
             "list": [
                 {
-                    "type": "TileSprite",
+                    "type": "Image",
                     "id": "9e6a6ac8-4cf5-457a-adb9-4d9b3ccf3ce1",
                     "label": "dI_Background_banana_1",
+                    "scope": "CLASS",
                     "texture": {
-                        "key": "DI_Background_banana"
+                        "key": "DI_Background_Default"
                     },
                     "scaleX": 2,
                     "scaleY": 2,
-                    "width": 1920,
-                    "height": 1080
+                    "list": [
+                        {
+                            "prefabId": "ceabcfcc-c5fa-432e-adb3-a9f427a41ffd",
+                            "id": "4c843400-42ae-498c-9e16-eeafeb45e6ae",
+                            "unlock": [
+                                "imageKey",
+                                "hideOnFail"
+                            ],
+                            "label": "setImage",
+                            "imageKey": "{\"key\":\"Background\"}",
+                            "hideOnFail": false
+                        }
+                    ]
                 },
                 {
                     "prefabId": "5967fa3c-02aa-4048-9aeb-55243d2ffc72",
@@ -47,7 +59,7 @@
             ],
             "label": "peelCard",
             "x": 540,
-            "y": 869,
+            "y": 910,
             "list": [
                 {
                     "prefabId": "5967fa3c-02aa-4048-9aeb-55243d2ffc72",
@@ -70,10 +82,12 @@
                     "prefabId": "698218a9-1f36-4d2c-96f8-a739cd082d8a",
                     "id": "74470f59-f944-4234-a598-a6bc2a3fed67",
                     "unlock": [
-                        "yPadding"
+                        "yPadding",
+                        "xPadding"
                     ],
                     "label": "screenFit",
-                    "yPadding": 100
+                    "xPadding": 25,
+                    "yPadding": 195
                 }
             ]
         },

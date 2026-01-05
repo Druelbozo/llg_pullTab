@@ -52,6 +52,7 @@
                             "type": "Image",
                             "id": "765cd651-a78c-44dd-92c5-ce63f842e1f4",
                             "label": "dI_CardCover_Default",
+                            "scope": "CLASS",
                             "texture": {
                                 "key": "DI_CardCover_Default"
                             },

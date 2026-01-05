@@ -38,6 +38,8 @@
                             "texture": {
                                 "key": "Btn_Main"
                             },
+                            "scaleX": 0.75,
+                            "scaleY": 0.75,
                             "tint": "#ff1515",
                             "leftWidth": 39,
                             "rightWidth": 37,
@@ -54,8 +56,8 @@
                             "texture": {
                                 "key": "exitIcon"
                             },
-                            "scaleX": 0.75,
-                            "scaleY": 0.75
+                            "scaleX": 0.5,
+                            "scaleY": 0.5
                         }
                     ]
                 }

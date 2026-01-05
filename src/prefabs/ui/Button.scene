@@ -32,5 +32,27 @@
         "url": "https://phaser.io/editor",
         "contentType": "phasereditor2d.core.scene.SceneContentType",
         "version": 5
-    }
+    },
+    "prefabProperties": [
+        {
+            "name": "enableOverAnim",
+            "label": "EnableOverAnim",
+            "tooltip": "",
+            "defValue": true,
+            "customDefinition": false,
+            "type": {
+                "id": "boolean"
+            }
+        },
+        {
+            "name": "enablePressAnim",
+            "label": "EnablePressAnim",
+            "tooltip": "",
+            "defValue": true,
+            "customDefinition": false,
+            "type": {
+                "id": "boolean"
+            }
+        }
+    ]
 }

@@ -84,6 +84,12 @@ export default class PeelManager extends Phaser.GameObjects.Container {
 			break;
 			case "gameOver":
 			break;
+			case "win":
+				this.stateManager.setState("reset", "PeelManager -  Resetting Game")
+			break;
+			case "lose":
+				this.stateManager.setState("reset", "PeelManager -  Resetting Game")
+			break;
 		}		
 	}
 
@@ -128,8 +134,8 @@ export default class PeelManager extends Phaser.GameObjects.Container {
 		{
 			this.autoRoundsLeft--
 			console.log("Auto Rounds Left: " + this.autoRoundsLeft)
+			this.scene.time.delayedCall(6000 / this.speed, () => this.stateManager.setState("reset", "PeelManager -  Resetting Game"))
 		}
-		this.scene.time.delayedCall(6000 / this.speed, () => this.stateManager.setState("reset", "PeelManager -  Resetting Game"))
 	}
 
 	setGameSpeed(value)

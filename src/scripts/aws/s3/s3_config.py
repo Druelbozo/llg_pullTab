@@ -11,5 +11,5 @@ BUCKET = 'llg-games'
 
 # Default S3 prefix (path within bucket)
 # All files will be synced to: s3://{BUCKET}/{S3_PREFIX}{path}/
-S3_PREFIX = 'games/tab-pull/'
+S3_PREFIX = 'games/pull-tabs/'
 

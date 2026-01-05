@@ -37,6 +37,8 @@
                             "texture": {
                                 "key": "Btn_Main"
                             },
+                            "scaleX": 0.75,
+                            "scaleY": 0.75,
                             "tint": "#ff1515",
                             "leftWidth": 39,
                             "rightWidth": 39,
@@ -58,7 +60,7 @@
                             "label": "text",
                             "scope": "CLASS",
                             "textValue": "BUY",
-                            "textSize": 60,
+                            "textSize": 50,
                             "textType": "DOM",
                             "x": 0,
                             "y": 0

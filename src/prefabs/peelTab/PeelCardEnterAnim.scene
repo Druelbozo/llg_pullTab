@@ -30,7 +30,8 @@
                 {
                     "type": "Image",
                     "id": "5724822e-1b91-4e3a-bcdc-6d9cfdae5ea4",
-                    "label": "dI_CardCover_Default",
+                    "label": "CardCover",
+                    "scope": "CLASS",
                     "texture": {
                         "key": "DI_CardCover_Default"
                     },

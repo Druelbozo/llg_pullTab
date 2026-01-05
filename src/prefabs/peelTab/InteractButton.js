@@ -19,6 +19,8 @@ export default class InteractButton extends Button {
 
 		// btn_Main
 		const btn_Main = scene.add.nineslice(0, 0, "Btn_Main", undefined, 300, 150, 39, 39, 39, 39);
+		btn_Main.scaleX = 0.75;
+		btn_Main.scaleY = 0.75;
 		btn_Main.tint = 16717077;
 		visualContainer.add(btn_Main);
 
@@ -28,7 +30,7 @@ export default class InteractButton extends Button {
 
 		// text (prefab fields)
 		text.textValue = "BUY";
-		text.textSize = 60;
+		text.textSize = 50;
 		text.textType = "DOM";
 
 		this.text = text;
@@ -47,12 +49,15 @@ export default class InteractButton extends Button {
 
 	// Write your code here.
 	execute()
-	{	
+	{
+		//if(this.timeOut) return;	
 		this.scene.events.emit("interact");
 	}
 
 	onStateChanged(state)
 	{
+		const speed = this.scene.peelManager.speed;
+
 		if(state == "wait")
 		{
 			this.setEnabled(false);
@@ -73,7 +78,7 @@ export default class InteractButton extends Button {
 				this.setEnabled(true);
 			break;
 			case "playing":
-				this.text.text = "CLEAR"
+				this.text.text = "OPEN"
 				this.setEnabled(true);
 			break;
 			case "clear":
@@ -84,9 +89,19 @@ export default class InteractButton extends Button {
 			break;
 			case "win":
 				this.setEnabled(false);
+				this.scene.time.delayedCall(3000/ speed, ()=>
+				{
+					this.text.text = "RESET"
+					this.setEnabled(true);
+				})
 			break;
 			case "lose":
 				this.setEnabled(false);
+				this.scene.time.delayedCall(3000, ()=>
+				{
+					this.text.text = "RESET"
+					this.setEnabled(true);
+				})
 			break;
 		}
 	}

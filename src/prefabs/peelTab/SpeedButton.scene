@@ -38,6 +38,8 @@
                             "texture": {
                                 "key": "Btn_Main"
                             },
+                            "scaleX": 0.75,
+                            "scaleY": 0.75,
                             "tint": "#ff1515",
                             "leftWidth": 39,
                             "rightWidth": 37,
@@ -59,7 +61,7 @@
                             "label": "text",
                             "scope": "CLASS",
                             "textValue": "1x",
-                            "textSize": 100,
+                            "textSize": 75,
                             "textType": "DOM",
                             "x": 0,
                             "y": 0

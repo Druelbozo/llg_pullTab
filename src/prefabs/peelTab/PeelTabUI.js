@@ -18,7 +18,7 @@ export default class PeelTabUI extends Phaser.GameObjects.Container {
 		super(scene, x ?? 0, y ?? 0);
 
 		// blackBar
-		const blackBar = scene.add.rectangle(0, 1920, 1080, 175);
+		const blackBar = scene.add.rectangle(0, 1920, 1080, 135);
 		blackBar.setOrigin(0, 1);
 		blackBar.alpha = 0.8;
 		blackBar.isFilled = true;
@@ -33,15 +33,15 @@ export default class PeelTabUI extends Phaser.GameObjects.Container {
 		this.add(bottomCenter);
 
 		// interactButton
-		const interactButton = new InteractButton(scene, -82, -90);
+		const interactButton = new InteractButton(scene, -54, -67);
 		bottomCenter.add(interactButton);
 
 		// autoOptionsButton
-		const autoOptionsButton = new OpenMenuButton(scene, 147, -90);
+		const autoOptionsButton = new OpenMenuButton(scene, 118, -67);
 		bottomCenter.add(autoOptionsButton);
 
 		// autoPlayMenu
-		const autoPlayMenu = new AutoPlayMenu(scene, 0, -191);
+		const autoPlayMenu = new AutoPlayMenu(scene, 0, -145);
 		autoPlayMenu.visible = false;
 		bottomCenter.add(autoPlayMenu);
 
@@ -53,7 +53,9 @@ export default class PeelTabUI extends Phaser.GameObjects.Container {
 		this.add(bottomRight);
 
 		// accountBalanceDisplay
-		const accountBalanceDisplay = new AccountBalanceDisplay(scene, -152, -90);
+		const accountBalanceDisplay = new AccountBalanceDisplay(scene, -152, -67);
+		accountBalanceDisplay.scaleX = 0.75;
+		accountBalanceDisplay.scaleY = 0.75;
 		bottomRight.add(accountBalanceDisplay);
 
 		// screenAnchor_1
@@ -64,11 +66,12 @@ export default class PeelTabUI extends Phaser.GameObjects.Container {
 		this.add(bottomLeft);
 
 		// autoOptionsButton_1
-		const autoOptionsButton_1 = new OpenMenuButton(scene, 92, -90);
+		const autoOptionsButton_1 = new OpenMenuButton(scene, 74, -67);
 		bottomLeft.add(autoOptionsButton_1);
 
 		// hamburgerMenu
-		const hamburgerMenu = new HamburgerMenu(scene, 91, -183);
+		const hamburgerMenu = new HamburgerMenu(scene, 91, -145);
+		hamburgerMenu.visible = false;
 		bottomLeft.add(hamburgerMenu);
 
 		// screenAnchor_2
@@ -79,6 +82,10 @@ export default class PeelTabUI extends Phaser.GameObjects.Container {
 		screenAnchor.stretchX = true;
 		screenAnchor.match = 0.5;
 		screenAnchor.maxScale = 1.5;
+
+		// interactButton (prefab fields)
+		interactButton.enableOverAnim = true;
+		interactButton.enablePressAnim = true;
 
 		// autoOptionsButton (prefab fields)
 		autoOptionsButton.target = autoPlayMenu;
@@ -96,7 +103,7 @@ export default class PeelTabUI extends Phaser.GameObjects.Container {
 
 		// autoOptionsButton_1 (prefab fields)
 		autoOptionsButton_1.target = hamburgerMenu;
-		autoOptionsButton_1.icon = {"key":"Hud_InfoButton"};
+		autoOptionsButton_1.icon = {"key":"Hud_Sandwich"};
 
 		// screenAnchor_2 (prefab fields)
 		screenAnchor_2.stretchX = false;

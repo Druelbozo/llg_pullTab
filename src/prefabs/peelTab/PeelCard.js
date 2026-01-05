@@ -7,7 +7,7 @@ import PeelMessageText from "./PeelMessageText.js";
 import Prefab_Results from "./Prefab_Results.js";
 import PeelCardEnterAnim from "./PeelCardEnterAnim.js";
 /* START-USER-IMPORTS */
-import PeelTab from "./peelTab.js";
+import Peel from "./Peel.js";
 /* END-USER-IMPORTS */
 
 export default class PeelCard extends Phaser.GameObjects.Container {
@@ -62,6 +62,7 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 
 		this.prizeContainer = prizeContainer;
 		this.peelContainer = peelContainer;
+		this.dI_CardCover_Default = dI_CardCover_Default;
 		this.win_Video = win_Video;
 		this.lose_Video = lose_Video;
 		this.messageText = messageText;
@@ -71,7 +72,7 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 		/* START-USER-CTR-CODE */
 		// Write your code here.
 		this.group = scene.add.group({
-			classType: PeelTab
+			classType: Peel
 		});
 
 		this.scene.events.on("onGameSpeedChanged", (value) => {this.speed = value;}, this)
@@ -87,6 +88,8 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 	prizeContainer;
 	/** @type {Phaser.GameObjects.Container} */
 	peelContainer;
+	/** @type {Phaser.GameObjects.Image} */
+	dI_CardCover_Default;
 	/** @type {Phaser.GameObjects.Video} */
 	win_Video;
 	/** @type {Phaser.GameObjects.Video} */
@@ -114,7 +117,6 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 
 	init()
 	{
-
 		let tabSize = 0
 
 		let config = this.scene.serverManager.gameConfig
@@ -156,6 +158,26 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 			delay: 1400/ this.speed,
 			ease: "Back.out"			
 		})
+
+		this.scene.textures.exists("CardCover")
+		{
+			this.dI_CardCover_Default.setTexture("CardCover")
+		}
+
+		if(this.scene.cache.video.exists("WinVideo"))
+		{
+			//this.win_Video.stop();
+			//this.win_Video.load("WinVideo", false);
+			//console.log("Win Video Found")
+		}
+
+		if(this.scene.cache.video.exists("LoseVideo"))
+		{
+			//this.lose_Video.stop();
+			//this.lose_Video.load("LoseVideo", false);
+			//console.log("Lose Video Found")
+		}
+
 	}
 
 	ready()
@@ -237,6 +259,8 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 
 	playWinVideo()
 	{
+		if(!this.scene.cache.video.exists("WinVideo")) return;
+
 		this.win_Video.alpha = 1;
 		this.win_Video.visible = true;
 		this.win_Video.setPlaybackRate(this.speed)
@@ -253,6 +277,8 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 
 	playLoseVideo()
 	{
+		if(!this.scene.cache.video.exists("LoseVideo")) return;
+
 		this.lose_Video.alpha = 1;
 		this.lose_Video.visible = true;
 		this.lose_Video.setPlaybackRate(this.speed)

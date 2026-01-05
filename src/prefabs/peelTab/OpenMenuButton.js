@@ -18,13 +18,15 @@ export default class OpenMenuButton extends Button {
 
 		// btn_Main
 		const btn_Main = scene.add.nineslice(0, 0, "Btn_Main", undefined, 150, 150, 39, 37, 34, 36);
+		btn_Main.scaleX = 0.75;
+		btn_Main.scaleY = 0.75;
 		btn_Main.tint = 16717077;
 		visualContainer.add(btn_Main);
 
 		// autoPlay
 		const autoPlay = scene.add.image(0, 0, "exitIcon");
-		autoPlay.scaleX = 0.75;
-		autoPlay.scaleY = 0.75;
+		autoPlay.scaleX = 0.5;
+		autoPlay.scaleY = 0.5;
 		visualContainer.add(autoPlay);
 
 		this.autoPlay = autoPlay;

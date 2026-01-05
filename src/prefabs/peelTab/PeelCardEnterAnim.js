@@ -15,10 +15,10 @@ export default class PeelCardEnterAnim extends Phaser.GameObjects.Container {
 		const cardBack = scene.add.nineslice(0, 0, "CardBack", undefined, 1000, 650, 10, 10, 10, 10);
 		this.add(cardBack);
 
-		// dI_CardCover_Default
-		const dI_CardCover_Default = scene.add.image(-80, -300, "DI_CardCover_Default");
-		dI_CardCover_Default.setOrigin(1, 0);
-		this.add(dI_CardCover_Default);
+		// CardCover
+		const cardCover = scene.add.image(-80, -300, "DI_CardCover_Default");
+		cardCover.setOrigin(1, 0);
+		this.add(cardCover);
 
 		// prizeContainer
 		const prizeContainer = scene.add.container(0, -300);
@@ -28,6 +28,7 @@ export default class PeelCardEnterAnim extends Phaser.GameObjects.Container {
 		const peelContainer = scene.add.container(80, -300);
 		this.add(peelContainer);
 
+		this.cardCover = cardCover;
 		this.prizeContainer = prizeContainer;
 		this.peelContainer = peelContainer;
 
@@ -37,6 +38,8 @@ export default class PeelCardEnterAnim extends Phaser.GameObjects.Container {
 		/* END-USER-CTR-CODE */
 	}
 
+	/** @type {Phaser.GameObjects.Image} */
+	cardCover;
 	/** @type {Phaser.GameObjects.Container} */
 	prizeContainer;
 	/** @type {Phaser.GameObjects.Container} */
@@ -65,6 +68,11 @@ export default class PeelCardEnterAnim extends Phaser.GameObjects.Container {
 			else
 			{
 				peel.setTexture("DI_Peel_Default");
+			}
+
+			if(this.scene.textures.exists("CardCover"))
+			{
+				this.cardCover.setTexture("CardCover");
 			}
 
 			peel.setOrigin(0, 0);

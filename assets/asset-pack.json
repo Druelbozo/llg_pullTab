@@ -29,9 +29,9 @@
                 "key": "CardBack"
             },
             {
-                "url": "assets/Images/Background/DI_Background_banana.png",
+                "url": "assets/Images/Background/DI_Background_Default.png",
                 "type": "image",
-                "key": "DI_Background_banana"
+                "key": "DI_Background_Default"
             },
             {
                 "url": "assets/Images/CardCover/DI_CardCover_Default.png",
@@ -52,9 +52,9 @@
                 "key": "DI_Icons_Default"
             },
             {
-                "url": "assets/Images/LoseImage/DI_Lose_Default.png",
+                "url": "assets/Images/LoseImage/DI_LoseImage_Default.png",
                 "type": "image",
-                "key": "DI_Lose_Default"
+                "key": "DI_LoseImage_Default"
             },
             {
                 "url": "assets/Images/Peel/DI_Peel_Default.png",
@@ -67,9 +67,9 @@
                 "key": "DI_PeelBack_Default"
             },
             {
-                "url": "assets/Images/WinImage/DI_Win_Default.png",
+                "url": "assets/Images/WinImage/DI_WinImage_Default.png",
                 "type": "image",
-                "key": "DI_Win_Default"
+                "key": "DI_WinImage_Default"
             },
             {
                 "url": [

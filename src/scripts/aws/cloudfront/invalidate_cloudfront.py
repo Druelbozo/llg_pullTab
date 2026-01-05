@@ -450,14 +450,14 @@ Examples:
         normalized_paths.append(path)
     
     # Check if root invalidation is being performed
-    # If so, automatically add scratch-cards invalidation to prevent MIME type issues
+    # If so, automatically add pull-tabs invalidation to prevent MIME type issues
     has_root_invalidation = any(path in ['/*', '/'] for path in normalized_paths)
     if has_root_invalidation:
-        scratch_cards_path = '/games/scratch-cards/*'
-        if scratch_cards_path not in normalized_paths:
-            normalized_paths.append(scratch_cards_path)
-            print("ℹ️  Root invalidation detected - automatically adding /games/scratch-cards/*")
-            print("   This prevents MIME type errors for scratch-cards files after root invalidation")
+        path = '/games/pull-tabs/*'
+        if path not in normalized_paths:
+            normalized_paths.append(path)
+            print("ℹ️  Root invalidation detected - automatically adding /games/pull-tabs/*")
+            print("   This prevents MIME type errors for pull-tabs files after root invalidation")
     
     print("=" * 70)
     print("CLOUDFRONT INVALIDATION")
