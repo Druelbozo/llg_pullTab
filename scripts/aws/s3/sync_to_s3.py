@@ -10,18 +10,18 @@ USAGE:
     
     Examples:
     # Sync specific paths
-    python scripts/aws/s3/sync_to_s3.py /Themes
+    python scripts/aws/s3/sync_to_s3.py /themes
     python scripts/aws/s3/sync_to_s3.py /index.html
-    python scripts/aws/s3/sync_to_s3.py /Themes /css /index.html
+    python scripts/aws/s3/sync_to_s3.py /themes /css /index.html
     
-    # Sync default paths (assets, css, phaserjs_editor_scripts_base, src, Themes, index.html, favicon.ico)
+    # Sync default paths (assets, css, phaserjs_editor_scripts_base, src (includes layouts), themes, js, index.html, favicon.ico)
     python scripts/aws/s3/sync_to_s3.py
     
     # Dry-run to preview changes
-    python scripts/aws/s3/sync_to_s3.py /Themes --dry-run
+    python scripts/aws/s3/sync_to_s3.py /themes --dry-run
     
     # Force upload all files (ignore hash checks)
-    python scripts/aws/s3/sync_to_s3.py /Themes --force
+    python scripts/aws/s3/sync_to_s3.py /themes --force
 """
 
 import sys
@@ -42,18 +42,19 @@ from io import StringIO
 _aws_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if _aws_dir not in sys.path:
     sys.path.insert(0, _aws_dir)
-from aws_sso_auth import ensure_sso_authenticated, get_boto3_session
+from sso.aws_sso_auth import ensure_sso_authenticated, get_boto3_session
 
-# Import shared S3 configuration
-from s3_config import BUCKET, S3_PREFIX
+# Import shared AWS configuration
+from aws_config import BUCKET, S3_PREFIX
 
 # Default paths to sync when no arguments provided
 DEFAULT_PATHS = [
     'assets',
     'css',
+    'js',
     'phaserjs_editor_scripts_base',
-    'src',
-    'Themes',
+    'src',  # Includes layouts/ subfolder
+    'themes',
     'index.html',
     'favicon.ico'
 ]
@@ -190,13 +191,13 @@ def parse_project_path(project_root, project_path, bucket_override=None, prefix_
     
     Args:
         project_root: Absolute path to project root directory
-        project_path: Path relative to project root (e.g., '/Themes', 'Themes', '/index.html')
+        project_path: Path relative to project root (e.g., '/themes', 'themes', '/index.html')
         bucket_override: Optional bucket name override
         prefix_override: Optional S3 prefix override
     
     Returns (bucket_name, s3_prefix, local_path) tuple.
     - bucket_name: S3 bucket name (default: from s3_config.BUCKET)
-    - s3_prefix: S3 prefix (e.g., '{S3_PREFIX}Themes/' for dirs, '{S3_PREFIX}' for files)
+    - s3_prefix: S3 prefix (e.g., '{S3_PREFIX}themes/' for dirs, '{S3_PREFIX}' for files)
     - local_path: Absolute local file/directory path
     """
     # Normalize project_path: remove leading slash if present
@@ -1106,29 +1107,29 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Sync specific paths
-  python scripts/aws/s3/sync_to_s3.py /Themes
-  python scripts/aws/s3/sync_to_s3.py /index.html
-  python scripts/aws/s3/sync_to_s3.py /Themes /css /index.html
+    # Sync specific paths
+    python scripts/aws/s3/sync_to_s3.py /themes
+    python scripts/aws/s3/sync_to_s3.py /index.html
+    python scripts/aws/s3/sync_to_s3.py /themes /css /index.html
   
-  # Sync default paths (assets, css, phaserjs_editor_scripts_base, src, Themes, index.html, favicon.ico)
+  # Sync default paths (assets, css, phaserjs_editor_scripts_base, src, themes, layouts, js, index.html, favicon.ico)
   python scripts/aws/s3/sync_to_s3.py
   
   # Dry-run to preview changes
-  python scripts/aws/s3/sync_to_s3.py /Themes --dry-run
+  python scripts/aws/s3/sync_to_s3.py /themes --dry-run
   
   # Force upload all files (ignore hash checks)
-  python scripts/aws/s3/sync_to_s3.py /Themes --force
+  python scripts/aws/s3/sync_to_s3.py /themes --force
   
   # Override bucket or prefix
-  python scripts/aws/s3/sync_to_s3.py /Themes --bucket my-bucket
-  python scripts/aws/s3/sync_to_s3.py /Themes --prefix custom-prefix/
+  python scripts/aws/s3/sync_to_s3.py /themes --bucket my-bucket
+  python scripts/aws/s3/sync_to_s3.py /themes --prefix custom-prefix/
         """
     )
     parser.add_argument(
         'paths',
         nargs='*',
-        help='Project-relative paths to sync (e.g., /Themes, /index.html). If not provided, syncs default paths.'
+        help='Project-relative paths to sync (e.g., /themes, /index.html). If not provided, syncs default paths.'
     )
     parser.add_argument(
         '--bucket',

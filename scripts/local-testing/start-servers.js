@@ -7,8 +7,8 @@
 const { spawn, execSync } = require('child_process');
 const path = require('path');
 
-const PORT_CORS_PROXY = 3001;
-const PORT_PYTHON = 8001;
+const PORT_CORS_PROXY = 8081;
+const PORT_PYTHON = 5500;
 
 /**
  * Check if a port is in use and kill the process using it

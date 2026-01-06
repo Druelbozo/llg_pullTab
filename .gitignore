@@ -1,2 +1,14 @@
 node_modules/
 .DS_Store
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python

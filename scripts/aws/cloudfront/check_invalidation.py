@@ -35,7 +35,7 @@ from datetime import datetime, timedelta
 _aws_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if _aws_dir not in sys.path:
     sys.path.insert(0, _aws_dir)
-from aws_sso_auth import ensure_sso_authenticated, get_boto3_session
+from sso.aws_sso_auth import ensure_sso_authenticated, get_boto3_session
 
 # Default CloudFront domain
 DEFAULT_CLOUDFRONT_DOMAIN = 'd2dtpxz4sf6hir.cloudfront.net'

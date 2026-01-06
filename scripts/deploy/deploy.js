@@ -26,7 +26,7 @@
  *
  * Helper-specific flags:
  *   --python-path <value>   Use a specific python executable (default: python)
- *   --invalidate-all        Invalidate everything in the S3 prefix folder (e.g., /games/scratch-cards/*)
+ *   --invalidate-all        Invalidate everything in the S3 prefix folder (e.g., /games/video-poker/*)
  *                           instead of using the same paths as sync phase
  *   --preview-paths         Show detailed preview for each path before summary (forwarded to sync script)
  */
@@ -38,8 +38,29 @@ const PROJECT_ROOT = path.resolve(__dirname, '..', '..');
 const UPLOAD_SCRIPT = path.join(PROJECT_ROOT, 'scripts', 'aws', 's3', 'sync_to_s3.py');
 const INVALIDATE_SCRIPT = path.join(PROJECT_ROOT, 'scripts', 'aws', 'cloudfront', 'invalidate_cloudfront.py');
 
-// Default S3 prefix (must match sync_to_s3.py DEFAULT_S3_PREFIX)
-const DEFAULT_S3_PREFIX = 'games/scratch-cards/';
+// Default S3 prefix - read from aws_config.py
+// This function extracts S3_PREFIX from the Python config file
+function getS3PrefixFromConfig() {
+  const fs = require('fs');
+  const path = require('path');
+  const configPath = path.join(PROJECT_ROOT, 'scripts', 'aws', 'aws_config.py');
+  
+  try {
+    const configContent = fs.readFileSync(configPath, 'utf8');
+    // Extract S3_PREFIX value using regex
+    const match = configContent.match(/S3_PREFIX\s*=\s*['"]([^'"]+)['"]/);
+    if (match && match[1]) {
+      return match[1];
+    }
+  } catch (error) {
+    console.warn(`⚠️  Could not read aws_config.py, using fallback: ${error.message}`);
+  }
+  
+  // Fallback if we can't read the config
+  return 'games/video-poker/';
+}
+
+const DEFAULT_S3_PREFIX = getS3PrefixFromConfig();
 
 const BOOLEAN_FLAGS = new Set(['--dry-run', '--force', '--yes', '--preview-paths']);
 const VALUE_FLAGS = new Set(['--bucket', '--prefix', '--region', '--python-path']);
@@ -108,7 +129,7 @@ function parseArgs(rawArgs) {
 
 function normalizeInvalidationPaths(paths, s3Prefix) {
   // Convert S3 prefix to CloudFront path format
-  // e.g., 'games/scratch-cards/' -> '/games/scratch-cards/'
+  // e.g., 'games/video-poker/' -> '/games/video-poker/'
   let prefixPath = s3Prefix.trim();
   if (prefixPath.endsWith('/')) {
     prefixPath = prefixPath.slice(0, -1);
@@ -129,7 +150,7 @@ function normalizeInvalidationPaths(paths, s3Prefix) {
     // Remove leading slash if present (we'll add it with the prefix)
     const cleanPath = trimmed.startsWith('/') ? trimmed.slice(1) : trimmed;
     
-    // Build the full CloudFront path: /games/scratch-cards/{path}/*
+    // Build the full CloudFront path: /games/video-poker/{path}/*
     // For files (have file extension like .html, .js, .json), don't add /*, but for directories, add /*
     // Check if path ends with a file extension (dot followed by letters/numbers)
     const isFile = /\.\w+$/.test(cleanPath) && !trimmed.endsWith('/');
@@ -195,7 +216,7 @@ function runCommand(command, args, label, captureOutput = false) {
 }
 
 function getInvalidateAllPath(s3Prefix) {
-  // Convert S3 prefix (e.g., 'games/scratch-cards/') to CloudFront path (e.g., '/games/scratch-cards/*')
+  // Convert S3 prefix (e.g., 'games/video-poker/') to CloudFront path (e.g., '/games/video-poker/*')
   // Remove trailing slash if present, ensure leading slash, then add /*
   let prefix = s3Prefix.trim();
   if (prefix.endsWith('/')) {

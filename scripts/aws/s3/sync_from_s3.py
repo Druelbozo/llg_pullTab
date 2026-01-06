@@ -41,10 +41,10 @@ import difflib
 _aws_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if _aws_dir not in sys.path:
     sys.path.insert(0, _aws_dir)
-from aws_sso_auth import ensure_sso_authenticated, get_boto3_session
+from sso.aws_sso_auth import ensure_sso_authenticated, get_boto3_session
 
-# Import shared S3 configuration
-from s3_config import BUCKET, S3_PREFIX
+# Import shared AWS configuration
+from aws_config import BUCKET, S3_PREFIX
 
 # Default paths to sync when no arguments provided
 DEFAULT_PATHS = [

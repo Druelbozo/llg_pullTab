@@ -50,7 +50,10 @@ from datetime import datetime, timedelta
 _aws_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if _aws_dir not in sys.path:
     sys.path.insert(0, _aws_dir)
-from aws_sso_auth import ensure_sso_authenticated, get_boto3_session
+from sso.aws_sso_auth import ensure_sso_authenticated, get_boto3_session
+
+# Import shared AWS configuration
+from aws_config import S3_PREFIX
 
 # Default CloudFront domain
 DEFAULT_CLOUDFRONT_DOMAIN = 'd2dtpxz4sf6hir.cloudfront.net'
@@ -450,14 +453,22 @@ Examples:
         normalized_paths.append(path)
     
     # Check if root invalidation is being performed
-    # If so, automatically add pull-tabs invalidation to prevent MIME type issues
+    # If so, automatically add S3 prefix invalidation to prevent MIME type issues
     has_root_invalidation = any(path in ['/*', '/'] for path in normalized_paths)
     if has_root_invalidation:
-        path = '/games/pull-tabs/*'
-        if path not in normalized_paths:
-            normalized_paths.append(path)
-            print("ℹ️  Root invalidation detected - automatically adding /games/pull-tabs/*")
-            print("   This prevents MIME type errors for pull-tabs files after root invalidation")
+        # Convert S3 prefix to CloudFront path format
+        # e.g., 'games/video-poker/' -> '/games/video-poker/*'
+        prefix_path = S3_PREFIX.strip()
+        if prefix_path.endswith('/'):
+            prefix_path = prefix_path[:-1]
+        if not prefix_path.startswith('/'):
+            prefix_path = '/' + prefix_path
+        prefix_invalidation_path = f"{prefix_path}/*"
+        
+        if prefix_invalidation_path not in normalized_paths:
+            normalized_paths.append(prefix_invalidation_path)
+            print(f"ℹ️  Root invalidation detected - automatically adding {prefix_invalidation_path}")
+            print("   This prevents MIME type errors for game files after root invalidation")
     
     print("=" * 70)
     print("CLOUDFRONT INVALIDATION")
