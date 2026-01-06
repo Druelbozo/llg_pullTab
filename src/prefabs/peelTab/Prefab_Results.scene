@@ -29,7 +29,7 @@
                             "label": "winImage",
                             "scope": "CLASS",
                             "texture": {
-                                "key": "DI_Win_Default"
+                                "key": "DI_WinImage_Default"
                             },
                             "visible": false
                         },
@@ -39,7 +39,7 @@
                             "label": "loseImage",
                             "scope": "CLASS",
                             "texture": {
-                                "key": "DI_Lose_Default"
+                                "key": "DI_LoseImage_Default"
                             },
                             "visible": false
                         },

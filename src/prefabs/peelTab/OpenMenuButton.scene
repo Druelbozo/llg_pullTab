@@ -30,6 +30,8 @@
                     "id": "797dc57f-ea6c-4863-aa25-5505a0a48a68",
                     "label": "visualContainer",
                     "scope": "CLASS",
+                    "scaleX": 0.5,
+                    "scaleY": 0.5,
                     "list": [
                         {
                             "type": "NineSlice",
@@ -45,8 +47,8 @@
                             "rightWidth": 37,
                             "topHeight": 34,
                             "bottomHeight": 36,
-                            "width": 150,
-                            "height": 150
+                            "width": 200,
+                            "height": 200
                         },
                         {
                             "type": "Image",

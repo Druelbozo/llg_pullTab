@@ -29,6 +29,8 @@
                     "type": "Container",
                     "id": "6ae1ed33-003a-491f-8b33-4ebc0c227be8",
                     "label": "visualContainer",
+                    "scaleX": 0.5,
+                    "scaleY": 0.5,
                     "list": [
                         {
                             "type": "NineSlice",
@@ -44,8 +46,8 @@
                             "rightWidth": 39,
                             "topHeight": 39,
                             "bottomHeight": 39,
-                            "width": 300,
-                            "height": 150
+                            "width": 425,
+                            "height": 200
                         },
                         {
                             "prefabId": "0408176d-cee7-4226-ab81-2cc48ffffbb1",

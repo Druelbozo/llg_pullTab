@@ -36,15 +36,9 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 		dI_CardCover_Default.setOrigin(1, 0);
 		gameContainer.add(dI_CardCover_Default);
 
-		// win_Video
-		const win_Video = scene.add.video(-80, -300, "DV_WinVideo_Default");
-		win_Video.setOrigin(1, 0);
-		gameContainer.add(win_Video);
-
-		// lose_Video
-		const lose_Video = scene.add.video(-80, -300, "DV_LoseVideo_Default");
-		lose_Video.setOrigin(1, 0);
-		gameContainer.add(lose_Video);
+		// videoContainer
+		const videoContainer = scene.add.container(0, 0);
+		gameContainer.add(videoContainer);
 
 		// MessageText
 		const messageText = new PeelMessageText(scene, 0, -381);
@@ -63,8 +57,7 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 		this.prizeContainer = prizeContainer;
 		this.peelContainer = peelContainer;
 		this.dI_CardCover_Default = dI_CardCover_Default;
-		this.win_Video = win_Video;
-		this.lose_Video = lose_Video;
+		this.videoContainer = videoContainer;
 		this.messageText = messageText;
 		this.gameContainer = gameContainer;
 		this.peelCardEnterAnim = peelCardEnterAnim;
@@ -90,10 +83,8 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 	peelContainer;
 	/** @type {Phaser.GameObjects.Image} */
 	dI_CardCover_Default;
-	/** @type {Phaser.GameObjects.Video} */
-	win_Video;
-	/** @type {Phaser.GameObjects.Video} */
-	lose_Video;
+	/** @type {Phaser.GameObjects.Container} */
+	videoContainer;
 	/** @type {PeelMessageText} */
 	messageText;
 	/** @type {Phaser.GameObjects.Container} */
@@ -166,16 +157,18 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 
 		if(this.scene.cache.video.exists("WinVideo"))
 		{
-			//this.win_Video.stop();
-			//this.win_Video.load("WinVideo", false);
-			//console.log("Win Video Found")
+			const win_Video = this.scene.add.video(-80, -300, "WinVideo");
+			this.win_Video = win_Video;
+			win_Video.setOrigin(1, 0);
+			this.videoContainer.add(win_Video);
 		}
 
 		if(this.scene.cache.video.exists("LoseVideo"))
 		{
-			//this.lose_Video.stop();
-			//this.lose_Video.load("LoseVideo", false);
-			//console.log("Lose Video Found")
+			const lose_Video = this.scene.add.video(-80, -300, "LoseVideo");
+			this.lose_Video = lose_Video;
+			lose_Video.setOrigin(1, 0);
+			this.videoContainer.add(lose_Video);
 		}
 
 	}
@@ -269,8 +262,8 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 		this.scene.tweens.add({
 			targets: this.win_Video,
 			alpha: 0,
-			delay: 5000 / this.speed,
-			duration: 1000 / this.speed,
+			delay: 2750 / this.speed,
+			duration: 250 / this.speed,
 			onComplete: ()=>{this.win_Video.visible = false;}
 		})
 	}
@@ -287,8 +280,8 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 		this.scene.tweens.add({
 			targets: this.lose_Video,
 			alpha: 0,
-			delay: 5000 / this.speed,
-			duration: 1000 / this.speed,
+			delay: 2750 / this.speed,
+			duration: 250 / this.speed,
 			onComplete: ()=>{this.lose_Video.visible = false;}
 		})
 	}

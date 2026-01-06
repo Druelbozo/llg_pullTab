@@ -13,7 +13,7 @@ export default class PeelMessageText extends Phaser.GameObjects.Text {
 
 		this.setOrigin(0.5, 0.5);
 		this.text = "OPEN THE TAB FOR WINS UP TO 999$";
-		this.setStyle({ "color": "#33b5d4ff", "fontFamily": "Lato-Bold", "fontSize": "50px", "stroke": "#e3e6c6ff", "strokeThickness": 14, "shadow.offsetY": 3, "shadow.color": "#00000072", "shadow.stroke": true });
+		this.setStyle({ "color": "#33b5d4ff", "fontFamily": "Lato-Bold", "fontSize": "50px", "stroke": "#e3e6c6ff", "strokeThickness": 14, "shadow.color": "#00000072" });
 
 		/* START-USER-CTR-CODE */
 		// Write your code here.
@@ -34,6 +34,7 @@ export default class PeelMessageText extends Phaser.GameObjects.Text {
 	initVisual(theme)
 	{
 		let style = theme.text.mainText;
+		console.log("!!!!!", style);
 
 		this.setStyle
 		({

@@ -30,7 +30,7 @@ export default class ThemeManager extends Phaser.GameObjects.Container {
 		console.log('Full gameConfig:', gameConfig);
 		// Add cache-busting parameter to ensure we get the latest theme file
 		const cacheBuster = Date.now();
-		const optionsResponse = await fetch(`Themes/${selectedOptions}.json?t=${cacheBuster}`);
+		const optionsResponse = await fetch(`themes/${selectedOptions}.json?t=${cacheBuster}`);
 
 		if (optionsResponse.ok)
 		{

@@ -135,11 +135,11 @@ export default class Preload extends Phaser.Scene {
 		const cacheBuster = Date.now();
 		try 
 		{
-			const themeResponse = await fetch(`Themes/${selectedTheme}.json?t=${cacheBuster}`);	
-			console.log(`Theme loaded: Themes/${selectedTheme}.json`);
+			const themeResponse = await fetch(`themes/${selectedTheme}.json?t=${cacheBuster}`);	
+			console.log(`Theme loaded: themes/${selectedTheme}.json`);
 			if (themeResponse.ok)
 			{
-				console.log(`Theme loaded: Themes/${selectedTheme}.json`);
+				console.log(`Theme loaded: themes/${selectedTheme}.json`);
 
 				const themeData = await themeResponse.json();
 				this._themeImagesLoading = true;
@@ -257,28 +257,28 @@ export default class Preload extends Phaser.Scene {
 	loadVideo(value, themeData)
 	{
 
-		console.log(value.key, "!!!!!!!!!!!!!!");
-		if (!value.key || value.key === "") {
-			console.log(`Skipping load for ${value.key}: audioKey is empty`);
+
+		if (!value.videoKey || value.videoKey === "") {
+			console.log(`Skipping load for ${value.videoKey}: videoKey is empty`);
 			return;
 		}
 
 		let path = "";
 
-		console.log(`Loading video: key="${value.key}", videoKey="${value.key}"`);
+		console.log(`Loading video: key="${value.videoKey}", videoKey="${value.videoKey}"`);
 
 		if (value.key.startsWith('http')) 
 		{
-			path = value.audioKey;
+			path = value.videoKey;
 		}
 		else 
 		{	
 			// Loading Locally - add cache-busting parameter to ensure we get the latest audio
 			const cacheBuster = Date.now();
-			path = `assets/Videos/${value.key}.mp4?t=${cacheBuster}`;
+			path = `assets/Videos/${value.key}/${value.videoKey}.mp4`;
 		}
-
-		this.load.video(value.key, path);
+		console.log(path, "!!!!!!!!!!!!!!");
+		this.load.video(value.key, path, "loadeddata", true);
 	}	
 
 	loadAudio(value, themeData)

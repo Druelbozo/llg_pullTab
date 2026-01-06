@@ -10,11 +10,17 @@
 
 //import defaultConfig from './archive/default.js';
 import crazybananaConfig from './crazybanana.js';
+import lumberjackaConfig from './lumberjack.js';
+import yummyConfig from './yummy.js';
+import monsterConfig from './monster.js';
 
 
 const AVAILABLE_CONFIGS = {
     //'default': defaultConfig,
     'crazybanana': crazybananaConfig,
+    'lumberjack': lumberjackaConfig,
+    'yummy': yummyConfig,
+    'monster': monsterConfig,
 };
 
 function getSelectedConfigName() {
@@ -33,11 +39,11 @@ function getSelectedConfigName() {
     } catch (_) {
         // In non-browser contexts, fall through to default
     }
-    return 'crazybanana';
+    return 'monster';
 }
 
 const selectedName = getSelectedConfigName();
-const gameConfig = AVAILABLE_CONFIGS[selectedName] || AVAILABLE_CONFIGS['crazybanana'];
+const gameConfig = AVAILABLE_CONFIGS[selectedName] || AVAILABLE_CONFIGS['monster'];
 
 export default gameConfig;
 

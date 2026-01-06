@@ -62,30 +62,10 @@
                             "originY": 0
                         },
                         {
-                            "type": "Video",
-                            "id": "74dbb472-6735-405a-a2af-d7fec8caf220",
-                            "label": "win_Video",
-                            "scope": "CLASS",
-                            "x": -80,
-                            "y": -300,
-                            "originX": 1,
-                            "originY": 0,
-                            "videoKey": "DV_WinVideo_Default",
-                            "videoAutoPlay": false,
-                            "videoLoop": false
-                        },
-                        {
-                            "type": "Video",
-                            "id": "4600b4db-57fa-47c4-be64-4e0895937411",
-                            "label": "lose_Video",
-                            "scope": "CLASS",
-                            "x": -80,
-                            "y": -300,
-                            "originX": 1,
-                            "originY": 0,
-                            "videoKey": "DV_LoseVideo_Default",
-                            "videoAutoPlay": false,
-                            "videoLoop": false
+                            "type": "Container",
+                            "id": "0b172737-9fb6-47b6-8308-76dc1f9e1d0f",
+                            "label": "videoContainer",
+                            "scope": "CLASS"
                         },
                         {
                             "prefabId": "551a8cff-5f67-4624-83f5-5b0f83d34196",

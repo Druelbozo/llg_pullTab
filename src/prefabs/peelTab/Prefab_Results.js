@@ -17,12 +17,12 @@ export default class Prefab_Results extends Phaser.GameObjects.Container {
 		this.add(animContainer);
 
 		// winImage
-		const winImage = scene.add.image(0, 0, "DI_Win_Default");
+		const winImage = scene.add.image(0, 0, "DI_WinImage_Default");
 		winImage.visible = false;
 		animContainer.add(winImage);
 
 		// loseImage
-		const loseImage = scene.add.image(0, 0, "DI_Lose_Default");
+		const loseImage = scene.add.image(0, 0, "DI_LoseImage_Default");
 		loseImage.visible = false;
 		animContainer.add(loseImage);
 
@@ -65,10 +65,12 @@ export default class Prefab_Results extends Phaser.GameObjects.Container {
 	{
 		let style = theme.text.mainText;
 
+		console.log(style, "!!!!!!!!");
+
 		this.winningsText.setStyle
 		({
 			fontFamily: style.fontFamily,
-			fontSize: style.fontSize +40,
+			fontSize: style.fontSize + 40,
 			color: style.color,
 			stroke: style.strokeColor,
 			strokeThickness: style.strokeThickness,

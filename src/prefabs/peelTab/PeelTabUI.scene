@@ -28,7 +28,7 @@
                     "isFilled": true,
                     "fillColor": "#000000",
                     "width": 1080,
-                    "height": 135,
+                    "height": 95,
                     "list": [
                         {
                             "prefabId": "5967fa3c-02aa-4048-9aeb-55243d2ffc72",
@@ -67,7 +67,7 @@
                             "enableOverAnim": true,
                             "enablePressAnim": true,
                             "x": -54,
-                            "y": -67
+                            "y": -47
                         },
                         {
                             "prefabId": "7c866dad-c85f-4ad8-9a54-a13881b27b22",
@@ -81,8 +81,8 @@
                             "label": "autoOptionsButton",
                             "target": "autoPlayMenu",
                             "icon": "{\"key\":\"AutoPlay\"}",
-                            "x": 118,
-                            "y": -67
+                            "x": 69,
+                            "y": -47
                         },
                         {
                             "prefabId": "e374e151-ec3d-4bd4-89ce-3a2d05680c71",
@@ -129,10 +129,10 @@
                                 "scaleY"
                             ],
                             "label": "accountBalanceDisplay",
-                            "x": -152,
-                            "y": -67,
-                            "scaleX": 0.75,
-                            "scaleY": 0.75
+                            "x": -104,
+                            "y": -43,
+                            "scaleX": 0.5,
+                            "scaleY": 0.5
                         },
                         {
                             "prefabId": "5967fa3c-02aa-4048-9aeb-55243d2ffc72",
@@ -167,8 +167,8 @@
                             "label": "autoOptionsButton_1",
                             "target": "hamburgerMenu",
                             "icon": "{\"key\":\"Hud_Sandwich\"}",
-                            "x": 74,
-                            "y": -67
+                            "x": 57,
+                            "y": -48
                         },
                         {
                             "prefabId": "4ed65abb-141e-4fa6-92f8-2fc90bd7fa54",

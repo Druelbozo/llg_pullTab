@@ -14,10 +14,12 @@ export default class OpenMenuButton extends Button {
 
 		// visualContainer
 		const visualContainer = scene.add.container(0, 0);
+		visualContainer.scaleX = 0.5;
+		visualContainer.scaleY = 0.5;
 		this.add(visualContainer);
 
 		// btn_Main
-		const btn_Main = scene.add.nineslice(0, 0, "Btn_Main", undefined, 150, 150, 39, 37, 34, 36);
+		const btn_Main = scene.add.nineslice(0, 0, "Btn_Main", undefined, 200, 200, 39, 37, 34, 36);
 		btn_Main.scaleX = 0.75;
 		btn_Main.scaleY = 0.75;
 		btn_Main.tint = 16717077;

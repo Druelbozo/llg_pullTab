@@ -1,0 +1,94 @@
+{
+  "fontLoader": {
+    "fonts":
+    [
+      "Titan One",
+      "New Amsterdam"
+    ]
+  },
+  "gameOptions": {
+    "testValue": 3
+  },
+  "themeColors": {
+    "buttonColor": "#0",
+    "textMainColor": "#0",
+    "textSubColor": "#0"
+  },
+  "text":
+  {
+    "mainText": {
+      "fontFamily": "New Amsterdam",
+      "fontSize": 65, 
+      "color": "#fdb50f",
+      "strokeColor": "#0",
+      "strokeThickness": 15,
+      "content": "",
+      "offset":
+      {
+        "x": 0,
+        "y": 0
+      }
+    }
+  },
+  "images": {
+    "Peel": {
+      "type": "image",
+      "key": "Peel",
+      "imageKey": "DI_Peel_CrazyBanana",
+      "description": "Peel that is removed"
+    },
+    "PeelBack": {
+      "type": "image",
+      "key": "PeelBack",
+      "imageKey": "DI_PeelBack_Default",
+      "description": "Revealed after peel is removed"
+    },
+    "CardCover": {
+      "type": "image",
+      "key": "CardCover",
+      "imageKey": "DI_card_lumberjack",
+      "description": "Visual Card cover"
+    },
+    "Icons": {
+      "type": "image",
+      "key": "Icons",
+      "imageKey": "DI_icons_lumberjack",
+      "description": "Icons Under Peel",
+      "imageWidth": 100,
+      "imageHeight": 100
+    },
+    "Background": {
+      "type": "image",
+      "key": "Background",
+      "imageKey": "DI_background_lumberjack",
+      "description": "Background"
+    },
+    "WinImage": {
+      "type": "image",
+      "key": "WinImage",
+      "imageKey": "DI_WinImage_Default",
+      "description": "Win Image"
+    },
+    "LoseImage": {
+      "type": "image",
+      "key": "LoseImage",
+      "imageKey": "DI_LoseImage_Default",
+      "description": "Lose Image"
+    }          
+  },
+  "videos":
+  {
+    "WinVideo": {
+      "type": "video",
+      "key": "WinVideo",
+      "videoKey": "DV_winvideo_lumberjack",
+      "description": "Plays during win"
+    },
+    "LoseVideo": {
+      "type": "video",
+      "key": "LoseVideo",
+      "videoKey": "",
+      "description": "Background"
+    }      
+  }
+}

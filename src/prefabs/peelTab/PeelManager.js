@@ -134,7 +134,7 @@ export default class PeelManager extends Phaser.GameObjects.Container {
 		{
 			this.autoRoundsLeft--
 			console.log("Auto Rounds Left: " + this.autoRoundsLeft)
-			this.scene.time.delayedCall(6000 / this.speed, () => this.stateManager.setState("reset", "PeelManager -  Resetting Game"))
+			this.scene.time.delayedCall(3000 / this.speed, () => this.stateManager.setState("reset", "PeelManager -  Resetting Game"))
 		}
 	}
 

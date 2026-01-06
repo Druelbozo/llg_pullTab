@@ -18,9 +18,9 @@
   {
     "mainText": {
       "fontFamily": "New Amsterdam",
-      "fontSize": 80,
-      "color": "#fe7a00",
-      "strokeColor": "#f6f4eb",
+      "fontSize": 65, 
+      "color": "#33b5d4",
+      "strokeColor": "#e3e6c6",
       "strokeThickness": 15,
       "content": "",
       "offset":
@@ -81,13 +81,13 @@
     "WinVideo": {
       "type": "video",
       "key": "WinVideo",
-      "imageKey": "DI_WinVideo_CrazyBanana",
+      "videoKey": "DV_WinVideo_Default",
       "description": "Background"
     },
     "LoseVideo": {
       "type": "video",
       "key": "LoseVideo",
-      "imageKey": "DI_LoseVideo_CrazyBanana",
+      "videoKey": "DV_LoseVideo_Default",
       "description": "Background"
     }      
   }
