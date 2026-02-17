@@ -20,10 +20,12 @@ USAGE:
 import sys
 import os
 import json
+import copy
 import subprocess
 import argparse
 from pathlib import Path
 from datetime import datetime
+from decimal import Decimal
 
 # Add project root for imports
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -52,7 +54,6 @@ if sys.platform == 'win32':
 
 CONFIG_DIR = PROJECT_ROOT / 'src' / 'config' / 'game'
 THUMBNAILS_DIR = PROJECT_ROOT / 'assets' / 'images' / 'thumbnails'
-BACKUP_FILE = PROJECT_ROOT / 'backup' / 'dynamodb' / 'GameCatalog' / 'GameCatalog-latest.json'
 BASE_URL = f'https://play.luckyladygames.com/{S3_PREFIX}assets/images/thumbnails/'
 GAME_URL = f'https://play.luckyladygames.com/{S3_PREFIX.rstrip("/")}/'
 
@@ -109,46 +110,55 @@ def find_thumbnail(game_id, extension):
     return None
 
 
-def load_existing_catalog():
-    """Load existing GameCatalog from backup for createdAt preservation."""
-    if not BACKUP_FILE.exists():
-        return {}
+def convert_decimal(obj):
+    """Convert DynamoDB Decimal types to native Python types."""
+    if isinstance(obj, Decimal):
+        return int(obj) if obj % 1 == 0 else float(obj)
+    if isinstance(obj, dict):
+        return {k: convert_decimal(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [convert_decimal(v) for v in obj]
+    return obj
+
+
+def get_existing_item(dynamodb, table_name, game_id):
+    """Fetch existing GameCatalog item by gameId. Returns None if not found."""
     try:
-        with open(BACKUP_FILE, 'r', encoding='utf-8') as f:
-            items = json.load(f)
-        return {item['gameId']: item for item in items if 'gameId' in item}
-    except (json.JSONDecodeError, IOError) as e:
-        print(f"   Warning: Could not load backup file: {e}")
-        return {}
+        table = dynamodb.Table(table_name)
+        response = table.get_item(Key={'gameId': game_id})
+        item = response.get('Item')
+        if item is None:
+            return None
+        return convert_decimal(item)
+    except ClientError:
+        return None
 
 
-def build_entry(game_id, config, existing):
-    """Build a GameCatalog entry from config."""
-    # Metadata: all top-level keys from config
-    metadata = dict(config)
+# Schema defaults for migration (add missing fields to legacy entries)
+SCHEMA_DEFAULTS = {
+    'co-branded': False,
+}
 
-    # title, descriptionShort, descriptionLong from gameId
-    title = game_id_to_title(game_id)
 
-    # imageUrl
+def _thumbnail_urls(game_id):
+    """Get imageUrl and videoUrl from thumbnails dir."""
     png_name = find_thumbnail(game_id, '.png')
     if png_name:
         image_url = BASE_URL + png_name
     else:
         print(f"   Warning: No thumbnail found for {game_id}, using placeholder")
         image_url = BASE_URL + f'{game_id}.png'
-
-    # videoUrl (optional)
     mp4_name = find_thumbnail(game_id, '.mp4')
     video_url = (BASE_URL + mp4_name) if mp4_name else None
+    return image_url, video_url
 
-    # Timestamps
+
+def build_new_entry(game_id, config):
+    """Build a full GameCatalog entry for a new game."""
+    metadata = dict(config)
+    title = game_id_to_title(game_id)
+    image_url, video_url = _thumbnail_urls(game_id)
     now = int(datetime.now().timestamp())
-    if game_id in existing and 'createdAt' in existing[game_id]:
-        created_at = existing[game_id]['createdAt']
-    else:
-        created_at = now
-    updated_at = now
 
     entry = {
         'metadata': metadata,
@@ -169,12 +179,32 @@ def build_entry(game_id, config, existing):
         'descriptionShort': title,
         'descriptionLong': title,
         'imageUrl': image_url,
-        'createdAt': created_at,
-        'updatedAt': updated_at,
+        'createdAt': now,
+        'updatedAt': now,
+        'co-branded': False,
     }
-
     if video_url:
         entry['videoUrl'] = video_url
+    return entry
+
+
+def build_update_entry(game_id, config, existing_db_item):
+    """Build update for existing entry: only metadata, imageUrl, videoUrl; add missing schema fields."""
+    entry = copy.deepcopy(existing_db_item)
+
+    # Overwrite syncable fields only
+    entry['metadata'] = dict(config)
+    entry['imageUrl'], video_url = _thumbnail_urls(game_id)
+    entry['updatedAt'] = int(datetime.now().timestamp())
+    if video_url:
+        entry['videoUrl'] = video_url
+    elif 'videoUrl' in entry:
+        del entry['videoUrl']  # Remove if no longer present in thumbnails
+
+    # Schema migration: add missing fields with defaults (never overwrite co-branded when True)
+    for key, default in SCHEMA_DEFAULTS.items():
+        if key not in entry:
+            entry[key] = default
 
     return entry
 
@@ -250,19 +280,23 @@ def main():
         print("No config files to sync.")
         return False
 
-    # Load existing for createdAt
-    existing = load_existing_catalog()
-    print(f"Loaded {len(existing)} existing entries from backup (for createdAt)")
-    print()
+    # Connect to DynamoDB (needed for both dry-run and sync to fetch existing entries)
+    dynamodb = get_dynamodb_resource(args.region)
+    if not dynamodb:
+        return False
 
-    # Build entries
+    # Build entries: for each game, fetch existing from DB and build new or update entry
     entries = []
     for game_id, _ in configs:
         config = load_config(game_id)
         if config is None:
             print(f"   Skipping {game_id} (failed to load config)")
             continue
-        entry = build_entry(game_id, config, existing)
+        existing = get_existing_item(dynamodb, 'GameCatalog', game_id)
+        if existing is None:
+            entry = build_new_entry(game_id, config)
+        else:
+            entry = build_update_entry(game_id, config, existing)
         entries.append(entry)
 
     print(f"Built {len(entries)} entries")
@@ -288,11 +322,6 @@ def main():
             return False
     else:
         print("Skipping confirmation (--yes flag set)")
-
-    # Connect and put items
-    dynamodb = get_dynamodb_resource(args.region)
-    if not dynamodb:
-        return False
 
     success = 0
     failed = 0
