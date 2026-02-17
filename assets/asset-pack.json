@@ -2,7 +2,7 @@
     "section1": {
         "files": [
             {
-                "url": "assets/Images/Common/alpha_mask.png",
+                "url": "assets/images/Common/alpha_mask.png",
                 "type": "image",
                 "key": "alpha_mask"
             },
@@ -14,32 +14,32 @@
                 "key": "Anton-Regular"
             },
             {
-                "url": "assets/Images/Common/UI/AutoPlay.png",
+                "url": "assets/images/Common/UI/AutoPlay.png",
                 "type": "image",
                 "key": "AutoPlay"
             },
             {
-                "url": "assets/Images/Common/UI/Btn_Main.png",
+                "url": "assets/images/Common/UI/Btn_Main.png",
                 "type": "image",
                 "key": "Btn_Main"
             },
             {
-                "url": "assets/Images/Common/CardBack.png",
+                "url": "assets/images/Common/CardBack.png",
                 "type": "image",
                 "key": "CardBack"
             },
             {
-                "url": "assets/Images/Background/DI_Background_Default.png",
+                "url": "assets/images/Background/DI_Background_Default.png",
                 "type": "image",
                 "key": "DI_Background_Default"
             },
             {
-                "url": "assets/Images/CardCover/DI_CardCover_Default.png",
+                "url": "assets/images/CardCover/DI_CardCover_Default.png",
                 "type": "image",
                 "key": "DI_CardCover_Default"
             },
             {
-                "url": "assets/Images/Icons/DI_Icons_Default.png",
+                "url": "assets/images/Icons/DI_Icons_Default.png",
                 "frameConfig": {
                     "frameWidth": 100,
                     "frameHeight": 100,
@@ -52,22 +52,22 @@
                 "key": "DI_Icons_Default"
             },
             {
-                "url": "assets/Images/LoseImage/DI_LoseImage_Default.png",
+                "url": "assets/images/LoseImage/DI_LoseImage_Default.png",
                 "type": "image",
                 "key": "DI_LoseImage_Default"
             },
             {
-                "url": "assets/Images/Peel/DI_Peel_Default.png",
+                "url": "assets/images/Peel/DI_Peel_Default.png",
                 "type": "image",
                 "key": "DI_Peel_Default"
             },
             {
-                "url": "assets/Images/PeelBack/DI_PeelBack_Default.png",
+                "url": "assets/images/PeelBack/DI_PeelBack_Default.png",
                 "type": "image",
                 "key": "DI_PeelBack_Default"
             },
             {
-                "url": "assets/Images/WinImage/DI_WinImage_Default.png",
+                "url": "assets/images/WinImage/DI_WinImage_Default.png",
                 "type": "image",
                 "key": "DI_WinImage_Default"
             },
@@ -86,27 +86,27 @@
                 "key": "DV_WinVideo_Default"
             },
             {
-                "url": "assets/Images/Common/UI/exitIcon.png",
+                "url": "assets/images/Common/UI/exitIcon.png",
                 "type": "image",
                 "key": "exitIcon"
             },
             {
-                "url": "assets/Images/Common/UI/Hud_InfoButton.png",
+                "url": "assets/images/Common/UI/Hud_InfoButton.png",
                 "type": "image",
                 "key": "Hud_InfoButton"
             },
             {
-                "url": "assets/Images/Common/UI/Hud_Sandwich.png",
+                "url": "assets/images/Common/UI/Hud_Sandwich.png",
                 "type": "image",
                 "key": "Hud_Sandwich"
             },
             {
-                "url": "assets/Images/Common/UI/icon_sound_off_128.png",
+                "url": "assets/images/Common/UI/icon_sound_off_128.png",
                 "type": "image",
                 "key": "icon_sound_off_128"
             },
             {
-                "url": "assets/Images/Common/UI/icon_sound_on_128.png",
+                "url": "assets/images/Common/UI/icon_sound_on_128.png",
                 "type": "image",
                 "key": "icon_sound_on_128"
             },
@@ -125,12 +125,12 @@
                 "key": "Lato-Regular"
             },
             {
-                "url": "assets/Images/Common/UI/UI_Arrow.png",
+                "url": "assets/images/Common/UI/UI_Arrow.png",
                 "type": "image",
                 "key": "UI_Arrow"
             },
             {
-                "url": "assets/Images/Common/UI/UI_CounterPanel.png",
+                "url": "assets/images/Common/UI/UI_CounterPanel.png",
                 "type": "image",
                 "key": "UI_CounterPanel"
             },

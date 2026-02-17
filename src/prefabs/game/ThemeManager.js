@@ -4,7 +4,7 @@
 /* START OF COMPILED CODE */
 
 /* START-USER-IMPORTS */
-import gameConfig from '../../config/game-config.js';
+import gameConfig from '../../config/game/game-config.js';
 /* END-USER-IMPORTS */
 
 export default class ThemeManager extends Phaser.GameObjects.Container {
@@ -30,7 +30,7 @@ export default class ThemeManager extends Phaser.GameObjects.Container {
 		console.log('Full gameConfig:', gameConfig);
 		// Add cache-busting parameter to ensure we get the latest theme file
 		const cacheBuster = Date.now();
-		const optionsResponse = await fetch(`themes/${selectedOptions}.json?t=${cacheBuster}`);
+		const optionsResponse = await fetch(`src/config/themes/${selectedOptions}.json?t=${cacheBuster}`);
 
 		if (optionsResponse.ok)
 		{

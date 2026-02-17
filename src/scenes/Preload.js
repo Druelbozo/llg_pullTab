@@ -4,7 +4,7 @@
 /* START OF COMPILED CODE */
 
 /* START-USER-IMPORTS */
-import gameConfig from '../config/game-config.js';
+import gameConfig from '../config/game/game-config.js';
 import WebFontFile from '../utils/ui/WebFontFile.js';
 /* END-USER-IMPORTS */
 
@@ -130,16 +130,16 @@ export default class Preload extends Phaser.Scene {
 	async loadTheme()
 	{
 		let selectedTheme = gameConfig.theme || 'default';
-		console.log(`Loading theme: Themes/${selectedTheme}.json`);
+		console.log(`Loading theme: src/config/themes/${selectedTheme}.json`);
 
 		const cacheBuster = Date.now();
 		try 
 		{
-			const themeResponse = await fetch(`themes/${selectedTheme}.json?t=${cacheBuster}`);	
-			console.log(`Theme loaded: themes/${selectedTheme}.json`);
+			const themeResponse = await fetch(`src/config/themes/${selectedTheme}.json?t=${cacheBuster}`);	
+			console.log(`Theme loaded: src/config/themes/${selectedTheme}.json`);
 			if (themeResponse.ok)
 			{
-				console.log(`Theme loaded: themes/${selectedTheme}.json`);
+				console.log(`Theme loaded: src/config/themes/${selectedTheme}.json`);
 
 				const themeData = await themeResponse.json();
 				this._themeImagesLoading = true;
@@ -171,7 +171,7 @@ export default class Preload extends Phaser.Scene {
 			} 
 			else
 			{
-				console.warn(`[Preload] Failed to load theme: Themes/${selectedTheme}.json (status: ${themeResponse.status})`);
+				console.warn(`[Preload] Failed to load theme: src/config/themes/${selectedTheme}.json (status: ${themeResponse.status})`);
 				// Continue without theme - game will use defaults
 				this._themeImagesQueued = true; // Mark as done even if failed
 			}
@@ -180,7 +180,7 @@ export default class Preload extends Phaser.Scene {
 		}
 		catch (error)
 		{
-			console.error(`[Preload] Error loading theme: Themes/${selectedTheme}.json`, error);
+			console.error(`[Preload] Error loading theme: src/config/themes/${selectedTheme}.json`, error);
 			this._themeImagesQueued = true;
 		}
 	
@@ -236,7 +236,7 @@ export default class Preload extends Phaser.Scene {
 		{	
 			//Loading Locally - add cache-busting parameter to ensure we get the latest image
 			const cacheBuster = Date.now();
-			imageKey = `assets/Images/${value.key}/${value.imageKey}.png?t=${cacheBuster}`;
+			imageKey = `assets/images/${value.key}/${value.imageKey}.png?t=${cacheBuster}`;
 		}
 
 		//Is SpriteSheet?

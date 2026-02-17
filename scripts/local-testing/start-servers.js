@@ -214,7 +214,8 @@ function startServers() {
     console.log(`📡 Starting CORS proxy server on port ${PORT_CORS_PROXY}...`);
     corsProxy = spawn('node', [path.join(__dirname, 'cors-proxy.js')], {
         stdio: 'pipe',
-        shell: true
+        shell: true,
+        cwd: __dirname  // so node finds node_modules in scripts/local-testing
     });
 
     corsProxy.stdout.on('data', (data) => {
