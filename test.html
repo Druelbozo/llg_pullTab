@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <title>Pull Tabs Game Config Test Page</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #141414;
+            color: #e5e5e5;
+            margin: 0;
+            padding: 40px 20px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .logo-container {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .logo {
+            max-width: 400px;
+            width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+        .section {
+            background: #1c1c1c;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .section-title {
+            font-size: 1.8em;
+            font-weight: 600;
+            color: #d4d4d4;
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #808080;
+            letter-spacing: -0.01em;
+        }
+        .links-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        
+        @media (min-width: 575px) {
+            .links-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        @media (min-width: 800px) {
+            .links-container {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        @media (min-width: 1100px) {
+            .links-container {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+        a {
+            display: block;
+            padding: 0;
+            background: transparent;
+            text-decoration: none;
+            border-radius: 5px;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+            overflow: hidden;
+            aspect-ratio: 1;
+        }
+        a:hover {
+            border-color: #ffca63;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 202, 99, 0.3);
+        }
+        a img,
+        a video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        a .thumbnail-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        a .thumbnail-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            pointer-events: none;
+        }
+        a .fallback-text {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #241773;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            padding: 20px;
+            text-align: center;
+            box-sizing: border-box;
+            border-radius: 8px;
+        }
+        .loading {
+            text-align: center;
+            color: #888;
+            padding: 40px;
+        }
+        .error {
+            color: #ff6b6b;
+            text-align: center;
+            padding: 20px;
+            background: #3a1a1a;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-container">
+            <img src="assets/images/Common/llg-newlogo-lite.png" alt="Lucky Lady Games" class="logo" onerror="this.style.display='none'">
+        </div>
+        <div id="links-container" class="loading">Loading configs...</div>
+    </div>
+
+    <script type="module">
+        function formatConfigTitle(configName) {
+            if (!configName) return 'Unknown';
+            
+            const words = configName.split(/[-_]/).filter(w => w.length > 0);
+            
+            const formattedWords = words.map((word) => {
+                return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+            });
+            
+            return formattedWords.join(' ');
+        }
+
+        async function generateLinks() {
+            const container = document.getElementById('links-container');
+            
+            try {
+                const { AVAILABLE_CONFIGS } = await import('./src/config/game/game-config.js');
+                
+                const configNames = Object.keys(AVAILABLE_CONFIGS).sort();
+                
+                if (configNames.length === 0) {
+                    container.innerHTML = '<div class="error">No configs found</div>';
+                    return;
+                }
+                
+                async function checkFileExists(url) {
+                    try {
+                        const response = await fetch(url, { 
+                            method: 'HEAD',
+                            cache: 'no-cache'
+                        });
+                        return response.status >= 200 && response.status < 300;
+                    } catch (error) {
+                        return false;
+                    }
+                }
+                
+                async function createLinkWithThumbnail(configName) {
+                    const title = formatConfigTitle(configName);
+                    const url = `/?config=${configName}`;
+                    const mp4Path = `assets/images/thumbnails/${configName}.mp4`;
+                    const pngPath = `assets/images/thumbnails/${configName}-500.png`;
+                    
+                    const mp4Exists = await checkFileExists(mp4Path);
+                    const pngExists = await checkFileExists(pngPath);
+                    
+                    let content = '';
+                    
+                    if (pngExists) {
+                        content = `<img src="${pngPath}" alt="${title}" class="thumbnail-image">`;
+                    } else {
+                        content = `<div class="fallback-text">${title}</div>`;
+                    }
+                    
+                    return {
+                        html: `<a href="${url}" title="${title}" data-config="${configName}" data-mp4-path="${mp4Exists ? mp4Path : ''}" data-png-path="${pngExists ? pngPath : ''}">
+                            ${content}
+                        </a>`,
+                        hasVideo: mp4Exists,
+                        configName: configName
+                    };
+                }
+                
+                const linksPromises = configNames.map(configName => {
+                    return createLinkWithThumbnail(configName);
+                });
+                
+                const linksData = await Promise.all(linksPromises);
+                const videoConfigs = [];
+                const links = linksData.map(data => {
+                    if (data.hasVideo) {
+                        videoConfigs.push(data.configName);
+                    }
+                    return data.html;
+                }).join('');
+                
+                const sectionsHTML = `
+                    <div class="section">
+                        <h2 class="section-title">Pull Tab Games</h2>
+                        <div class="links-container">${links}</div>
+                    </div>
+                `;
+                
+                container.className = '';
+                container.innerHTML = sectionsHTML;
+                
+                videoConfigs.forEach(configName => {
+                    const link = container.querySelector(`a[data-config="${configName}"]`);
+                    if (!link) return;
+                    
+                    const mp4Path = link.getAttribute('data-mp4-path');
+                    if (!mp4Path) return;
+                    
+                    let video = null;
+                    let videoLoaded = false;
+                    let imageElement = link.querySelector('.thumbnail-image');
+                    
+                    link.addEventListener('mouseenter', () => {
+                        if (!videoLoaded) {
+                            video = document.createElement('video');
+                            video.src = mp4Path;
+                            video.muted = true;
+                            video.loop = true;
+                            video.preload = 'auto';
+                            video.className = 'thumbnail-video';
+                            video.currentTime = 0;
+                            
+                            video.addEventListener('loadeddata', () => {
+                                if (imageElement && imageElement.parentNode === link) {
+                                    link.removeChild(imageElement);
+                                }
+                                link.appendChild(video);
+                                videoLoaded = true;
+                                video.currentTime = 0;
+                                video.play().catch(() => {});
+                            });
+                            
+                            video.load();
+                        } else if (video) {
+                            video.play().catch(() => {});
+                        }
+                    });
+                    
+                    link.addEventListener('mouseleave', () => {
+                        if (video && videoLoaded) {
+                            video.pause();
+                        }
+                    });
+                });
+                
+            } catch (error) {
+                console.error('Error loading configs:', error);
+                container.className = 'error';
+                container.innerHTML = `Error loading configs: ${error.message}`;
+            }
+        }
+
+        generateLinks();
+    </script>
+</body>
+</html>

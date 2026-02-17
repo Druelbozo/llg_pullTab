@@ -23,6 +23,8 @@ const AVAILABLE_CONFIGS = {
     'monster': monsterConfig,
 };
 
+export { AVAILABLE_CONFIGS };
+
 function getSelectedConfigName() {
     try {
         // Read from current window, then parent/top (Phaser Editor external runner may iframe the game)

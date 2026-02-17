@@ -45,24 +45,7 @@ if _aws_dir not in sys.path:
 from sso.aws_sso_auth import ensure_sso_authenticated, get_boto3_session
 
 # Import shared AWS configuration
-from aws_config import BUCKET, S3_PREFIX
-
-# Default paths to sync when no arguments provided
-DEFAULT_PATHS = [
-    'assets',
-    'css',
-    'js',
-    'phaserjs_editor_scripts_base',
-    'src',  # Includes layouts/ subfolder
-    'themes',
-    'index.html',
-    'favicon.ico'
-]
-
-# File extensions to skip (never sync or delete from S3)
-SKIP_EXTENSIONS = {
-    '.psd'  # Photoshop files - never sync to S3
-}
+from aws_config import BUCKET, S3_PREFIX, DEFAULT_PATHS, PRODUCTION_PATHS, SKIP_EXTENSIONS
 
 # Fix Windows console encoding for emoji support
 if sys.platform == 'win32':
@@ -1171,8 +1154,22 @@ Examples:
         action='store_true',
         help='Show detailed preview for each path before summary. If not provided, only shows summary of changes.'
     )
+    parser.add_argument(
+        '--from-dir',
+        default=None,
+        help='Use a subdirectory as the root for path resolution (e.g., dist for production build output).'
+    )
+    parser.add_argument(
+        '--production',
+        action='store_true',
+        help='Deploy production build: use dist/ as root and PRODUCTION_PATHS (index.html, assets, js, src/config/themes, src/config/game).'
+    )
     
     args = parser.parse_args()
+    
+    # Apply --production to set --from-dir
+    if args.production:
+        args.from_dir = 'dist'
     
     # Find project root
     project_root = find_project_root()
@@ -1181,9 +1178,21 @@ Examples:
         print("   Please run this script from within the project directory or a subdirectory.")
         return False
     
+    # Apply --from-dir to set effective project root (e.g., dist/ for production)
+    if args.from_dir:
+        project_root = os.path.normpath(os.path.join(project_root, args.from_dir))
+        if not os.path.exists(project_root):
+            print(f"❌ Error: --from-dir '{args.from_dir}' does not exist at {project_root}")
+            print("   Run 'npm run build' first to create the production build.")
+            return False
+        print(f"ℹ️  Using build output as root: {project_root}")
+    
     # Determine which paths to sync
     if args.paths:
         paths_to_sync = args.paths
+    elif args.production:
+        paths_to_sync = PRODUCTION_PATHS
+        print("ℹ️  Production mode: using PRODUCTION_PATHS:")
     else:
         paths_to_sync = DEFAULT_PATHS
         print("ℹ️  No paths specified, using default paths:")

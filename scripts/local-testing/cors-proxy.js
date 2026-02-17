@@ -780,7 +780,8 @@ app.use('/api', (req, res, next) => {
   proxyReq.end();
 });
 
-const PORT = 8081;
+// Port from argv (start-servers.js passes it) or env, default 8083
+const PORT = process.argv[2] ? parseInt(process.argv[2], 10) : (process.env.PORT ? parseInt(process.env.PORT, 10) : 8083);
 const HOST = '0.0.0.0'; // Bind to all network interfaces
 app.listen(PORT, HOST, () => {
   console.log(`🚀 CORS Proxy running on http://localhost:${PORT}`);
