@@ -13,7 +13,7 @@ import crazybananaConfig from './crazybanana.js';
 import lumberjackaConfig from './lumberjack.js';
 import yummyConfig from './yummy.js';
 import monsterConfig from './monster.js';
-
+import discokittyConfig from './discokitty.js';
 
 const AVAILABLE_CONFIGS = {
     //'default': defaultConfig,
@@ -21,6 +21,7 @@ const AVAILABLE_CONFIGS = {
     'lumberjack': lumberjackaConfig,
     'yummy': yummyConfig,
     'monster': monsterConfig,
+    'discokitty': discokittyConfig,
 };
 
 export { AVAILABLE_CONFIGS };
