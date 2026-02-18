@@ -47,17 +47,16 @@ export default class Level extends Phaser.Scene {
 		// bg_Container_1
 		const bg_Container_1 = this.add.container(540, 960);
 
-		// dI_Background_banana_1
+		// dI_Background_banana_1 (1:1 scale - ScreenAnchor cover mode scales container to fill viewport)
 		const dI_Background_banana_1 = this.add.image(0, 0, "DI_Background_Default");
-		dI_Background_banana_1.scaleX = 2;
-		dI_Background_banana_1.scaleY = 2;
 		bg_Container_1.add(dI_Background_banana_1);
 
 		// setImage
 		const setImage = new SetImage(dI_Background_banana_1);
 
-		// screenAnchor_2
-		new ScreenAnchor(bg_Container_1);
+		// screenAnchor_2 (cover mode fills viewport on wide screens)
+		const screenAnchor_2 = new ScreenAnchor(bg_Container_1);
+		screenAnchor_2.scaleMode = 'cover';
 
 		// peelCard
 		const peelCard = new PeelCard(this, 540, 910);

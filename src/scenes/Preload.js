@@ -6,6 +6,7 @@
 /* START-USER-IMPORTS */
 import gameConfig from '../config/game/game-config.js';
 import WebFontFile from '../utils/ui/WebFontFile.js';
+import BrowserDetector from '../utils/ui/BrowserDetector.js';
 /* END-USER-IMPORTS */
 
 export default class Preload extends Phaser.Scene {
@@ -66,6 +67,12 @@ export default class Preload extends Phaser.Scene {
 		const progressBarStroke = this.add.graphics();
 		progressBarStroke.lineStyle(2, 0xc78e0f, 1); // Gold border
 		progressBarStroke.strokeRoundedRect(progressBarX, progressBarY, progressBarWidth, progressBarHeight, progressBarRadius);
+
+		this._progressBarX = progressBarX;
+		this._progressBarY = progressBarY;
+		this._progressBarWidth = progressBarWidth;
+		this._progressBarHeight = progressBarHeight;
+		this._progressBarRadius = progressBarRadius;
 	}
 
 	_themeImageKeys = new Set(); // Track which theme image keys we're loading
@@ -95,8 +102,27 @@ export default class Preload extends Phaser.Scene {
 		this._themeImagesVerified = new Set();
 		this._themeImagesEventFired = new Set();
 		this._themeImagesFailed = new Set();
+		this._hasTransitioned = false;
 
 		this._LOADER_MAX_PROGRESS = 0.85;
+
+		// Set up filecomplete handlers to track theme image loading (prevents cold-start race)
+		this.load.on('filecomplete-image', (key) => {
+			if (this._themeImageKeys.has(key)) {
+				this._themeImagesLoaded++;
+				this._themeImagesVerified.add(key);
+				console.log(`[Preload] Theme image loaded: "${key}" (${this._themeImagesLoaded}/${this._themeImagesTotal})`);
+				this._checkAssetsReady();
+			}
+		});
+		this.load.on('filecomplete-spritesheet', (key) => {
+			if (this._themeImageKeys.has(key)) {
+				this._themeImagesLoaded++;
+				this._themeImagesVerified.add(key);
+				console.log(`[Preload] Theme spritesheet loaded: "${key}" (${this._themeImagesLoaded}/${this._themeImagesTotal})`);
+				this._checkAssetsReady();
+			}
+		});
 
 		await this.loadTheme();
 
@@ -105,6 +131,58 @@ export default class Preload extends Phaser.Scene {
 			const cappedProgress = Math.min(progress, this._LOADER_MAX_PROGRESS);
 			this.updateProgressBar(cappedProgress);
 		});
+	}
+
+	/**
+	 * Check if theme images exist in texture cache (fallback when filecomplete doesn't fire).
+	 */
+	_checkThemeImagesInCache() {
+		if (this._themeImagesTotal === 0) return;
+		for (const key of this._themeImageKeys) {
+			if (!this._themeImagesVerified.has(key) && this.textures.exists(key)) {
+				const texture = this.textures.get(key);
+				const source = texture?.source?.[0] || texture?.getSourceImage?.();
+				const img = source?.image || source;
+				const w = img?.width ?? img?.naturalWidth ?? texture?.frame?.width;
+				const h = img?.height ?? img?.naturalHeight ?? texture?.frame?.height;
+				if (w > 0 && h > 0) {
+					this._themeImagesLoaded++;
+					this._themeImagesVerified.add(key);
+					console.log(`[Preload] Theme image in cache: "${key}" (${this._themeImagesLoaded}/${this._themeImagesTotal})`);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Check if all assets are loaded and transition if ready.
+	 * Transitions when theme images are loaded - does NOT wait for video (video loads in background).
+	 */
+	_checkAssetsReady() {
+		if (!this._checkAssetsReadyEnabled) return;
+
+		// Fallback: check texture cache (filecomplete may not fire for pack/async loads)
+		this._checkThemeImagesInCache();
+
+		const allThemeImagesLoaded = this._themeImagesTotal === 0 || this._themeImagesLoaded >= this._themeImagesTotal;
+		// Do NOT wait for video - it blocks loader; transition when theme images are ready
+
+		if (allThemeImagesLoaded && !this._hasTransitioned) {
+			this._hasTransitioned = true;
+			console.log(`[Preload] All assets ready: theme images=${this._themeImagesLoaded}/${this._themeImagesTotal}`);
+			this.transitionToLevel();
+		}
+	}
+
+	/**
+	 * Transition to Level scene after assets are loaded.
+	 */
+	transitionToLevel() {
+		if (this._safetyCheckTimer) {
+			this._safetyCheckTimer.remove();
+			this._safetyCheckTimer = null;
+		}
+		this.scene.start("Level");
 	}
 
 	updateProgressBar(progress)
@@ -307,8 +385,53 @@ export default class Preload extends Phaser.Scene {
 	}
 
 	create() {
+		this._checkAssetsReadyEnabled = true;
+		this._hasTransitioned = false;
 
-		this.scene.start("Level");
+		// If loader is idle but has files queued, start it (handles theme images queued after asset-pack)
+		if (!this.load.isLoading() && this.load.list.size > 0) {
+			console.log('[Preload] Loader idle with files queued, starting loader...');
+			this.load.start();
+		}
+
+		// 50ms delay to handle async theme queuing race
+		this.time.delayedCall(50, () => {
+			const allThemeImagesLoaded = this._themeImagesTotal === 0 || this._themeImagesLoaded >= this._themeImagesTotal;
+			const phaserComplete = !this.load.isLoading() && this.load.list.size === 0;
+
+			if (phaserComplete && allThemeImagesLoaded && this._themeImagesQueued) {
+				// No theme images or all loaded, transition immediately
+				this._checkAssetsReady();
+				return;
+			}
+
+			const isMobile = BrowserDetector.isMobile();
+			const MAX_WAIT_TIME = isMobile ? 3000 : 10000;
+			const CHECK_INTERVAL = isMobile ? 50 : 100;
+			const waitStartTime = Date.now();
+
+			const checkAndTransition = () => {
+				const elapsed = Date.now() - waitStartTime;
+				if (elapsed > MAX_WAIT_TIME) {
+					console.warn(`[Preload] Timeout after ${elapsed}ms - forcing transition (${this._themeImagesLoaded}/${this._themeImagesTotal})`);
+					if (!this._hasTransitioned) {
+						this._hasTransitioned = true;
+						this.transitionToLevel();
+					}
+					return;
+				}
+				this._checkAssetsReady();
+			};
+
+			this.load.once('complete', () => checkAndTransition());
+
+			// Safety polling in case complete event fires before we listen
+			this._safetyCheckTimer = this.time.addEvent({
+				delay: CHECK_INTERVAL,
+				callback: checkAndTransition,
+				repeat: -1
+			});
+		});
 	}
 
 	/* END-USER-CODE */

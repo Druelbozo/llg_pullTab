@@ -42,6 +42,8 @@ export default class ScreenAnchor extends ScriptNode {
 	maxScale = 999;
 	/** @type {number} */
 	minScale = 0.01;
+	/** @type {string} */
+	scaleMode = 'match';
 
 	/* START-USER-CODE */
 	refWidth = 0
@@ -177,7 +179,9 @@ export default class ScreenAnchor extends ScriptNode {
 			scaleX = Phaser.Math.Clamp(scaleX, this.minScale, this.maxScale);
 			scaleY = Phaser.Math.Clamp(scaleY, this.minScale, this.maxScale);
 
-			let s = (scaleX * this.matchWidth ) + (scaleY * this.matchHeight);
+			let s = this.scaleMode === 'cover'
+				? Math.max(scaleX, scaleY)
+				: (scaleX * this.matchWidth) + (scaleY * this.matchHeight);
 			//s = Phaser.Math.Clamp(s,0,this.maxScale)
 
 
