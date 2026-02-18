@@ -236,7 +236,7 @@ export default class Preload extends Phaser.Scene {
 		{	
 			//Loading Locally - add cache-busting parameter to ensure we get the latest image
 			const cacheBuster = Date.now();
-			imageKey = `assets/images/${value.key}/${value.imageKey}.png?t=${cacheBuster}`;
+			imageKey = `assets/images/theme/${value.key}/${value.imageKey}.png?t=${cacheBuster}`;
 		}
 
 		//Is SpriteSheet?

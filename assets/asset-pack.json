@@ -2,44 +2,44 @@
     "section1": {
         "files": [
             {
-                "url": "assets/images/Common/alpha_mask.png",
+                "url": "assets/images/common/alpha_mask.png",
                 "type": "image",
                 "key": "alpha_mask"
             },
             {
-                "url": "assets/Fonts/Anton-Regular.ttf",
+                "url": "assets/fonts/Anton-Regular.ttf",
                 "format": "truetype",
                 "descriptors": {},
                 "type": "font",
                 "key": "Anton-Regular"
             },
             {
-                "url": "assets/images/Common/UI/AutoPlay.png",
+                "url": "assets/images/common/UI/icons/AutoPlay.png",
                 "type": "image",
                 "key": "AutoPlay"
             },
             {
-                "url": "assets/images/Common/UI/Btn_Main.png",
+                "url": "assets/images/common/UI/Btn_Main.png",
                 "type": "image",
                 "key": "Btn_Main"
             },
             {
-                "url": "assets/images/Common/CardBack.png",
+                "url": "assets/images/common/CardBack.png",
                 "type": "image",
                 "key": "CardBack"
             },
             {
-                "url": "assets/images/Background/DI_Background_Default.png",
+                "url": "assets/images/theme/Background/DI_Background_Default.png",
                 "type": "image",
                 "key": "DI_Background_Default"
             },
             {
-                "url": "assets/images/CardCover/DI_CardCover_Default.png",
+                "url": "assets/images/theme/CardCover/DI_CardCover_Default.png",
                 "type": "image",
                 "key": "DI_CardCover_Default"
             },
             {
-                "url": "assets/images/Icons/DI_Icons_Default.png",
+                "url": "assets/images/theme/Icons/DI_Icons_Default.png",
                 "frameConfig": {
                     "frameWidth": 100,
                     "frameHeight": 100,
@@ -52,22 +52,22 @@
                 "key": "DI_Icons_Default"
             },
             {
-                "url": "assets/images/LoseImage/DI_LoseImage_Default.png",
+                "url": "assets/images/theme/LoseImage/DI_LoseImage_Default.png",
                 "type": "image",
                 "key": "DI_LoseImage_Default"
             },
             {
-                "url": "assets/images/Peel/DI_Peel_Default.png",
+                "url": "assets/images/theme/Peel/DI_Peel_Default.png",
                 "type": "image",
                 "key": "DI_Peel_Default"
             },
             {
-                "url": "assets/images/PeelBack/DI_PeelBack_Default.png",
+                "url": "assets/images/theme/PeelBack/DI_PeelBack_Default.png",
                 "type": "image",
                 "key": "DI_PeelBack_Default"
             },
             {
-                "url": "assets/images/WinImage/DI_WinImage_Default.png",
+                "url": "assets/images/theme/WinImage/DI_WinImage_Default.png",
                 "type": "image",
                 "key": "DI_WinImage_Default"
             },
@@ -86,51 +86,51 @@
                 "key": "DV_WinVideo_Default"
             },
             {
-                "url": "assets/images/Common/UI/exitIcon.png",
+                "url": "assets/images/common/UI/icons/exitIcon.png",
                 "type": "image",
                 "key": "exitIcon"
             },
             {
-                "url": "assets/images/Common/UI/Hud_InfoButton.png",
+                "url": "assets/images/common/UI/icons/Hud_InfoButton.png",
                 "type": "image",
                 "key": "Hud_InfoButton"
             },
             {
-                "url": "assets/images/Common/UI/Hud_Sandwich.png",
+                "url": "assets/images/common/UI/icons/Hud_Sandwich.png",
                 "type": "image",
                 "key": "Hud_Sandwich"
             },
             {
-                "url": "assets/images/Common/UI/icon_sound_off_128.png",
+                "url": "assets/images/common/UI/icons/icon_sound_off_128.png",
                 "type": "image",
                 "key": "icon_sound_off_128"
             },
             {
-                "url": "assets/images/Common/UI/icon_sound_on_128.png",
+                "url": "assets/images/common/UI/icons/icon_sound_on_128.png",
                 "type": "image",
                 "key": "icon_sound_on_128"
             },
             {
-                "url": "assets/Fonts/Lato-Bold.ttf",
+                "url": "assets/fonts/Lato-Bold.ttf",
                 "format": "truetype",
                 "descriptors": {},
                 "type": "font",
                 "key": "Lato-Bold"
             },
             {
-                "url": "assets/Fonts/Lato-Regular.ttf",
+                "url": "assets/fonts/Lato-Regular.ttf",
                 "format": "truetype",
                 "descriptors": {},
                 "type": "font",
                 "key": "Lato-Regular"
             },
             {
-                "url": "assets/images/Common/UI/UI_Arrow.png",
+                "url": "assets/images/common/UI/icons/UI_Arrow.png",
                 "type": "image",
                 "key": "UI_Arrow"
             },
             {
-                "url": "assets/images/Common/UI/UI_CounterPanel.png",
+                "url": "assets/images/common/UI/UI_CounterPanel.png",
                 "type": "image",
                 "key": "UI_CounterPanel"
             },
