@@ -270,7 +270,7 @@ Shows what would be uploaded without making changes.
 | **Deploy** | `deploy.js` (no `--production`) | `deploy.js --production` |
 
 For local development, use:
-- `node scripts/local-testing/start-servers.js` (Vite dev server on port 5502, CORS proxy on 8083)
+- `npm run local-test` (Vite dev server on port 5502, CORS proxy on 8083)
 - `npm run dev` or `npx vite` (Vite dev server on port 5502)
 
 ---
