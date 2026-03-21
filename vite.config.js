@@ -1,5 +1,16 @@
 import { defineConfig } from 'vite';
+import { createRequire } from 'module';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
+
+const require = createRequire(import.meta.url);
+
+let PORT_CORS_PROXY = 3005;
+let PORT_VITE = 5502;
+try {
+  const portsConfig = require('./scripts/local-testing/ports.config.js');
+  PORT_CORS_PROXY = portsConfig.PORT_CORS_PROXY ?? PORT_CORS_PROXY;
+  PORT_VITE = portsConfig.PORT_VITE ?? PORT_VITE;
+} catch (_) {}
 
 /** Include base pattern but exclude any path under a directory named 'archive' */
 const excludeArchive = (base) => [base, '!**/archive/**'];
@@ -9,8 +20,11 @@ const assetsFilesOnly = () => excludeArchive('assets/**/*.*');
 
 export default defineConfig({
   base: './',
+  define: {
+    __CORS_PROXY_PORT__: JSON.stringify(String(PORT_CORS_PROXY)),
+  },
   server: {
-    port: 5502,
+    port: PORT_VITE,
     strictPort: false,
     host: true,
   },

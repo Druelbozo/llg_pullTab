@@ -1,34 +1,37 @@
 /**
  * Dynamic Game Configuration Selector
  *
- * Selects a configuration module from /src/config at runtime based on:
- * 1) URL query parameter: ?config=piggy
- * 2) Fallback: default
+ * Selects a configuration module from /src/config/game at runtime based on:
+ * 1) URL query parameter: ?config=monster
+ * 2) Fallback: DEFAULT_CONFIG
  *
- * All config files must share the same schema.
+ * Uses import.meta.glob so Vite bundles configs as proper chunks with hashed URLs.
+ * Falls back to fetch when glob unavailable (e.g. raw HTTP server).
+ *
+ * Default export is a Proxy to window.__selectedGameConfig (set in main.js before Phaser starts).
  */
 
-//import defaultConfig from './archive/default.js';
-import crazybananaConfig from './crazybanana.js';
-import lumberjackaConfig from './lumberjack.js';
-import yummyConfig from './yummy.js';
-import monsterConfig from './monster.js';
-import discokittyConfig from './discokitty.js';
+export const DEFAULT_CONFIG = 'monster';
 
-const AVAILABLE_CONFIGS = {
-    //'default': defaultConfig,
-    'crazybanana': crazybananaConfig,
-    'lumberjack': lumberjackaConfig,
-    'yummy': yummyConfig,
-    'monster': monsterConfig,
-    'discokitty': discokittyConfig,
-};
+/** String registry — no imports. Add names here; missing files fall back to default. */
+export const CONFIG_REGISTRY = [
+    'crazybanana',
+    'discokitty',
+    'lumberjack',
+    'monster',
+    'yummy',
+];
 
-export { AVAILABLE_CONFIGS };
+const configModules = (typeof import.meta.glob === 'function')
+    ? import.meta.glob('./*.js', { eager: false })
+    : {};
 
-function getSelectedConfigName() {
+export function getAvailableConfigNames() {
+    return [...CONFIG_REGISTRY];
+}
+
+export function getSelectedConfigName() {
     try {
-        // Read from current window, then parent/top (Phaser Editor external runner may iframe the game)
         const readParam = (win) => {
             try {
                 return new URLSearchParams(win.location.search).get('config');
@@ -36,17 +39,61 @@ function getSelectedConfigName() {
         };
 
         const fromQuery = readParam(window) || readParam(window.parent) || readParam(window.top);
-        if (fromQuery && AVAILABLE_CONFIGS[fromQuery]) {
-            return fromQuery;
+        if (fromQuery) {
+            const baseName = fromQuery.split(/[:;]/)[0];
+            if (baseName) return baseName;
         }
     } catch (_) {
         // In non-browser contexts, fall through to default
     }
-    return 'monster';
+    return DEFAULT_CONFIG;
 }
 
-const selectedName = getSelectedConfigName();
-const gameConfig = AVAILABLE_CONFIGS[selectedName] || AVAILABLE_CONFIGS['monster'];
+/**
+ * Load a config by name. Returns null if file doesn't exist.
+ */
+export async function loadConfig(name) {
+    if (name === 'game-config') return null;
 
-export default gameConfig;
+    const key = `./${name}.js`;
+    const loader = configModules[key];
+    if (loader) {
+        try {
+            const m = await loader();
+            return m.default;
+        } catch (_) {
+            /* fall through to fetch fallback */
+        }
+    }
 
+    try {
+        if (typeof window !== 'undefined' && window.location) {
+            const url = new URL(`src/config/game/${name}.js`, window.location.href).href;
+            const m = await import(/* @vite-ignore */ url);
+            return m.default;
+        }
+    } catch (_) {
+        /* ignore */
+    }
+    return null;
+}
+
+/**
+ * Load the config for the selected name (?config=). Falls back to DEFAULT_CONFIG on failure.
+ */
+export async function loadSelectedConfig() {
+    const name = getSelectedConfigName();
+    const config = await loadConfig(name);
+    return config ?? await loadConfig(DEFAULT_CONFIG);
+}
+
+/** For listings/tests — scratch-compatible shape */
+export const AVAILABLE_CONFIGS = Object.fromEntries(CONFIG_REGISTRY.map((n) => [n, null]));
+
+export const configName = getSelectedConfigName();
+
+export default new Proxy({}, {
+    get(_, prop) {
+        return window.__selectedGameConfig?.[prop];
+    }
+});

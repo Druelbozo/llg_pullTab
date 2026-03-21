@@ -4,7 +4,6 @@
 /* START OF COMPILED CODE */
 
 /* START-USER-IMPORTS */
-import gameConfig from '../../config/game/game-config.js';
 /* END-USER-IMPORTS */
 
 export default class Prefab_Results extends Phaser.GameObjects.Container {

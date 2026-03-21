@@ -4,7 +4,6 @@
 /* START OF COMPILED CODE */
 
 /* START-USER-IMPORTS */
-import gameConfig from '../config/game/game-config.js';
 import WebFontFile from '../utils/ui/WebFontFile.js';
 import BrowserDetector from '../utils/ui/BrowserDetector.js';
 /* END-USER-IMPORTS */
@@ -207,7 +206,8 @@ export default class Preload extends Phaser.Scene {
 
 	async loadTheme()
 	{
-		let selectedTheme = gameConfig.theme || 'default';
+		const cfg = this.registry.get('preloadGameConfig') || (typeof window !== 'undefined' && window.__selectedGameConfig) || {};
+		let selectedTheme = cfg.theme || 'default';
 		console.log(`Loading theme: src/config/themes/${selectedTheme}.json`);
 
 		const cacheBuster = Date.now();

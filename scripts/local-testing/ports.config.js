@@ -4,5 +4,5 @@
  */
 module.exports = {
   PORT_CORS_PROXY: 3005,
-  PORT_VITE: 8005,
+  PORT_VITE: 5502,
 };

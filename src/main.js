@@ -2,8 +2,60 @@ import Level from "./scenes/Level.js";
 import Preload from "./scenes/Preload.js";
 import ResizeHandler from "./utils/game/ResizeHandler.js";
 import ViewportHelper from "./utils/ui/ViewportHelper.js";
+import ProviderAPIService from "./services/api/ProviderAPIService.js";
+import { GameConfig } from "./config/Global.js";
 
-window.addEventListener('load', function () {
+const DEFAULT_UI_COPY = {
+	type: "Normal",
+	prizes: ["$250", "$100", "$50", "$25", "$10", "$1"],
+	message: "OPEN THE TABS FOR WINS UP TO $250"
+};
+
+function mergePullTabConfig(base = {}, meta = {}) {
+	return {
+		theme: meta.theme ?? base.theme ?? "default",
+		type: meta.type ?? base.type ?? DEFAULT_UI_COPY.type,
+		prizes: Array.isArray(meta.prizes) ? meta.prizes : (base.prizes ?? DEFAULT_UI_COPY.prizes),
+		message: meta.message ?? base.message ?? DEFAULT_UI_COPY.message,
+		paytableId: meta.paytableId ?? base.paytableId,
+		creditValueMinor: meta.creditValueMinor ?? base.creditValueMinor
+	};
+}
+
+function getSessionIdFromUrl() {
+	const read = (win) => {
+		try {
+			return new URLSearchParams(win.location.search).get("sessionId");
+		} catch (_) {
+			return null;
+		}
+	};
+	return read(window) || read(window.parent) || read(window.top);
+}
+
+window.addEventListener('load', async function () {
+
+	const sessionId = getSessionIdFromUrl();
+	if (sessionId) {
+		window.__sessionId = sessionId;
+		window.__selectedGameConfig = mergePullTabConfig({}, {});
+	} else {
+		try {
+			const { loadSelectedConfig, getSelectedConfigName, DEFAULT_CONFIG } = await import('./config/game/game-config.js');
+			let config = await loadSelectedConfig();
+			if (!config) {
+				const name = getSelectedConfigName() || DEFAULT_CONFIG;
+				config = mergePullTabConfig({ theme: name }, {});
+				console.warn('Game config failed to load, using fallback theme:', name);
+			} else {
+				config = mergePullTabConfig(config, {});
+			}
+			window.__selectedGameConfig = config;
+		} catch (err) {
+			console.error('Failed to load game config:', err);
+			window.__selectedGameConfig = mergePullTabConfig({ theme: 'monster' }, {});
+		}
+	}
 
 	let initialWidth = ViewportHelper.getWidth();
 	let initialHeight = ViewportHelper.getHeight();
@@ -61,7 +113,6 @@ window.addEventListener('load', function () {
 
 	const onChangeScreen = () => 
 	{
-		// ResizeHandler already calls game.scale.resize(), so we just need to handle scene-specific logic
     	if (game.scene.scenes.length > 0)
 		{
 			let currentScene = game.scene.scenes[0];
@@ -73,7 +124,7 @@ window.addEventListener('load', function () {
 	}
 
 	const resizeHandler = new ResizeHandler(game, {
-		enableLogging: false, // Set to true for debugging
+		enableLogging: false,
 		pollingInterval: 250,
 		focusDelay: 100
 	});
@@ -92,8 +143,52 @@ class Boot extends Phaser.Scene {
 		this.load.pack("pack", "assets/preload-asset-pack.json");
 	}
 
-	create() {
+	async create() {
 
+		let config = window.__selectedGameConfig || {};
+		this.registry.set('preloadUseSessionConfig', false);
+
+		if (window.__sessionId) {
+			const providerAPI = new ProviderAPIService();
+			if (!providerAPI.sessionId) {
+				providerAPI.sessionId = window.__sessionId;
+				providerAPI.isSessionMode = true;
+			}
+			try {
+				const sessionInfo = await providerAPI.getSessionInfo();
+				const meta = sessionInfo.gameMetadata || {};
+				config = mergePullTabConfig({}, meta);
+				window.__selectedGameConfig = config;
+
+				const mode = sessionInfo.mode || providerAPI.mode || 'demo';
+				const operatorBalance = sessionInfo.operatorBalance;
+				this.registry.set('preloadSessionId', window.__sessionId);
+				this.registry.set('preloadSessionMode', mode);
+				this.registry.set('preloadUseSessionConfig', true);
+				if (mode === 'real' && operatorBalance != null) {
+					this.registry.set('preloadOperatorBalance', operatorBalance);
+				} else {
+					this.registry.set('preloadOperatorBalance', GameConfig.game.SESSION_DEMO_BALANCE_MINOR);
+				}
+			} catch (err) {
+				console.error('Boot: Failed to fetch session:', err);
+				window.__sessionId = null;
+				try {
+					const { loadSelectedConfig } = await import('./config/game/game-config.js');
+					const fileCfg = await loadSelectedConfig();
+					config = mergePullTabConfig(fileCfg || {}, {});
+				} catch {
+					config = mergePullTabConfig({}, {});
+				}
+				window.__selectedGameConfig = config;
+				this.registry.set('preloadSessionId', null);
+				this.registry.set('preloadOperatorBalance', GameConfig.game.SESSION_DEMO_BALANCE_MINOR);
+				this.registry.set('preloadSessionMode', 'demo');
+				this.registry.set('preloadUseSessionConfig', false);
+			}
+		}
+
+		this.registry.set('preloadGameConfig', config);
 		this.scene.start("Preload");
 	}
 }

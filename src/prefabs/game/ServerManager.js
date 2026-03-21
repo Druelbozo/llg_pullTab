@@ -4,6 +4,7 @@
 /* START OF COMPILED CODE */
 
 /* START-USER-IMPORTS */
+import { GameConfig } from '../../config/Global.js';
 /* END-USER-IMPORTS */
 
 export default class ServerManager extends Phaser.GameObjects.Container {
@@ -22,19 +23,32 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 	gameConfig;
 	balance = 1000;
 
+	static DEFAULT_GAME_UI = {
+		type: "Normal",
+		prizes: ["$250", "$100", "$50", "$25", "$10", "$1"],
+		message: "OPEN THE TABS FOR WINS UP TO $250"
+	};
+
 	// Write your code here.
 	async init()
 	{
-		//Inital ServerSetUp
-
-		//this.balance = this.getBalance();
-
-		this.gameConfig = 
-		{
-			type: "Normal",
-			prizes: ["$250", "$100", "$50", "$25", "$10", "$1"],
-			message: "OPEN THE TABS FOR WINS UP TO $250"
+		const registryCfg = this.scene.registry.get('preloadGameConfig')
+			|| (typeof window !== 'undefined' && window.__selectedGameConfig)
+			|| {};
+		const d = ServerManager.DEFAULT_GAME_UI;
+		this.gameConfig = {
+			type: registryCfg.type ?? d.type,
+			prizes: Array.isArray(registryCfg.prizes) ? registryCfg.prizes : d.prizes,
+			message: registryCfg.message ?? d.message
 		};
+
+		const useSession = this.scene.registry.get('preloadUseSessionConfig');
+		const minor = this.scene.registry.get('preloadOperatorBalance');
+		if (useSession && minor != null) {
+			this.balance = minor / 100;
+		} else {
+			this.balance = GameConfig.game.TEST_BALANCE_MINOR / 100;
+		}
 
 		//Remove Time Delay once logic is in
 		this.scene.time.delayedCall(500, ()=> 
@@ -75,7 +89,7 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 
 	async getBalance()
 	{
-		return 100000;
+		return this.balance;
 	}
 
 	/* END-USER-CODE */

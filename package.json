@@ -4,7 +4,7 @@
   "description": "Pull-Tabs game - Phaser project with Vite build",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "vite --port 5502",
+    "dev": "vite",
     "build": "vite build",
     "deploy": "node scripts/deploy/deploy.js",
     "local-test": "node scripts/local-testing/start-servers.js"
