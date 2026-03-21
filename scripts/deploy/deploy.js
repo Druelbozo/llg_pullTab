@@ -18,6 +18,7 @@
  * Behavior:
  *   - Default: Runs build, then sync_to_s3.py with --production (dist/ output).
  *   - With --raw: Syncs raw source (no build, DEFAULT_PATHS from project root).
+ *   - Then runs sync_game_catalog.py (DynamoDB GameCatalog from src/config/game).
  *   - Afterwards runs invalidate_cloudfront.py with the same paths (uses default domain).
  *     When no paths were provided it invalidates /*.
  *   - If index.html or /index.html is included in the paths, it always invalidates both / and /index.html.
@@ -43,6 +44,7 @@ const path = require('path');
 
 const PROJECT_ROOT = path.resolve(__dirname, '..', '..');
 const UPLOAD_SCRIPT = path.join(PROJECT_ROOT, 'scripts', 'aws', 's3', 'sync_to_s3.py');
+const GAME_CATALOG_SCRIPT = path.join(PROJECT_ROOT, 'scripts', 'aws', 'dynamo', 'sync_game_catalog.py');
 const INVALIDATE_SCRIPT = path.join(PROJECT_ROOT, 'scripts', 'aws', 'cloudfront', 'invalidate_cloudfront.py');
 
 // Default S3 prefix - read from aws_config.py
@@ -228,6 +230,22 @@ function runCommand(command, args, label, captureOutput = false) {
   return null;
 }
 
+/** Build argv for sync_game_catalog.py from flags shared with the S3 upload step. */
+function buildGameCatalogArgs(uploadArgs, yesFlagProvided) {
+  const args = [GAME_CATALOG_SCRIPT];
+  if (uploadArgs.includes('--dry-run')) {
+    args.push('--dry-run');
+  }
+  if (yesFlagProvided || uploadArgs.includes('--yes')) {
+    args.push('--yes');
+  }
+  const regionIdx = uploadArgs.indexOf('--region');
+  if (regionIdx !== -1 && uploadArgs[regionIdx + 1]) {
+    args.push('--region', uploadArgs[regionIdx + 1]);
+  }
+  return args;
+}
+
 function getInvalidateAllPath(s3Prefix) {
   // Convert S3 prefix (e.g., 'games/video-poker/') to CloudFront path (e.g., '/games/video-poker/*')
   // Remove trailing slash if present, ensure leading slash, then add /*
@@ -277,7 +295,11 @@ function main() {
   // When --yes is provided, the sync script will auto-proceed without prompting
   runCommand(pythonPath, uploadCommandArgs, 'S3 Upload Sync', false);
 
-  // Step 2: run the invalidation script
+  // Step 2: sync game catalog to DynamoDB (before CloudFront invalidation)
+  const catalogArgs = buildGameCatalogArgs(uploadArgs, yesFlagProvided);
+  runCommand(pythonPath, catalogArgs, 'DynamoDB GameCatalog sync', false);
+
+  // Step 3: run the invalidation script
   const invalidateArgs = [
     INVALIDATE_SCRIPT,
     ...invalidationPaths,

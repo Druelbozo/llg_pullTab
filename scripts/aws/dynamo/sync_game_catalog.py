@@ -18,7 +18,6 @@ USAGE:
 """
 
 import sys
-import os
 import json
 import copy
 import subprocess
@@ -134,9 +133,10 @@ def get_existing_item(dynamodb, table_name, game_id):
         return None
 
 
-# Schema defaults for migration (add missing fields to legacy entries)
+# Schema defaults for migration (add missing fields to legacy entries only)
 SCHEMA_DEFAULTS = {
     'co-branded': False,
+    'isActive': False,
 }
 
 
@@ -164,7 +164,6 @@ def build_new_entry(game_id, config):
         'metadata': metadata,
         'productType': 'casino',
         'rules': '',
-        'status': 'ACTIVE',
         'url': GAME_URL,
         'rtp': 0,
         'providerId': 'LLG',
@@ -182,6 +181,7 @@ def build_new_entry(game_id, config):
         'createdAt': now,
         'updatedAt': now,
         'co-branded': False,
+        'isActive': False,
     }
     if video_url:
         entry['videoUrl'] = video_url
@@ -201,7 +201,7 @@ def build_update_entry(game_id, config, existing_db_item):
     elif 'videoUrl' in entry:
         del entry['videoUrl']  # Remove if no longer present in thumbnails
 
-    # Schema migration: add missing fields with defaults (never overwrite co-branded when True)
+    # Schema migration: add missing fields with defaults (do not overwrite if key exists)
     for key, default in SCHEMA_DEFAULTS.items():
         if key not in entry:
             entry[key] = default
@@ -225,7 +225,6 @@ def get_dynamodb_resource(region='us-east-1'):
 
 def put_item(dynamodb, table_name, item, region='us-east-1'):
     """Put item to DynamoDB. Converts Python types for DynamoDB."""
-    from decimal import Decimal
 
     def convert_for_dynamodb(obj):
         if isinstance(obj, dict):
