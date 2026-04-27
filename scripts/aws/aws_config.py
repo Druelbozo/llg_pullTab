@@ -3,18 +3,21 @@ AWS Configuration
 =================
 
 Shared configuration for AWS scripts (S3 sync, CloudFront invalidation, etc.).
-Update these values to change the default bucket and prefix for all AWS operations.
+``CATEGORY`` drives both GameCatalog.category and the ``games/<CATEGORY>/`` S3 prefix.
+Update ``BUCKET`` / ``CATEGORY`` to retarget deploy and catalog sync.
 """
 
 # Default S3 bucket name
 BUCKET = 'llg-games'
 
-# Default S3 prefix (path within bucket)
-# All files will be synced to: s3://{BUCKET}/{S3_PREFIX}/{path}/
-S3_PREFIX = 'games/pull-tabs/'
+# Game type segment in S3 and GameCatalog.category
+CATEGORY = 'pull-tabs'
 
-# Category for DynamoDB GameCatalog (used by sync_game_catalog.py)
-CATEGORY = 'pull-tabs'# Default paths to sync when no arguments provided (raw source for editor)
+# Default S3 prefix (path within bucket): games/<CATEGORY>/
+# All files will be synced to: s3://{BUCKET}/{S3_PREFIX}{path}
+S3_PREFIX = f'games/{CATEGORY}/'
+
+# Default paths to sync when no arguments provided (raw source for editor)
 DEFAULT_PATHS = [
     'assets',
     'phaserjs_editor_scripts_base',

@@ -5,6 +5,9 @@ GameCatalog Sync Script: Sync game config files to DynamoDB GameCatalog table
 
 Reads game config files from src/config/game, converts them to GameCatalog
 entries, and adds/updates them in the DynamoDB GameCatalog table.
+``category``, launch ``url``, and thumbnail ``imageUrl`` / ``videoUrl`` bases use
+``CATEGORY`` from ``aws_config.py`` (same segment as ``S3_PREFIX``,
+``games/<CATEGORY>/``).
 
 USAGE:
     python scripts/aws/dynamo/sync_game_catalog.py [--dry-run] [--region us-east-1] [--yes]
@@ -34,9 +37,9 @@ sys.path.insert(0, str(PROJECT_ROOT))
 import boto3
 from botocore.exceptions import ClientError
 
-# Import S3_PREFIX and CATEGORY from aws_config
+# Import catalog category from aws_config (S3 uses S3_PREFIX = games/<CATEGORY>/)
 sys.path.insert(0, str(SCRIPT_DIR.parent))
-from aws_config import S3_PREFIX, CATEGORY
+from aws_config import CATEGORY
 
 # Import SSO authentication utility
 from sso.aws_sso_auth import ensure_sso_authenticated, get_boto3_session
@@ -53,8 +56,9 @@ if sys.platform == 'win32':
 
 CONFIG_DIR = PROJECT_ROOT / 'src' / 'config' / 'game'
 THUMBNAILS_DIR = PROJECT_ROOT / 'assets' / 'images' / 'thumbnails'
-BASE_URL = f'https://play.luckyladygames.com/{S3_PREFIX}assets/images/thumbnails/'
-GAME_URL = f'https://play.luckyladygames.com/{S3_PREFIX.rstrip("/")}/'
+PLAY_BASE = 'https://play.luckyladygames.com'
+BASE_URL = f'{PLAY_BASE}/games/{CATEGORY}/assets/images/thumbnails/'
+GAME_URL = f'{PLAY_BASE}/games/{CATEGORY}/'
 
 
 def discover_config_files():
@@ -194,6 +198,8 @@ def build_update_entry(game_id, config, existing_db_item):
 
     # Overwrite syncable fields only
     entry['metadata'] = dict(config)
+    entry['category'] = CATEGORY
+    entry['url'] = GAME_URL
     entry['imageUrl'], video_url = _thumbnail_urls(game_id)
     entry['updatedAt'] = int(datetime.now().timestamp())
     if video_url:
@@ -263,9 +269,9 @@ def main():
     print("=" * 70)
     print(f"Config dir: {CONFIG_DIR}")
     print(f"Thumbnails: {THUMBNAILS_DIR}")
+    print(f"Category: {CATEGORY}")
     print(f"Base URL: {BASE_URL}")
     print(f"Game URL: {GAME_URL}")
-    print(f"Category: {CATEGORY}")
     if args.dry_run:
         print("Mode: DRY RUN (no DynamoDB writes)")
     else:

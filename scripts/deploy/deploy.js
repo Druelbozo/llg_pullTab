@@ -47,26 +47,40 @@ const UPLOAD_SCRIPT = path.join(PROJECT_ROOT, 'scripts', 'aws', 's3', 'sync_to_s
 const GAME_CATALOG_SCRIPT = path.join(PROJECT_ROOT, 'scripts', 'aws', 'dynamo', 'sync_game_catalog.py');
 const INVALIDATE_SCRIPT = path.join(PROJECT_ROOT, 'scripts', 'aws', 'cloudfront', 'invalidate_cloudfront.py');
 
-// Default S3 prefix - read from aws_config.py
-// This function extracts S3_PREFIX from the Python config file
+// Default S3 prefix — CATEGORY first (S3_PREFIX may be an f-string in Python)
 function getS3PrefixFromConfig() {
   const fs = require('fs');
-  const path = require('path');
-  const configPath = path.join(PROJECT_ROOT, 'scripts', 'aws', 'aws_config.py');
-  
+  const pathMod = require('path');
+  const configPath = pathMod.join(PROJECT_ROOT, 'scripts', 'aws', 'aws_config.py');
+
+  if (!fs.existsSync(configPath)) {
+    console.error(`❌ Config file not found: ${configPath}`);
+    process.exit(1);
+  }
+
   try {
     const configContent = fs.readFileSync(configPath, 'utf8');
-    // Extract S3_PREFIX value using regex
-    const match = configContent.match(/S3_PREFIX\s*=\s*['"]([^'"]+)['"]/);
-    if (match && match[1]) {
-      return match[1];
+    const categoryMatch = configContent.match(/CATEGORY\s*=\s*['"]([^'"]+)['"]/);
+    const legacyMatch = configContent.match(/S3_PREFIX\s*=\s*['"]([^'"]+)['"]/);
+
+    let prefix;
+    if (categoryMatch && categoryMatch[1]) {
+      prefix = `games/${categoryMatch[1].trim()}/`;
+    } else if (legacyMatch && legacyMatch[1]) {
+      prefix = legacyMatch[1].trim();
+    } else {
+      console.error(`❌ CATEGORY (or legacy quoted S3_PREFIX) not found in ${configPath}`);
+      process.exit(1);
     }
+    if (!prefix.endsWith('/')) {
+      prefix += '/';
+    }
+    console.log(`✅ Read S3_PREFIX from config: ${prefix}`);
+    return prefix;
   } catch (error) {
-    console.warn(`⚠️  Could not read aws_config.py, using fallback: ${error.message}`);
+    console.error(`❌ Failed to read deploy prefix from ${configPath}: ${error.message}`);
+    process.exit(1);
   }
-  
-  // Fallback if we can't read the config
-  return 'games/pull-tabs/';
 }
 
 const DEFAULT_S3_PREFIX = getS3PrefixFromConfig();
