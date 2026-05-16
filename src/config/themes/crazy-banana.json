@@ -10,5 +10,10 @@
       "primaryColor": "#33b5d4",
       "secondaryColor": "#e3e6c6"
     }
+  },
+  "controlBar": {
+    "palette": {
+      "primaryColor": "#0083c5"
+    }
   }
 }
