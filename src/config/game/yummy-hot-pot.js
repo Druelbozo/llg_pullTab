@@ -4,6 +4,5 @@
  */
 
 export default {
-    theme: "lumberjack"
+	theme: 'yummy-hot-pot',
 };
-

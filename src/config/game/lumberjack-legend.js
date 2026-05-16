@@ -4,6 +4,5 @@
  */
 
 export default {
-    theme: "monster"
+	theme: 'lumberjack-legend',
 };
-

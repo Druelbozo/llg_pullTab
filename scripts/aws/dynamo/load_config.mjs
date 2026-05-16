@@ -4,7 +4,7 @@
  * Used by sync_game_catalog.py to parse ES module configs.
  *
  * Usage: node load_config.mjs <gameId>
- * Example: node load_config.mjs discokitty
+ * Example: node load_config.mjs disco-kitty
  */
 
 import { fileURLToPath } from 'url';

@@ -2,7 +2,7 @@
  * Dynamic Game Configuration Selector
  *
  * Selects a configuration module from /src/config/game at runtime based on:
- * 1) URL query parameter: ?config=monster
+ * 1) URL query parameter: ?config=mega-monster
  * 2) Fallback: DEFAULT_CONFIG
  *
  * Uses import.meta.glob so Vite bundles configs as proper chunks with hashed URLs.
@@ -11,15 +11,15 @@
  * Default export is a Proxy to window.__selectedGameConfig (set in main.js before Phaser starts).
  */
 
-export const DEFAULT_CONFIG = 'monster';
+export const DEFAULT_CONFIG = 'mega-monster';
 
 /** String registry — no imports. Add names here; missing files fall back to default. */
 export const CONFIG_REGISTRY = [
-    'crazybanana',
-    'discokitty',
-    'lumberjack',
-    'monster',
-    'yummy',
+    'crazy-banana',
+    'disco-kitty',
+    'lumberjack-legend',
+    'mega-monster',
+    'yummy-hot-pot',
 ];
 
 const configModules = (typeof import.meta.glob === 'function')

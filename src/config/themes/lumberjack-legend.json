@@ -1,8 +1,8 @@
 {
   "imageKeys": {
-    "background": "background-yummy",
-    "card": "card-yummy",
-    "icons": "icons-yummy"
+    "background": "background-lumberjack-legend",
+    "card": "card-lumberjack-legend",
+    "icons": "icons-lumberjack-legend"
   },
   "text": {
     "mainText": {
@@ -14,7 +14,7 @@
     "WinVideo": {
       "type": "video",
       "key": "WinVideo",
-      "videoKey": "DV_winvideo_yummy",
+      "videoKey": "DV_winvideo_lumberjack",
       "description": "Plays during win"
     },
     "LoseVideo": {

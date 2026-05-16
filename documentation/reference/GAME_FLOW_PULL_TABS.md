@@ -2,7 +2,7 @@
 
 ## Modes
 
-1. **Config mode** — No `sessionId` in the URL. The game loads a local JS config from `src/config/game/{name}.js` based on `?config=`, or falls back to `DEFAULT_CONFIG` in [`src/config/game/game-config.js`](../../src/config/game/game-config.js) (`monster`). Valid names are listed in `CONFIG_REGISTRY`.
+1. **Config mode** — No `sessionId` in the URL. The game loads a local JS config from `src/config/game/{name}.js` based on `?config=`, or falls back to `DEFAULT_CONFIG` in [`src/config/game/game-config.js`](../../src/config/game/game-config.js) (`mega-monster`). Valid names are listed in `CONFIG_REGISTRY`.
 
 2. **Session mode** — URL includes `?sessionId=...` (optional `?mode=demo` or `?mode=real`). Boot calls `POST /provider/session` and builds runtime config from `gameMetadata` (theme, optional `prizes`, `message`, `type`, etc.). On failure, session is cleared and file config is loaded again when possible.
 
@@ -10,7 +10,7 @@
 
 | Param | Purpose |
 |--------|---------|
-| `config` | Config stem, e.g. `?config=discokitty`. Read from `window` / `parent` / `top` for iframe runners. |
+| `config` | Config stem, e.g. `?config=disco-kitty`. Read from `window` / `parent` / `top` for iframe runners. |
 | `sessionId` | Provider session; enables session mode. Same window/parent/top resolution. |
 | `mode` | `demo` (default) or `real`; affects operator balance vs demo balance (minor units from API). |
 

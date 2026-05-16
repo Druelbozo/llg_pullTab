@@ -1,7 +1,7 @@
 {
 	"textures": [
 		{
-			"image": "icons-crazybanana.png",
+			"image": "icons-disco-kitty.png",
 			"format": "RGBA8888",
 			"size": {
 				"w": 300,
@@ -204,7 +204,7 @@
 	"meta": {
 		"app": "llg_pulltab",
 		"version": "3.0",
-		"smartupdate": "pull-tab-icons-grid:icons-crazybanana"
+		"smartupdate": "pull-tab-icons-grid:icons-disco-kitty"
 	},
 	"pullTabLayout": {
 		"iconSpacing": 130,

@@ -1,14 +1,12 @@
 {
   "imageKeys": {
-    "background": "background-discokitty",
-    "card": "card-discokitty",
-    "icons": "icons-discokitty",
-    "peel": "peel-discokitty",
-    "peelBack": "peelBack-discokitty"
+    "background": "background-yummy-hot-pot",
+    "card": "card-yummy-hot-pot",
+    "icons": "icons-yummy-hot-pot"
   },
   "text": {
     "mainText": {
-      "color": "#bf45fe",
+      "color": "#fdb50f",
       "strokeColor": "#0"
     }
   },
@@ -16,7 +14,7 @@
     "WinVideo": {
       "type": "video",
       "key": "WinVideo",
-      "videoKey": "DV_winvideo_discokitty",
+      "videoKey": "DV_winvideo_yummy",
       "description": "Plays during win"
     },
     "LoseVideo": {

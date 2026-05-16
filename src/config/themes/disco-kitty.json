@@ -1,13 +1,14 @@
 {
   "imageKeys": {
-    "background": "background-monster",
-    "card": "card-monster",
-    "icons": "icons-monster",
-    "peel": "peel-crazybanana"
+    "background": "background-disco-kitty",
+    "card": "card-disco-kitty",
+    "icons": "icons-disco-kitty",
+    "peel": "peel-disco-kitty",
+    "peelBack": "peelBack-disco-kitty"
   },
   "text": {
     "mainText": {
-      "color": "#26d658",
+      "color": "#bf45fe",
       "strokeColor": "#0"
     }
   },
@@ -15,7 +16,7 @@
     "WinVideo": {
       "type": "video",
       "key": "WinVideo",
-      "videoKey": "DV_winvideo_monster",
+      "videoKey": "DV_winvideo_discokitty",
       "description": "Plays during win"
     },
     "LoseVideo": {

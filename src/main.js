@@ -55,7 +55,7 @@ window.addEventListener('load', async function () {
 			window.__selectedGameConfig = config;
 		} catch (err) {
 			console.error('Failed to load game config:', err);
-			window.__selectedGameConfig = mergePullTabConfig({ theme: 'monster' }, {});
+			window.__selectedGameConfig = mergePullTabConfig({ theme: 'mega-monster' }, {});
 		}
 	}
 

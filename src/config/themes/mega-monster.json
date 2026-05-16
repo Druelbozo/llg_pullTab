@@ -1,12 +1,13 @@
 {
   "imageKeys": {
-    "background": "background-lumberjack",
-    "card": "card-lumberjack",
-    "icons": "icons-lumberjack"
+    "background": "background-mega-monster",
+    "card": "card-mega-monster",
+    "icons": "icons-mega-monster",
+    "peel": "peel-crazy-banana"
   },
   "text": {
     "mainText": {
-      "color": "#fdb50f",
+      "color": "#26d658",
       "strokeColor": "#0"
     }
   },
@@ -14,7 +15,7 @@
     "WinVideo": {
       "type": "video",
       "key": "WinVideo",
-      "videoKey": "DV_winvideo_lumberjack",
+      "videoKey": "DV_winvideo_monster",
       "description": "Plays during win"
     },
     "LoseVideo": {

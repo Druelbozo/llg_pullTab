@@ -1,7 +1,7 @@
 {
 	"textures": [
 		{
-			"image": "icons-yummy.png",
+			"image": "icons-lumberjack-legend.png",
 			"format": "RGBA8888",
 			"size": {
 				"w": 300,
@@ -204,7 +204,7 @@
 	"meta": {
 		"app": "llg_pulltab",
 		"version": "3.0",
-		"smartupdate": "pull-tab-icons-grid:icons-yummy"
+		"smartupdate": "pull-tab-icons-grid:icons-lumberjack-legend"
 	},
 	"pullTabLayout": {
 		"iconSpacing": 130,

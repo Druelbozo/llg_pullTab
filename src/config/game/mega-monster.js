@@ -4,6 +4,5 @@
  */
 
 export default {
-    theme: "discokitty"
+	theme: 'mega-monster',
 };
-

@@ -1,0 +1,14 @@
+{
+  "imageKeys": {
+    "background": "background-crazy-banana",
+    "card": "card-crazy-banana",
+    "icons": "icons-crazy-banana",
+    "peel": "peel-crazy-banana"
+  },
+  "text": {
+    "mainText": {
+      "color": "#33b5d4",
+      "strokeColor": "#e3e6c6"
+    }
+  }
+}

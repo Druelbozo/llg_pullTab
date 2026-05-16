@@ -4,6 +4,5 @@
  */
 
 export default {
-    theme: "yummy"
+	theme: 'crazy-banana',
 };
-
