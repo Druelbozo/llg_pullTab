@@ -18,5 +18,8 @@
     "header": {
       "color": "#0083c5"
     }
+  },
+  "music": {
+    "audioKey": "crazy-banana.ogg"
   }
 }

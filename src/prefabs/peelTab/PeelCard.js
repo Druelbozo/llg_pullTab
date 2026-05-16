@@ -175,6 +175,11 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 
 	ready()
 	{
+		const audio = this.scene.audioService;
+		if (audio?.isAudioUnlocked()) {
+			audio.playSfx('thud');
+		}
+
 		this.gameContainer.visible = true;
 		this.messageText.show();
 	 	for (let i = 0; i < this.peelContainer.list.length; i++)

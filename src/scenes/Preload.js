@@ -8,6 +8,8 @@ import WebFontFile from '../utils/ui/WebFontFile.js';
 import BrowserDetector from '../utils/ui/BrowserDetector.js';
 import { mergeThemeWithDefault } from '../utils/theme/ThemeMergeUtils.js';
 import { googleFamilySpecsFromThemeFonts } from '../utils/theme/ThemeFontResolutionUtils.js';
+import { GameConfig } from '../config/Global.js';
+import { setEffectiveSfx } from '../utils/audio/SfxConfigUtils.js';
 /* END-USER-IMPORTS */
 
 export default class Preload extends Phaser.Scene {
@@ -322,10 +324,19 @@ export default class Preload extends Phaser.Scene {
 			}
 		}
 
-		for (const value of Object.values(themeData ?? {})) {
-			if (value && typeof value === 'object' && value.type === "audio") {
-				this.loadAudio(value, themeData);
+		const sfxBasePath = 'assets/audio/sfx/';
+		const effectiveSfx = { ...(GameConfig?.sfx || {}), ...(themeData?.sfx || {}) };
+		setEffectiveSfx(effectiveSfx);
+		const sfxCb = Date.now();
+		for (const [, filename] of Object.entries(effectiveSfx)) {
+			if (filename && typeof filename === 'string') {
+				const cacheKey = filename.replace(/\.(ogg|mp3|wav)$/i, '');
+				this.load.audio(cacheKey, `${sfxBasePath}${filename}?t=${sfxCb}`);
 			}
+		}
+
+		if (themeData.music && typeof themeData.music === 'object' && themeData.music.audioKey != null && themeData.music.audioKey !== '') {
+			this.queueThemeMusic(themeData.music);
 		}
 
 		const vk = themeData.videoKeys;
@@ -370,29 +381,25 @@ export default class Preload extends Phaser.Scene {
 		this.load.atlas(phaserKey, png, json);
 	}
 
-	loadAudio(value, themeData)
+	queueThemeMusic(musicData)
 	{
-		if (!value.audioKey || value.audioKey === "") {
-			console.log(`Skipping load for ${value.key}: audioKey is empty`);
+		if (!musicData.audioKey || musicData.audioKey === '') {
+			console.log('[Preload] Skipping theme music — audioKey empty');
 			return;
 		}
 
-		let audioPath = "";
+		const phaserKey = musicData.audioKey;
+		let audioPath = '';
+		console.log(`[Preload] Theme music audioKey="${musicData.audioKey}", Phaser key="${phaserKey}"`);
 
-		console.log(`Loading audio: key="${value.key}", audioKey="${value.audioKey}"`);
-
-		if (value.audioKey.startsWith('http')) 
-		{
-			audioPath = value.audioKey;
-		}
-		else 
-		{	
-			// Loading Locally - add cache-busting parameter to ensure we get the latest audio
+		if (String(musicData.audioKey).startsWith('http')) {
+			audioPath = musicData.audioKey;
+		} else {
 			const cacheBuster = Date.now();
-			audioPath = `assets/audio/music/${value.audioKey}?t=${cacheBuster}`;
+			audioPath = `assets/audio/music/${musicData.audioKey}?t=${cacheBuster}`;
 		}
 
-		this.load.audio(value.key, audioPath);
+		this.load.audio(phaserKey, audioPath);
 	}
 
 	create() {

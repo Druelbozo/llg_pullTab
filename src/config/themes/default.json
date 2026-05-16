@@ -8,6 +8,10 @@
     "win": "win-default",
     "lose": "lose-default"
   },
+  "videoKeys": {
+    "win": "win-crazy-banana",
+    "lose": "lose-crazy-banana"
+  },
   "pullTabIconsLayout": {
     "iconSpacing": 130,
     "iconOffsetX": 60,
@@ -96,8 +100,7 @@
       }
     }
   },
-  "videoKeys": {
-    "win": "win-crazy-banana",
-    "lose": "lose-crazy-banana"
+  "music": {
+    "audioKey": null
   }
 }

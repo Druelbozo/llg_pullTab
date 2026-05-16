@@ -2568,7 +2568,13 @@ export default class ControlBarManager {
      * @param {boolean} animate - Whether to animate the change (default: false)
      * @param {number} startValue - Starting value for animation (default: current balance)
      */
-    updateHeaderBalanceText(balancePennies, animate = false, startValue = null) {
+    /**
+     * @param {number} balancePennies
+     * @param {boolean} animate
+     * @param {number|null} [startValue]
+     * @param {boolean} stopLoopingSfxWhenComplete - e.g. after win payout tally (@see Scratch PointsCountUp)
+     */
+    updateHeaderBalanceText(balancePennies, animate = false, startValue = null, stopLoopingSfxWhenComplete = false) {
         if (!this.headerBalanceText) {
             return;
         }
@@ -2585,6 +2591,7 @@ export default class ControlBarManager {
                 this.headerBalanceText.tween.stop();
             }
             
+            const scene = this.scene;
             this.headerBalanceText.tween = animateNumber(
                 this.scene,
                 this.headerBalanceText,
@@ -2592,7 +2599,10 @@ export default class ControlBarManager {
                 1000, // Duration matches PointsCountUp
                 {
                     startValue: startingBalance,
-                    formatter: (val) => this._formatHeaderText('Balance:', formatBalanceMinorForDisplayWithSymbol(Math.floor(val)), lines)
+                    formatter: (val) => this._formatHeaderText('Balance:', formatBalanceMinorForDisplayWithSymbol(Math.floor(val)), lines),
+                    onComplete: stopLoopingSfxWhenComplete
+                        ? () => scene.audioService?.stopLoopingSfx()
+                        : undefined,
                 }
             );
         } else {

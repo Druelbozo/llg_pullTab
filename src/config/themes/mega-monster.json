@@ -5,14 +5,14 @@
     "icons": "icons-mega-monster",
     "peel": "peel-crazy-banana"
   },
+  "videoKeys": {
+    "win": "win-mega-monster",
+    "lose": ""
+  },
   "text": {
     "palette": {
       "primaryColor": "#26d658",
       "secondaryColor": "#0"
     }
-  },
-  "videoKeys": {
-    "win": "win-mega-monster",
-    "lose": ""
   }
 }

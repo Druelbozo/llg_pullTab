@@ -40,7 +40,6 @@ export const GameConfig = {
         enableHapticFeedback: true,
         LANDSCAPE_MOBILE_SIDE_PAYTABLE_SELECTOR: null
     },
-    sfx: {},
     imageKeyMapping: {},
     debug: {
         SHOW_TEST_ERROR_MODAL: false,
@@ -53,5 +52,20 @@ export const GameConfig = {
         SHOW_PRELOAD_VISUAL_DEBUGGING: false,
         ENABLE_VISUAL_DEBUG_SHORTCUTS: !USE_QUIET_LOG_CATEGORIES,
         SHOW_LOG_CATEGORIES: USE_QUIET_LOG_CATEGORIES ? [] : SHOW_LOG_CATEGORIES_DEVELOPMENT,
+    },
+    /**
+     * SFX Configuration
+     * Sound effect filenames in assets/audio/sfx/. Swap files to try different sounds.
+     */
+    sfx: {
+        buy: "buy3.ogg",
+        buttonClick: "button-click.ogg",
+        popupClose: "popup-close.ogg",
+        popupOpen: "popup-open.ogg",
+        tally: "tally.ogg",
+        thud: "thud3.ogg",
+        whoosh: "whoosh.ogg",
+        win: "win.ogg",
+        lose: "lose.ogg",
     },
 };

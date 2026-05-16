@@ -113,6 +113,11 @@ export default class PeelCardEnterAnim extends Phaser.GameObjects.Container {
 		this.alpha = 1;
 		this.setScale(1.15, 1.15);
 
+		const audio = this.scene.audioService;
+		if (audio?.isAudioUnlocked()) {
+			audio.playSfx('whoosh');
+		}
+
 		this.scene.add.tween
 		({
 			targets: this,

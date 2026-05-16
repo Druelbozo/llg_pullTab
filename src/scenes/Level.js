@@ -14,6 +14,9 @@ import ServerManager from "../prefabs/game/ServerManager.js";
 import ThemeManager from "../prefabs/game/ThemeManager.js";
 /* START-USER-IMPORTS */
 import { bootstrapPullTabControlBar } from "../services/pulltab/PullTabControlBarBootstrap.js";
+import AudioService from "../services/game/AudioService.js";
+import { openSoundOptionsModal } from "../dom/soundOptions/soundOptionsModal.js";
+import { GameConfig } from "../config/Global.js";
 /* END-USER-IMPORTS */
 
 export default class Level extends Phaser.Scene {
@@ -135,8 +138,46 @@ export default class Level extends Phaser.Scene {
 
 	create() {
 		this.editorCreate();
+
+		this.audioService = new AudioService(this);
+		if (GameConfig.game.START_MUTED) {
+			this.audioService.setMuted(true);
+		}
+
+		const unlockAudioOnce = () => {
+			if (this.audioService && !this.audioService.isAudioUnlocked()) {
+				this.audioService.unlockAudio();
+			}
+			this.input.off('pointerdown', unlockAudioOnce);
+			this.input.off('pointerup', unlockAudioOnce);
+		};
+		this.input.once('pointerdown', unlockAudioOnce);
+		this.input.once('pointerup', unlockAudioOnce);
+
+		this.events.once('onThemeInitalized', () => {
+			const key = this.themeData?.music?.audioKey;
+			if (key && typeof key === 'string') {
+				const trimmed = key.trim();
+				if (trimmed !== '' && trimmed.toLowerCase() !== 'null') {
+					this.audioService.playThemeMusic(trimmed);
+				}
+			}
+			this._updateSoundIcon();
+		});
+
 		bootstrapPullTabControlBar(this);
 		this.events.emit("scene-awake");
+	}
+
+	/**
+	 * Control-bar speaker texture (muted = both channels effectively silent).
+	 */
+	_updateSoundIcon() {
+		if (!this.soundIcon?.setTexture) {
+			return;
+		}
+		const muted = !!(this.audioService && this.audioService.isMuted());
+		this.soundIcon.setTexture(muted ? 'icon_sound_off_128' : 'icon_sound_on_128');
 	}
 
 	/* END-USER-CODE */

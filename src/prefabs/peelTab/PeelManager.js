@@ -4,6 +4,8 @@
 /* START OF COMPILED CODE */
 
 /* START-USER-IMPORTS */
+import { GameConfig } from '../../config/Global.js';
+import HapticUtils from '../../utils/device/HapticUtils.js';
 /* END-USER-IMPORTS */
 
 export default class PeelManager extends Phaser.GameObjects.Container {
@@ -127,17 +129,30 @@ export default class PeelManager extends Phaser.GameObjects.Container {
 			session.result === "win" && Number.isFinite(prizeUsd) ? Math.round(prizeUsd * 100) : 0;
 		this.scene.events.emit("pulltab-win-minor-changed", winMinor);
 
-		if (session.result === "win") {
-			this.scene.serverManager?.creditPrizeUsd(session.prize);
-		}
-
-		if(session.result == "win")
+		if(session.result === "win")
 		{
-			this.scene.time.delayedCall(1000, ()=> this.stateManager.setState("win", "PeelManager -  Player has won"));			
+			const prize = session.prize;
+			this.scene.time.delayedCall(1000 / this.speed, () => {
+				this.scene.audioService?.playSfx('win');
+				const credited = this.scene.serverManager?.creditPrizeUsd(prize);
+				if (credited) {
+					this.scene.audioService?.playLoopingSfx('tally');
+				}
+				if (GameConfig?.ui?.enableHapticFeedback !== false) {
+					HapticUtils.win();
+				}
+				this.stateManager.setState("win", "PeelManager -  Player has won");
+			});			
 		}
 		else
 		{
-			this.scene.time.delayedCall(1000, ()=> this.stateManager.setState("lose", "PeelManager -  Player has lost"));					
+			this.scene.time.delayedCall(1000 / this.speed, () => {
+				this.scene.audioService?.playSfx('lose');
+				if (GameConfig?.ui?.enableHapticFeedback !== false) {
+					HapticUtils.lose();
+				}
+				this.stateManager.setState("lose", "PeelManager -  Player has lost");
+			});					
 		}
 
 		if(this.autoMode)

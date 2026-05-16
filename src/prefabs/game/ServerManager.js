@@ -59,13 +59,19 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 		});
 	}
 
-	_emitBalanceMinorUpdate(animate = false, startingMinor = null) {
+	/**
+	 * @param {boolean} animate
+	 * @param {number|null|undefined} startingMinor
+	 * @param {{ stopLoopingOnBalanceTweenComplete?: boolean }} [opts]
+	 */
+	_emitBalanceMinorUpdate(animate = false, startingMinor = null, opts = {}) {
 		const penn = Math.round(this.balance * 100);
 		this.scene.balancePennies = penn;
 		this.scene.events.emit(
 			"pulltab-balance-pennies-changed",
 			animate,
-			startingMinor != null ? startingMinor : null
+			startingMinor != null ? startingMinor : null,
+			opts.stopLoopingOnBalanceTweenComplete === true,
 		);
 	}
 
@@ -107,6 +113,7 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 
 		this.balance -= priceMinor / 100;
 		this._emitBalanceMinorUpdate(true, startMinor);
+		this.scene.audioService?.playSfx('buy');
 
 		this.scene.events.emit("OnBalanceChanged", balance);
 
@@ -115,10 +122,13 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 
 	creditPrizeUsd(prizeUsd) {
 		const p = Number(prizeUsd);
-		if (!Number.isFinite(p) || p <= 0) return;
+		if (!Number.isFinite(p) || p <= 0) return false;
 		const startMinor = Math.round(this.balance * 100);
 		this.balance += p;
-		this._emitBalanceMinorUpdate(true, startMinor);
+		this._emitBalanceMinorUpdate(true, startMinor, {
+			stopLoopingOnBalanceTweenComplete: true,
+		});
+		return true;
 	}
 
 	async getBalance()

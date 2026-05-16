@@ -1,5 +1,7 @@
 import Level from "./scenes/Level.js";
 import Preload from "./scenes/Preload.js";
+import "./dom/modal/styles/modal.css";
+import "./dom/soundOptions/styles/soundOptions.css";
 import "./dom/autoplayOptions/styles/autoplayOptions.css";
 import ResizeHandler from "./utils/game/ResizeHandler.js";
 import ViewportHelper from "./utils/ui/ViewportHelper.js";

@@ -1,0 +1,116 @@
+/* Sound Options modal (nested in .modal-content) */
+
+.sound-options-modal {
+    max-width: 420px;
+    margin: 0 auto;
+}
+
+.sound-options-title {
+    margin: 0 0 20px;
+    padding-top: 0;
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: #f1f5f9;
+    text-align: center;
+}
+
+.sound-options-section {
+    margin-bottom: 22px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sound-options-section:last-of-type {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.sound-options-section h3 {
+    margin: 0 0 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #cbd5e1;
+}
+
+.sound-options-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: nowrap;
+    min-width: 0;
+}
+
+.sound-options-row .sound-options-mute {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+.sound-options-row input[type='range'] {
+    flex: 1 1 120px;
+    min-width: 80px;
+    height: 6px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+    outline: none;
+}
+
+.sound-options-row input[type='range']::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #38bdf8;
+    cursor: pointer;
+    border: 2px solid #0b0b0d;
+}
+
+.sound-options-row input[type='range']::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #38bdf8;
+    cursor: pointer;
+    border: 2px solid #0b0b0d;
+}
+
+.sound-options-value {
+    flex: 0 0 auto;
+    min-width: 2.75rem;
+    text-align: right;
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+    color: #94a3b8;
+}
+
+.sound-options-mute {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: #e2e8f0;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.sound-options-mute input {
+    width: 18px;
+    height: 18px;
+    accent-color: #38bdf8;
+    cursor: pointer;
+}
+
+.modal-container#soundOptions-modal {
+    max-width: 480px;
+}
+
+.modal-container#soundOptions-modal .modal-content {
+    padding-top: 14px;
+    padding-bottom: 28px;
+    padding-left: 40px;
+    padding-right: 40px;
+}

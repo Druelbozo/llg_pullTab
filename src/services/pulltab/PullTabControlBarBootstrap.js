@@ -9,6 +9,7 @@ import ButtonManager from '../ui/ButtonManager.js';
 import AutoPlayOptions from '../../dom/AutoPlayOptions.js';
 import { GameConfig } from '../../config/Global.js';
 import ViewportHelper from '../../utils/viewport/ViewportHelper.js';
+import { openSoundOptionsModal } from '../../dom/soundOptions/soundOptionsModal.js';
 import {
     calculateContainerPositions,
     calculateContainerDimensions,
@@ -303,10 +304,15 @@ export function attachPullTabPlayButtonAndHudSync(scene) {
 
     syncAutoPlayOptionsToggle();
 
-    scene.events.on('pulltab-balance-pennies-changed', (animate, startMinor) => {
+    scene.events.on('pulltab-balance-pennies-changed', (animate, startMinor, stopLoopingOnComplete) => {
         const cm = scene.controlBarManager;
         if (!cm) return;
-        cm.updateHeaderBalanceText(scene.balancePennies ?? 0, !!animate, startMinor ?? null);
+        cm.updateHeaderBalanceText(
+            scene.balancePennies ?? 0,
+            !!animate,
+            startMinor ?? null,
+            stopLoopingOnComplete === true
+        );
         cm.updateHeaderBetText();
     });
 
@@ -426,26 +432,19 @@ export function bootstrapPullTabControlBar(scene) {
 
             cm.setPlayButtonDisabled(false);
 
-            // Sound toggle → MusicManager
-            scene._pullTabSoundOn = !(GameConfig.game.START_MUTED === true);
-
             /** @type {(s: typeof scene) => void} */
             const refreshSoundTex = () => {
-                const on = !!scene._pullTabSoundOn;
-                if (scene.soundIcon?.setTexture) {
-                    scene.soundIcon.setTexture(on ? 'icon_sound_on_128' : 'icon_sound_off_128');
-                }
+                scene._updateSoundIcon?.();
             };
+
             refreshSoundTex();
 
             if (soundButtonResult && scene.buttonManager) {
                 cm.soundButtonId = scene.buttonManager.registerButton(soundButtonResult, {
                     id: 'sound_button',
                     onClick: () => {
-                        scene._pullTabSoundOn = !scene._pullTabSoundOn;
-                        const g = scene._pullTabSoundOn ? 1 : 0;
-                        scene.musicManager?.muteVolume('music', g);
-                        scene.musicManager?.muteVolume('sfx', g);
+                        scene.audioService?.unlockAudio();
+                        openSoundOptionsModal(scene);
                         refreshSoundTex();
                     },
                 });
