@@ -1,94 +1,14 @@
 {
-  "fontLoader": {
-    "fonts":
-    [
-      "Titan One",
-      "New Amsterdam"
-    ]
+  "imageKeys": {
+    "background": "background-crazybanana",
+    "card": "card-crazybanana",
+    "icons": "icons-crazybanana",
+    "peel": "peel-crazybanana"
   },
-  "gameOptions": {
-    "testValue": 3
-  },
-  "themeColors": {
-    "buttonColor": "#0",
-    "textMainColor": "#0",
-    "textSubColor": "#0"
-  },
-  "text":
-  {
+  "text": {
     "mainText": {
-      "fontFamily": "New Amsterdam",
-      "fontSize": 65, 
       "color": "#33b5d4",
-      "strokeColor": "#e3e6c6",
-      "strokeThickness": 15,
-      "content": "",
-      "offset":
-      {
-        "x": 0,
-        "y": 0
-      }
+      "strokeColor": "#e3e6c6"
     }
-  },
-  "images": {
-    "peel": {
-      "type": "image",
-      "key": "peel",
-      "imageKey": "DI_Peel_CrazyBanana",
-      "description": "Peel that is removed"
-    },
-    "peelBack": {
-      "type": "image",
-      "key": "peelBack",
-      "imageKey": "DI_PeelBack_Default",
-      "description": "Revealed after peel is removed"
-    },
-    "card": {
-      "type": "image",
-      "key": "card",
-      "imageKey": "DI_CardCover_CrazyBanana",
-      "description": "Visual Card cover"
-    },
-    "icons": {
-      "type": "image",
-      "key": "icons",
-      "imageKey": "DI_Icons_CrazyBanana",
-      "description": "Icons Under Peel",
-      "imageWidth": 100,
-      "imageHeight": 100
-    },
-    "background": {
-      "type": "image",
-      "key": "background",
-      "imageKey": "DI_Background_CrazyBanana",
-      "description": "Background"
-    },
-    "win": {
-      "type": "image",
-      "key": "win",
-      "imageKey": "DI_WinImage_Default",
-      "description": "Win Image"
-    },
-    "lose": {
-      "type": "image",
-      "key": "lose",
-      "imageKey": "DI_LoseImage_Default",
-      "description": "Lose Image"
-    }          
-  },
-  "videos":
-  {
-    "WinVideo": {
-      "type": "video",
-      "key": "WinVideo",
-      "videoKey": "DV_WinVideo_Default",
-      "description": "Background"
-    },
-    "LoseVideo": {
-      "type": "video",
-      "key": "LoseVideo",
-      "videoKey": "DV_LoseVideo_Default",
-      "description": "Background"
-    }      
   }
 }

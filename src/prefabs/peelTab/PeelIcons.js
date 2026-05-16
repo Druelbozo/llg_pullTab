@@ -26,8 +26,7 @@ export default class PeelIcons extends Phaser.GameObjects.Container {
 		this.iconContainer = iconContainer;
 
 		/* START-USER-CTR-CODE */
-		// Write your code here.
-		this.init();
+		this.syncPullTabIconsLayoutFromRegistry();
 		/* END-USER-CTR-CODE */
 	}
 
@@ -39,61 +38,80 @@ export default class PeelIcons extends Phaser.GameObjects.Container {
 	/* START-USER-CODE */
 	isWin = false;
 
-	offset = 60
+	iconRowY = 50;
+	offset = 60;
 	padding = 130;
+
+	_defaultPullTabIconsLayout()
+	{
+		return { iconSpacing: 130, iconOffsetX: 60, iconRowY: 50, crossY: 50 };
+	}
+
+	syncPullTabIconsLayoutFromRegistry()
+	{
+		const layout = {
+			...this._defaultPullTabIconsLayout(),
+			...(this.scene.registry.get('pullTabIconsLayout') || {}),
+		};
+		const spacing = Number(layout.iconSpacing);
+		const offset = Number(layout.iconOffsetX);
+		const rowY = Number(layout.iconRowY);
+		const crossYRaw = Number(layout.crossY);
+
+		this.padding = Number.isFinite(spacing) ? spacing : this.padding;
+		this.offset = Number.isFinite(offset) ? offset : this.offset;
+		this.iconRowY = Number.isFinite(rowY) ? rowY : this.iconRowY;
+		const crossY = Number.isFinite(crossYRaw) ? crossYRaw : this.iconRowY;
+		if (this.cross)
+		{
+			this.cross.y = crossY;
+		}
+	}
+
+	_iconFrameName(raw)
+	{
+		if (typeof raw === 'number' && Number.isFinite(raw)) return `${raw}.png`;
+		const s = String(raw);
+		return /^\d+$/.test(s) ? `${s}.png` : s;
+	}
+
+	_primaryIconsTextureKey()
+	{
+		if (this.scene.textures.exists("icons")) return "icons";
+		return "DI_Icons_Default";
+	}
 
 	// Write your code here.
 	init(icons)
 	{
+		this.syncPullTabIconsLayoutFromRegistry();
 		if(icons === undefined) return;
 		this.cross.width = 0;
 
+		const texKey = this._primaryIconsTextureKey();
 
 		if(this.iconContainer.list.length == 0)
 		{
 			for (let i = 0; i < icons.length; i++)
 			{
-				//let rand = Phaser.Math.RND.between(0,8);
-				const icon = this.scene.add.sprite(0, 0, "");
+				const icon = this.scene.add.sprite(0, 0, texKey);
 				icon.setOrigin(0.5, 0.5);
 				this.iconContainer.add(icon);
 
 				icon.x = i * this.padding + this.offset;
-				icon.y = 50;
+				icon.y = this.iconRowY;
 
-				if(this.scene.textures.exists("icons"))
-				{
-					icon.setTexture("icons", icons[i]);
-				}
-				else
-				{
-					icon.setTexture("DI_Icons_Default", icons[i]);
-				}
+				icon.setTexture(texKey, this._iconFrameName(icons[i]));
 			}
 		}
 		else
 		{
 			for (let i = 0; i < icons.length; i++)
 			{
-				console.log(icons[i], icons)
-				let rand = Phaser.Math.RND.between(0,8);
-				//rand = 1;
 				const icon = this.iconContainer.list[i];
-
-				if(this.scene.textures.exists("icons"))
-				{
-					icon.setTexture("icons", icons[i]);
-				}
-				else
-				{
-					icon.setTexture("DI_Icons_Default", icons[i]);
-				}
+				icon.setTexture(texKey, this._iconFrameName(icons[i]));
 			}			
 		}
-
-
-
-
 
 		this.isWin = this.iconContainer.list.every(i => i.frame.name === this.iconContainer.list[0].frame.name);
 

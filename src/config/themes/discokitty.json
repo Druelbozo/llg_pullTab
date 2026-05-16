@@ -1,83 +1,18 @@
 {
-  "fontLoader": {
-    "fonts":
-    [
-      "Titan One",
-      "New Amsterdam"
-    ]
+  "imageKeys": {
+    "background": "background-discokitty",
+    "card": "card-discokitty",
+    "icons": "icons-discokitty",
+    "peel": "peel-discokitty",
+    "peelBack": "peelBack-discokitty"
   },
-  "gameOptions": {
-    "testValue": 3
-  },
-  "themeColors": {
-    "buttonColor": "#0",
-    "textMainColor": "#0",
-    "textSubColor": "#0"
-  },
-  "text":
-  {
+  "text": {
     "mainText": {
-      "fontFamily": "New Amsterdam",
-      "fontSize": 65, 
       "color": "#bf45fe",
-      "strokeColor": "#0",
-      "strokeThickness": 15,
-      "content": "",
-      "offset":
-      {
-        "x": 0,
-        "y": 0
-      }
+      "strokeColor": "#0"
     }
   },
-  "images": {
-    "peel": {
-      "type": "image",
-      "key": "peel",
-      "imageKey": "DI_Peel_discokitty",
-      "description": "Peel that is removed"
-    },
-    "peelBack": {
-      "type": "image",
-      "key": "peelBack",
-      "imageKey": "DI_PeelBack_discokitty",
-      "description": "Revealed after peel is removed"
-    },
-    "card": {
-      "type": "image",
-      "key": "card",
-      "imageKey": "DI_Card_discokitty",
-      "description": "Visual Card cover"
-    },
-    "icons": {
-      "type": "image",
-      "key": "icons",
-      "imageKey": "DI_icons_discokitty",
-      "description": "Icons Under Peel",
-      "imageWidth": 100,
-      "imageHeight": 100
-    },
-    "background": {
-      "type": "image",
-      "key": "background",
-      "imageKey": "DI_background_discokitty",
-      "description": "Background"
-    },
-    "win": {
-      "type": "image",
-      "key": "win",
-      "imageKey": "DI_WinImage_Default",
-      "description": "Win Image"
-    },
-    "lose": {
-      "type": "image",
-      "key": "lose",
-      "imageKey": "DI_LoseImage_Default",
-      "description": "Lose Image"
-    }          
-  },
-  "videos":
-  {
+  "videos": {
     "WinVideo": {
       "type": "video",
       "key": "WinVideo",
@@ -89,6 +24,6 @@
       "key": "LoseVideo",
       "videoKey": "",
       "description": "Background"
-    }      
+    }
   }
 }

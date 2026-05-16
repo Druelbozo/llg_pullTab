@@ -6,6 +6,7 @@
 /* START-USER-IMPORTS */
 import WebFontFile from '../utils/ui/WebFontFile.js';
 import BrowserDetector from '../utils/ui/BrowserDetector.js';
+import { mergeThemeWithDefault } from '../utils/theme/ThemeMergeUtils.js';
 /* END-USER-IMPORTS */
 
 export default class Preload extends Phaser.Scene {
@@ -106,21 +107,13 @@ export default class Preload extends Phaser.Scene {
 		this._LOADER_MAX_PROGRESS = 0.85;
 
 		// Set up filecomplete handlers to track theme image loading (prevents cold-start race)
-		this.load.on('filecomplete-image', (key) => {
-			if (this._themeImageKeys.has(key)) {
-				this._themeImagesLoaded++;
-				this._themeImagesVerified.add(key);
-				console.log(`[Preload] Theme image loaded: "${key}" (${this._themeImagesLoaded}/${this._themeImagesTotal})`);
-				this._checkAssetsReady();
-			}
-		});
-		this.load.on('filecomplete-spritesheet', (key) => {
-			if (this._themeImageKeys.has(key)) {
-				this._themeImagesLoaded++;
-				this._themeImagesVerified.add(key);
-				console.log(`[Preload] Theme spritesheet loaded: "${key}" (${this._themeImagesLoaded}/${this._themeImagesTotal})`);
-				this._checkAssetsReady();
-			}
+		this.load.on('filecomplete', (key, type) => {
+			if (!this._themeImageKeys.has(key)) return;
+			if (this._themeImagesVerified.has(key)) return;
+			this._themeImagesLoaded++;
+			this._themeImagesVerified.add(key);
+			console.log(`[Preload] Theme asset loaded (${type}): "${key}" (${this._themeImagesLoaded}/${this._themeImagesTotal})`);
+			this._checkAssetsReady();
 		});
 
 		await this.loadTheme();
@@ -140,14 +133,22 @@ export default class Preload extends Phaser.Scene {
 		for (const key of this._themeImageKeys) {
 			if (!this._themeImagesVerified.has(key) && this.textures.exists(key)) {
 				const texture = this.textures.get(key);
-				const source = texture?.source?.[0] || texture?.getSourceImage?.();
-				const img = source?.image || source;
-				const w = img?.width ?? img?.naturalWidth ?? texture?.frame?.width;
-				const h = img?.height ?? img?.naturalHeight ?? texture?.frame?.height;
+				let w = 0;
+				let h = 0;
+				if (texture?.frames?.size > 0) {
+					const firstFrame = [...texture.frames.values()][0];
+					w = firstFrame.width;
+					h = firstFrame.height;
+				} else {
+					const source = texture?.source?.[0] || texture?.getSourceImage?.();
+					const img = source?.image || source;
+					w = img?.width ?? img?.naturalWidth ?? texture?.frame?.width;
+					h = img?.height ?? img?.naturalHeight ?? texture?.frame?.height;
+				}
 				if (w > 0 && h > 0) {
 					this._themeImagesLoaded++;
 					this._themeImagesVerified.add(key);
-					console.log(`[Preload] Theme image in cache: "${key}" (${this._themeImagesLoaded}/${this._themeImagesTotal})`);
+					console.log(`[Preload] Theme texture in cache: "${key}" (${this._themeImagesLoaded}/${this._themeImagesTotal})`);
 				}
 			}
 		}
@@ -207,129 +208,149 @@ export default class Preload extends Phaser.Scene {
 	async loadTheme()
 	{
 		const cfg = this.registry.get('preloadGameConfig') || (typeof window !== 'undefined' && window.__selectedGameConfig) || {};
-		let selectedTheme = cfg.theme || 'default';
-		console.log(`Loading theme: src/config/themes/${selectedTheme}.json`);
+		const selectedTheme = cfg.theme || 'default';
+
+		console.log(`[Preload] Loading theme bundle: ${selectedTheme}`);
 
 		const cacheBuster = Date.now();
-		try 
-		{
-			const themeResponse = await fetch(`src/config/themes/${selectedTheme}.json?t=${cacheBuster}`);	
-			console.log(`Theme loaded: src/config/themes/${selectedTheme}.json`);
-			if (themeResponse.ok)
-			{
-				console.log(`Theme loaded: src/config/themes/${selectedTheme}.json`);
+		let defaultTheme = null;
+		let themeOverride = null;
 
-				const themeData = await themeResponse.json();
-				this._themeImagesLoading = true;
-				this.checkType(themeData);
-				this._themeImagesQueued = true;
-
-				if (themeData.fontLoader)
-				{
-					this.load.addFile(new WebFontFile(this.load, themeData.fontLoader.fonts));
-				}
-
-				// Log theme image loading summary
-				if (this._themeImagesTotal > 0)
-				{
-					const allKeys = Array.from(this._themeImageKeys);
-					console.log(`[Preload] ✅ Queued ${this._themeImagesTotal} theme image(s) for loading`);
-					console.log(`[Preload] 📋 Theme image keys: [${allKeys.join(', ')}]`);
-
-					if (!this.load.isLoading() && this.load.list.size > 0)
-					{
-						console.log('[Preload] Loader was idle, starting it to load theme images...');
-						this.load.start();
-					}
-				}
-				else 
-				{
-					console.log(`[Preload] No theme images found in theme data`);
-				}
-			} 
-			else
-			{
-				console.warn(`[Preload] Failed to load theme: src/config/themes/${selectedTheme}.json (status: ${themeResponse.status})`);
-				// Continue without theme - game will use defaults
-				this._themeImagesQueued = true; // Mark as done even if failed
+		try {
+			const defaultResp = await fetch(`src/config/themes/default.json?t=${cacheBuster}`);
+			if (defaultResp.ok) {
+				defaultTheme = await defaultResp.json();
+				console.log('[Preload] default.json loaded');
+			} else {
+				console.warn('[Preload] default.json missing — theme merge may be incomplete');
 			}
-			
-						
-		}
-		catch (error)
-		{
-			console.error(`[Preload] Error loading theme: src/config/themes/${selectedTheme}.json`, error);
+
+			const themeResp = await fetch(`src/config/themes/${selectedTheme}.json?t=${cacheBuster}`);
+			if (themeResp.ok) {
+				themeOverride = await themeResp.json();
+				console.log(`[Preload] src/config/themes/${selectedTheme}.json loaded`);
+			} else if (selectedTheme !== 'default') {
+				console.warn(`[Preload] Theme "${selectedTheme}" not found (${themeResp.status})`);
+			} else if (selectedTheme === 'default') {
+				themeOverride = defaultTheme;
+			}
+
+			const themeData = mergeThemeWithDefault(defaultTheme ?? {}, themeOverride ?? {});
+			this.registry.set('preloadThemeData', themeData);
+
+			await this._hydratePullTabIconsLayout(themeData);
+
+			this._themeImagesLoading = true;
+			this.checkType(themeData);
+			this._themeImagesQueued = true;
+
+			if (themeData.fontLoader) {
+				this.load.addFile(new WebFontFile(this.load, themeData.fontLoader.fonts));
+			}
+
+			if (this._themeImagesTotal > 0) {
+				console.log(`[Preload] Queued ${this._themeImagesTotal} theme asset(s)`);
+				console.log(`[Preload] Theme texture keys: [${Array.from(this._themeImageKeys).join(', ')}]`);
+
+				if (!this.load.isLoading() && this.load.list.size > 0) {
+					console.log('[Preload] Loader idle with theme files queued, starting loader...');
+					this.load.start();
+				}
+			} else {
+				console.log('[Preload] No theme imageKeys to queue');
+			}
+		} catch (error) {
+			console.error('[Preload] Error loading themes', error);
+			this.registry.set('pullTabIconsLayout', {});
 			this._themeImagesQueued = true;
 		}
-	
+	}
+
+	async _hydratePullTabIconsLayout(themeData)
+	{
+		const mergedBase = themeData.pullTabIconsLayout || {};
+		const stem = themeData.imageKeys?.icons;
+		this.registry.set('pullTabIconsLayout', mergedBase);
+
+		if (!stem || typeof stem !== 'string' || stem.startsWith('http')) {
+			return;
+		}
+		try {
+			const cb = Date.now();
+			const r = await fetch(`assets/images/theme/icons/${stem}.json?t=${cb}`);
+			if (!r.ok) return;
+			const j = await r.json();
+			if (j.pullTabLayout && typeof j.pullTabLayout === 'object') {
+				this.registry.set('pullTabIconsLayout', {
+					...mergedBase,
+					...j.pullTabLayout,
+				});
+			}
+		} catch (err) {
+			console.warn('[Preload] Icons layout fetch failed:', err?.message ?? err);
+		}
 	}
 
 	checkType(themeData)
 	{
-		//IMAGES
-		if (themeData.images && typeof themeData.images === 'object') {
-			for (const value of Object.values(themeData.images))
-			{
-				if (value && typeof value === 'object' && value.type === "image")
-				{
-					this.loadImage(value, themeData);
+		const ik = themeData.imageKeys;
+		if (!ik || typeof ik !== 'object') {
+			console.warn('[Preload] themeData.imageKeys missing');
+		} else {
+			for (const [slotKey, stem] of Object.entries(ik)) {
+				if (stem === undefined || stem === null || stem === '') {
+					continue;
+				}
+				const phaserKey = slotKey;
+				if (slotKey === 'icons') {
+					this.queueIconsAtlas(phaserKey, stem);
+				} else if (typeof stem !== 'string') {
+					continue;
+				} else if (stem.startsWith('http')) {
+					this._themeImageKeys.add(phaserKey);
+					this._themeImagesTotal++;
+					this.load.image(phaserKey, stem);
+				} else {
+					this._themeImageKeys.add(phaserKey);
+					this._themeImagesTotal++;
+					const cacheBuster = Date.now();
+					const url = `assets/images/theme/${slotKey}/${stem}.png?t=${cacheBuster}`;
+					this.load.image(phaserKey, url);
 				}
 			}
 		}
-		//AUDIO
-		for (const value of Object.values(themeData))
-		{
+
+		for (const value of Object.values(themeData ?? {})) {
 			if (value && typeof value === 'object' && value.type === "audio") {
 				this.loadAudio(value, themeData);
 			}
 		}
-		//VIDEO
-		for (const value of Object.values(themeData.videos))
-		{
+
+		if (!themeData?.videos || typeof themeData.videos !== 'object') {
+			return;
+		}
+
+		for (const value of Object.values(themeData.videos)) {
 			if (value && typeof value === 'object' && value.type === "video") {
 				this.loadVideo(value, themeData);
 			}
 		}
 	}
 
-	loadImage(value, themeData)
+	queueIconsAtlas(phaserKey, atlasStem)
 	{
-		if (!value.imageKey || value.imageKey === "")
-		{
-			console.log(`Skipping load for ${value.key}: imageKey is empty`);
+		if (typeof atlasStem !== 'string' || atlasStem.startsWith('http')) {
+			console.warn('[Preload] Ignoring icons atlas stem:', atlasStem);
 			return;
 		}
-
-		this._themeImageKeys.add(value.key);
+		this._themeImageKeys.add(phaserKey);
 		this._themeImagesTotal++;
-		console.log(`[Preload] 📦 Queued theme image: "${value.key}" (Total: ${this._themeImagesTotal})`);
 
-		let imageKey = "";
-
-		if (value.imageKey.startsWith('http')) 
-		{
-			imageKey = value.imageKey
-		}
-		else 
-		{	
-			//Loading Locally - add cache-busting parameter to ensure we get the latest image
-			const cacheBuster = Date.now();
-			imageKey = `assets/images/theme/${value.key}/${value.imageKey}.png?t=${cacheBuster}`;
-		}
-
-		//Is SpriteSheet?
-		if (value.imageWidth || value.imageHeight) 
-		{
-			this.load.spritesheet(value.key, imageKey,
-			{
-				frameWidth: value.imageWidth,
-				frameHeight: value.imageHeight
-			});
-		}
-		else
-		{
-			this.load.image(value.key, imageKey);
-		}		
+		const cb = Date.now();
+		const png = `assets/images/theme/icons/${atlasStem}.png?t=${cb}`;
+		const json = `assets/images/theme/icons/${atlasStem}.json?t=${cb}`;
+		console.log(`[Preload] Queued icons atlas ${phaserKey} (${atlasStem})`);
+		this.load.atlas(phaserKey, png, json);
 	}
 
 	loadVideo(value, themeData)

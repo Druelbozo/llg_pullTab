@@ -1,0 +1,56 @@
+{
+  "imageKeys": {
+    "background": "background-default",
+    "card": "card-default",
+    "icons": "icons-default",
+    "peel": "peel-default",
+    "peelBack": "peelBack-default",
+    "win": "win-default",
+    "lose": "lose-default"
+  },
+  "pullTabIconsLayout": {
+    "iconSpacing": 130,
+    "iconOffsetX": 60,
+    "iconRowY": 50,
+    "crossY": 50
+  },
+  "fontLoader": {
+    "fonts": ["Titan One", "New Amsterdam"]
+  },
+  "gameOptions": {
+    "testValue": 3
+  },
+  "themeColors": {
+    "buttonColor": "#0",
+    "textMainColor": "#0",
+    "textSubColor": "#0"
+  },
+  "text": {
+    "mainText": {
+      "fontFamily": "New Amsterdam",
+      "fontSize": 65,
+      "color": "#ffffff",
+      "strokeColor": "#000000",
+      "strokeThickness": 15,
+      "content": "",
+      "offset": {
+        "x": 0,
+        "y": 0
+      }
+    }
+  },
+  "videos": {
+    "WinVideo": {
+      "type": "video",
+      "key": "WinVideo",
+      "videoKey": "DV_WinVideo_Default",
+      "description": "Plays during win"
+    },
+    "LoseVideo": {
+      "type": "video",
+      "key": "LoseVideo",
+      "videoKey": "DV_LoseVideo_Default",
+      "description": "Lose state"
+    }
+  }
+}

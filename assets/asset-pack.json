@@ -29,45 +29,38 @@
                 "key": "CardBack"
             },
             {
-                "url": "assets/images/theme/background/DI_Background_Default.png",
+                "url": "assets/images/theme/background/background-default.png",
                 "type": "image",
                 "key": "DI_Background_Default"
             },
             {
-                "url": "assets/images/theme/card/DI_CardCover_Default.png",
+                "url": "assets/images/theme/card/card-default.png",
                 "type": "image",
                 "key": "DI_CardCover_Default"
             },
             {
-                "url": "assets/images/theme/icons/DI_Icons_Default.png",
-                "frameConfig": {
-                    "frameWidth": 100,
-                    "frameHeight": 100,
-                    "startFrame": 0,
-                    "endFrame": -1,
-                    "spacing": 0,
-                    "margin": 0
-                },
-                "type": "spritesheet",
-                "key": "DI_Icons_Default"
+                "type": "atlas",
+                "key": "DI_Icons_Default",
+                "textureURL": "assets/images/theme/icons/icons-default.png",
+                "atlasURL": "assets/images/theme/icons/icons-default.json"
             },
             {
-                "url": "assets/images/theme/lose/DI_LoseImage_Default.png",
+                "url": "assets/images/theme/lose/lose-default.png",
                 "type": "image",
                 "key": "DI_LoseImage_Default"
             },
             {
-                "url": "assets/images/theme/peel/DI_Peel_Default.png",
+                "url": "assets/images/theme/peel/peel-default.png",
                 "type": "image",
                 "key": "DI_Peel_Default"
             },
             {
-                "url": "assets/images/theme/peelBack/DI_PeelBack_Default.png",
+                "url": "assets/images/theme/peelBack/peelBack-default.png",
                 "type": "image",
                 "key": "DI_PeelBack_Default"
             },
             {
-                "url": "assets/images/theme/win/DI_WinImage_Default.png",
+                "url": "assets/images/theme/win/win-default.png",
                 "type": "image",
                 "key": "DI_WinImage_Default"
             },

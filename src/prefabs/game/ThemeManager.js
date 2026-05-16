@@ -4,6 +4,7 @@
 /* START OF COMPILED CODE */
 
 /* START-USER-IMPORTS */
+import { mergeThemeWithDefault } from '../../utils/theme/ThemeMergeUtils.js';
 /* END-USER-IMPORTS */
 
 export default class ThemeManager extends Phaser.GameObjects.Container {
@@ -26,14 +27,29 @@ export default class ThemeManager extends Phaser.GameObjects.Container {
 	{
 		const cfg = this.scene.registry.get('preloadGameConfig') || (typeof window !== 'undefined' && window.__selectedGameConfig) || {};
 		const selectedOptions = cfg.theme || 'default';
-		console.log('Loading theme:', selectedOptions, 'from preloadGameConfig / window.__selectedGameConfig');
-		// Add cache-busting parameter to ensure we get the latest theme file
-		const cacheBuster = Date.now();
-		const optionsResponse = await fetch(`src/config/themes/${selectedOptions}.json?t=${cacheBuster}`);
+		console.log('ThemeManager init:', selectedOptions);
 
-		if (optionsResponse.ok)
+		let optionsData = this.scene.registry.get('preloadThemeData');
+		const cacheBuster = Date.now();
+
+		if (!optionsData || typeof optionsData !== 'object' || Object.keys(optionsData).length === 0) {
+			console.warn('ThemeManager: preloadThemeData missing, fetching default + theme');
+			let def = {};
+			let ov = {};
+			try {
+				const defRes = await fetch(`src/config/themes/default.json?t=${cacheBuster}`);
+				if (defRes.ok) def = await defRes.json();
+				const thRes = await fetch(`src/config/themes/${selectedOptions}.json?t=${cacheBuster}`);
+				if (thRes.ok) ov = await thRes.json();
+			} catch (e) {
+				console.warn('ThemeManager fallback fetch failed', e);
+			}
+			optionsData = mergeThemeWithDefault(def, ov);
+			this.scene.registry.set('preloadThemeData', optionsData);
+		}
+
+		if (optionsData && typeof optionsData === 'object')
 		{
-			const optionsData = await optionsResponse.json();
 
 			this.theme = optionsData;
 
@@ -61,11 +77,10 @@ export default class ThemeManager extends Phaser.GameObjects.Container {
 				'Lato-Bold';
 
 			this.scene.events.emit("onThemeInitalized", this.theme);
+			return;
 		}
-		else
-		{
-			console.log("Theme Failed");
-		}
+
+		console.log('Theme Failed');
 	}
 
 	/* END-USER-CODE */
