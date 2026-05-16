@@ -1,5 +1,6 @@
 import Level from "./scenes/Level.js";
 import Preload from "./scenes/Preload.js";
+import "./dom/autoplayOptions/styles/autoplayOptions.css";
 import ResizeHandler from "./utils/game/ResizeHandler.js";
 import ViewportHelper from "./utils/ui/ViewportHelper.js";
 import ProviderAPIService from "./services/api/ProviderAPIService.js";
@@ -18,7 +19,8 @@ function mergePullTabConfig(base = {}, meta = {}) {
 		prizes: Array.isArray(meta.prizes) ? meta.prizes : (base.prizes ?? DEFAULT_UI_COPY.prizes),
 		message: meta.message ?? base.message ?? DEFAULT_UI_COPY.message,
 		paytableId: meta.paytableId ?? base.paytableId,
-		creditValueMinor: meta.creditValueMinor ?? base.creditValueMinor
+		creditValueMinor:
+			meta.creditValueMinor ?? base.creditValueMinor ?? 100,
 	};
 }
 

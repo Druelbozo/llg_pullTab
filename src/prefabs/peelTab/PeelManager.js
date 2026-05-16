@@ -110,6 +110,7 @@ export default class PeelManager extends Phaser.GameObjects.Container {
 		else
 		{
 			console.log("Not Enough Funds")
+			this.stateManager?.setState("ready", "PeelManager: Insufficient balance");
 		}
 
 	}
@@ -120,6 +121,15 @@ export default class PeelManager extends Phaser.GameObjects.Container {
 		//Get Result
 		let session = this.scene.serverManager.gameSession; // GET RESULTS FROM SERVERMANAGER;
 		console.log("Checking Results...");
+
+		const prizeUsd = Number(session.prize);
+		const winMinor =
+			session.result === "win" && Number.isFinite(prizeUsd) ? Math.round(prizeUsd * 100) : 0;
+		this.scene.events.emit("pulltab-win-minor-changed", winMinor);
+
+		if (session.result === "win") {
+			this.scene.serverManager?.creditPrizeUsd(session.prize);
+		}
 
 		if(session.result == "win")
 		{

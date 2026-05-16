@@ -5,6 +5,7 @@
 
 import ScriptNode from "../../../phaserjs_editor_scripts_base/ScriptNode.js";
 /* START-USER-IMPORTS */
+import { warn } from '../../utils/logger/LoggerUtils.js';
 /* END-USER-IMPORTS */
 
 export default class setThemeColor extends ScriptNode {
@@ -32,10 +33,17 @@ export default class setThemeColor extends ScriptNode {
 
 	execute()
 	{
-		const theme = this.scene.prefab_ScratchManager.themeData;
+		// Project-agnostic theme data access: prefer this.scene.themeData, fallback to prefab_ScratchManager for backward compatibility
+		const theme = this.scene.themeData || (this.scene.prefab_ScratchManager && this.scene.prefab_ScratchManager.themeData);
+		if (!theme) {
+			warn('Theme data not found on scene. Make sure theme data is stored as this.scene.themeData', 'theme');
+			return;
+		}
 
 
-		let hex = theme.themeColors.buttonColor.replace("#", "").substring(0,6)
+		// Use controlBar.palette.primaryColor with default fallback
+		const buttonColor = theme?.controlBar?.palette?.primaryColor || "#5700b9";
+		let hex = buttonColor.replace("#", "").substring(0,6)
 		let tint = parseInt(hex, 16);
 
 		if(this.objectType == "Image") this.gameObject.setTint(tint);
@@ -43,7 +51,9 @@ export default class setThemeColor extends ScriptNode {
 		if(this.objectType == "Shape") this.gameObject.setFillStyle(tint);
 
 		// Apply buttonContentColor to Image and Text children if it exists
-		if (theme.themeColors && theme.themeColors.buttonContentColor) {
+		// Use controlBar.palette.secondaryColor
+		const buttonContentColor = theme?.controlBar?.palette?.secondaryColor;
+		if (buttonContentColor) {
 			// Try to find the container - first try parent, then try to find it in the scene
 			let buttonContainer = this.gameObject.parent;
 
@@ -90,7 +100,7 @@ export default class setThemeColor extends ScriptNode {
 
 				// Only apply buttonContentColor if this is NOT the balance container
 				if (!isBalanceContainer) {
-					const contentColorHex = theme.themeColors.buttonContentColor.replace("#", "");
+					const contentColorHex = buttonContentColor.replace("#", "");
 					const contentColorHex6 = contentColorHex.substring(0, 6);
 					const contentColorTint = parseInt(contentColorHex6, 16);
 					const contentColorHexString = `#${contentColorHex6}`;
@@ -112,6 +122,10 @@ export default class setThemeColor extends ScriptNode {
 							}
 							// Update color style for Text children (preserving other styles)
 							else if (child instanceof Phaser.GameObjects.Text) {
+								// Skip text objects that are marked to ignore theme colors
+								if (child._skipThemeColor) {
+									continue;
+								}
 								// setStyle merges with existing styles, so other properties are preserved
 								child.setStyle({
 									color: contentColorHexString

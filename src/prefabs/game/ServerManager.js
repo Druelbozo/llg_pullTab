@@ -45,7 +45,8 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 		const useSession = this.scene.registry.get('preloadUseSessionConfig');
 		const minor = this.scene.registry.get('preloadOperatorBalance');
 		if (useSession && minor != null) {
-			this.balance = minor / 100;
+			const m = Number(minor);
+			this.balance = Number.isFinite(m) ? m / 100 : GameConfig.game.TEST_BALANCE_MINOR / 100;
 		} else {
 			this.balance = GameConfig.game.TEST_BALANCE_MINOR / 100;
 		}
@@ -58,13 +59,37 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 		});
 	}
 
+	_emitBalanceMinorUpdate(animate = false, startingMinor = null) {
+		const penn = Math.round(this.balance * 100);
+		this.scene.balancePennies = penn;
+		this.scene.events.emit(
+			"pulltab-balance-pennies-changed",
+			animate,
+			startingMinor != null ? startingMinor : null
+		);
+	}
+
 	async buy()
 	{
 		this.scene?.stateManager?.setState("wait", "ServerManager: Awaiting Responce From Server ensuring no input")
-		//Check Balance
+
+		const priceMinorRaw = typeof window !== "undefined"
+			? window.__selectedGameConfig?.creditValueMinor
+			: null;
+		const priceMinor = Number.isFinite(Number(priceMinorRaw)) && Number(priceMinorRaw) > 0
+			? Math.round(Number(priceMinorRaw))
+			: 100;
+
+		const balancePennies = Math.round(this.balance * 100);
+		if (balancePennies < priceMinor) {
+			this.scene?.stateManager?.setState("ready", "ServerManager: insufficient balance");
+			return Promise.resolve(false);
+		}
+
+		const startMinor = balancePennies;
+
 		let balance = this.getBalance();
-		//If Balance is high enough generate game session
-		//This contains the win/loss, what icons show and anything else that should come from the server
+
 		this.gameSession = 
 		{
 			result: "win",
@@ -80,11 +105,20 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 			],
 		};
 
-		//Emit Balance event for objects to read it
+		this.balance -= priceMinor / 100;
+		this._emitBalanceMinorUpdate(true, startMinor);
+
 		this.scene.events.emit("OnBalanceChanged", balance);
 
-		//Return true is everything worked false if anything failed
-		return new Promise((resolve, reject) => {resolve(true)});
+		return Promise.resolve(true);
+	}
+
+	creditPrizeUsd(prizeUsd) {
+		const p = Number(prizeUsd);
+		if (!Number.isFinite(p) || p <= 0) return;
+		const startMinor = Math.round(this.balance * 100);
+		this.balance += p;
+		this._emitBalanceMinorUpdate(true, startMinor);
 	}
 
 	async getBalance()

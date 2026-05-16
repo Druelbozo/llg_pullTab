@@ -1,0 +1,172 @@
+/* Autoplay Options Modal Styles */
+
+.autoplay-options-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.autoplay-options-overlay.show {
+    opacity: 1;
+}
+
+.autoplay-options-container {
+    position: relative;
+    width: max-content;
+    background: #0b0b0d;
+    border-radius: 16px;
+    padding: 0;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    transform: scale(0.9);
+    transition: transform 0.2s ease-in-out;
+}
+
+.autoplay-options-overlay.show .autoplay-options-container {
+    transform: scale(1);
+}
+
+.autoplay-options-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    font-size: 32px;
+    font-weight: 300;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 1;
+    transition: background 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.autoplay-options-close:hover {
+    background: rgba(255, 255, 255, 0.24);
+}
+
+.autoplay-options-close:active {
+    transform: scale(0.95);
+}
+
+.autoplay-options-content {
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    color: #e2e8f0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    line-height: 1.6;
+    width: fit-content;
+}
+
+.autoplay-options-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #fff;
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+    padding: 0;
+}
+
+.autoplay-options-section {
+    margin-bottom: 2rem;
+}
+
+.autoplay-options-section:last-child {
+    margin-bottom: 0;
+}
+
+.autoplay-options-section-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #fff;
+    margin-top: -0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.autoplay-options-toggle-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.autoplay-options-toggle-button {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.2s, transform 0.1s;
+    font-family: inherit;
+    width: 100px;
+    text-align: center;
+}
+
+.autoplay-options-toggle-button:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.autoplay-options-toggle-button:active {
+    transform: scale(0.98);
+}
+
+.autoplay-options-toggle-button.selected {
+    background: var(--selected-button-bg, rgba(253, 54, 255, 0.8));
+    color: var(--selected-button-text, #fff);
+}
+
+.autoplay-options-amount-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    gap: 0.75rem;
+    justify-content: flex-start;
+}
+
+.autoplay-options-amount-button {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.2s, transform 0.1s;
+    font-family: inherit;
+    width: 100px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.autoplay-options-amount-button:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.autoplay-options-amount-button:active {
+    transform: scale(0.98);
+}
+
+.autoplay-options-amount-button.selected {
+    background: var(--selected-button-bg, rgba(253, 54, 255, 0.8));
+    color: var(--selected-button-text, #fff);
+}
+

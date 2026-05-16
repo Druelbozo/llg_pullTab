@@ -10,10 +10,10 @@ import ScreenFit from "../scriptNodes/basics/ScreenFit.js";
 import PeelManager from "../prefabs/peelTab/PeelManager.js";
 import MusicManager from "../prefabs/audio/MusicManager.js";
 import StateManager from "../prefabs/game/StateManager.js";
-import PeelTabUI from "../prefabs/peelTab/PeelTabUI.js";
 import ServerManager from "../prefabs/game/ServerManager.js";
 import ThemeManager from "../prefabs/game/ThemeManager.js";
 /* START-USER-IMPORTS */
+import { bootstrapPullTabControlBar } from "../services/pulltab/PullTabControlBarBootstrap.js";
 /* END-USER-IMPORTS */
 
 export default class Level extends Phaser.Scene {
@@ -80,10 +80,6 @@ export default class Level extends Phaser.Scene {
 		const stateManager = new StateManager(this, 0, 0);
 		this.add.existing(stateManager);
 
-		// peelTabUI
-		const peelTabUI = new PeelTabUI(this, 0, 0);
-		this.add.existing(peelTabUI);
-
 		// serverManager
 		const serverManager = new ServerManager(this, 0, 0);
 		this.add.existing(serverManager);
@@ -105,7 +101,9 @@ export default class Level extends Phaser.Scene {
 
 		// screenFit (prefab fields)
 		screenFit.xPadding = 25;
-		screenFit.yPadding = 195;
+		screenFit.yPadding = 220;
+
+		this.peelCard = peelCard;
 
 		this.dI_Background_banana_1 = dI_Background_banana_1;
 		this.peelManager = peelManager;
@@ -113,8 +111,6 @@ export default class Level extends Phaser.Scene {
 		this.stateManager = stateManager;
 		this.serverManager = serverManager;
 		this.themeManager = themeManager;
-
-		this.events.emit("scene-awake");
 	}
 
 	/** @type {Phaser.GameObjects.Image} */
@@ -130,12 +126,17 @@ export default class Level extends Phaser.Scene {
 	/** @type {ThemeManager} */
 	themeManager;
 
+	/** @type {Phaser.GameObjects.Container} */
+	peelCard;
+
 	/* START-USER-CODE */
 
 	// Write more your code here
 
 	create() {
 		this.editorCreate();
+		bootstrapPullTabControlBar(this);
+		this.events.emit("scene-awake");
 	}
 
 	/* END-USER-CODE */
