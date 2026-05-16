@@ -4,6 +4,7 @@
 /* START OF COMPILED CODE */
 
 /* START-USER-IMPORTS */
+import { resolvePrizeAmountTextStyle } from '../../utils/theme/ScratchLikeTextResolutionUtils.js';
 /* END-USER-IMPORTS */
 
 export default class Prefab_Results extends Phaser.GameObjects.Container {
@@ -62,18 +63,18 @@ export default class Prefab_Results extends Phaser.GameObjects.Container {
 	// Write your code here.
 	init(theme)
 	{
-		let style = theme.text.mainText;
-
-		console.log(style, "!!!!!!!!");
-
-		this.winningsText.setStyle
-		({
+		const style = resolvePrizeAmountTextStyle(theme);
+		const s = {
 			fontFamily: style.fontFamily,
-			fontSize: style.fontSize + 40,
+			fontSize: style.fontSize,
 			color: style.color,
-			stroke: style.strokeColor,
+			stroke: style.stroke,
 			strokeThickness: style.strokeThickness,
-		})	
+		};
+		if (style.fontWeight != null) {
+			s.fontWeight = style.fontWeight;
+		}
+		this.winningsText.setStyle(s);
 
 			if(this.scene.textures.exists("win"))
 			{

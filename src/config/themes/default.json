@@ -14,28 +14,85 @@
     "iconRowY": 50,
     "crossY": 50
   },
-  "fontLoader": {
-    "fonts": ["Titan One", "New Amsterdam"]
-  },
+  "fonts": [
+    {
+      "family": "Titan One",
+      "weights": ["400"]
+    },
+    {
+      "family": "New Amsterdam",
+      "weights": ["400"]
+    },
+    {
+      "family": "Lato",
+      "weights": ["900"]
+    },
+    {
+      "family": "Lato-Black",
+      "weights": ["400"]
+    }
+  ],
   "gameOptions": {
     "testValue": 3
   },
-  "themeColors": {
-    "buttonColor": "#0",
-    "textMainColor": "#0",
-    "textSubColor": "#0"
-  },
   "text": {
-    "mainText": {
-      "fontFamily": "New Amsterdam",
-      "fontSize": 65,
-      "color": "#fdb50f",
-      "strokeColor": "#0",
-      "strokeThickness": 15,
-      "content": "",
+    "font": {
+      "family": "New Amsterdam"
+    },
+    "palette": {
+      "primaryColor": "#fdb50f",
+      "secondaryColor": "#0"
+    },
+    "message": {
+      "font": {
+        "size": 65
+      },
+      "stroke": {
+        "color": "#0",
+        "lineWidth": 15
+      },
       "offset": {
         "x": 0,
-        "y": 0
+        "y": -575
+      }
+    },
+    "score": {
+      "font": {
+        "family": "New Amsterdam",
+        "size": 105,
+        "color": "#fe7a00"
+      },
+      "stroke": {
+        "color": "#f6f4eb",
+        "lineWidth": 15
+      }
+    }
+  },
+  "controlBar": {
+    "font": {
+      "family": "Lato"
+    },
+    "palette": {
+      "primaryColor": "#ffca63",
+      "secondaryColor": "#ffffff"
+    },
+    "header": {
+      "color": "#ffffff",
+      "stroke": {
+        "color": "#000000",
+        "lineWidth": 0
+      }
+    },
+    "background": {
+      "color": "#000000",
+      "alpha": 0.65
+    },
+    "textAreas": {
+      "title": {
+        "color": "#ffa609"
+      },
+      "value": {
+        "color": "#ffffff"
       }
     }
   },

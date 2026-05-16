@@ -4,12 +4,6 @@
     "card": "card-yummy-hot-pot",
     "icons": "icons-yummy-hot-pot"
   },
-  "text": {
-    "mainText": {
-      "color": "#fdb50f",
-      "strokeColor": "#0"
-    }
-  },
   "videoKeys": {
     "win": "win-yummy-hot-pot",
     "lose": ""

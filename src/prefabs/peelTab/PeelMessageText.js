@@ -4,6 +4,7 @@
 /* START OF COMPILED CODE */
 
 /* START-USER-IMPORTS */
+import { resolvePeelBannerTextStyle } from '../../utils/theme/ScratchLikeTextResolutionUtils.js';
 /* END-USER-IMPORTS */
 
 export default class PeelMessageText extends Phaser.GameObjects.Text {
@@ -33,18 +34,18 @@ export default class PeelMessageText extends Phaser.GameObjects.Text {
 
 	initVisual(theme)
 	{
-		let style = theme.text.mainText;
-		console.log("!!!!!", style);
-
-		this.setStyle
-		({
+		const style = resolvePeelBannerTextStyle(theme);
+		const phaserStyle = {
 			fontFamily: style.fontFamily,
 			fontSize: style.fontSize,
 			color: style.color,
-			stroke: style.strokeColor,
+			stroke: style.stroke,
 			strokeThickness: style.strokeThickness,
-		})
-
+		};
+		if (style.fontWeight != null) {
+			phaserStyle.fontWeight = style.fontWeight;
+		}
+		this.setStyle(phaserStyle);
 	}
 
 	show()

@@ -5,6 +5,7 @@
 
 /* START-USER-IMPORTS */
 import { mergeThemeWithDefault } from '../../utils/theme/ThemeMergeUtils.js';
+import { defaultControlBarFontFamilyFromTheme } from '../../utils/theme/ThemeFontResolutionUtils.js';
 /* END-USER-IMPORTS */
 
 export default class ThemeManager extends Phaser.GameObjects.Container {
@@ -59,22 +60,15 @@ export default class ThemeManager extends Phaser.GameObjects.Container {
 			}
 			const cb = this.scene.themeData.controlBar;
 			if (!cb.palette) {
-				const btn =
-					optionsData.themeColors?.buttonColor && optionsData.themeColors.buttonColor !== '#0'
-						? optionsData.themeColors.buttonColor
-						: '#c91a42';
-				const txt =
-					optionsData.themeColors?.textMainColor &&
-					optionsData.themeColors.textMainColor !== '#0'
-						? optionsData.themeColors.textMainColor
-						: '#ffffff';
-				cb.palette = { primaryColor: btn, secondaryColor: txt };
+				cb.palette = {
+					primaryColor: '#c91a42',
+					secondaryColor: '#ffffff',
+				};
 			}
-			cb.font =
-				cb.font ||
-				cb.fontFamily ||
-				(optionsData.fontLoader?.fonts && optionsData.fontLoader.fonts[0]) ||
-				'Lato-Bold';
+			if (!cb.font && !cb.fontFamily) {
+				const inferred = defaultControlBarFontFamilyFromTheme(optionsData);
+				cb.font = inferred || { family: 'Lato' };
+			}
 
 			this.scene.events.emit("onThemeInitalized", this.theme);
 			return;

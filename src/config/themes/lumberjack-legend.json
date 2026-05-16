@@ -4,12 +4,6 @@
     "card": "card-lumberjack-legend",
     "icons": "icons-lumberjack-legend"
   },
-  "text": {
-    "mainText": {
-      "color": "#fdb50f",
-      "strokeColor": "#0"
-    }
-  },
   "videoKeys": {
     "win": "win-lumberjack-legend",
     "lose": ""

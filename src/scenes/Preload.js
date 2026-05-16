@@ -7,6 +7,7 @@
 import WebFontFile from '../utils/ui/WebFontFile.js';
 import BrowserDetector from '../utils/ui/BrowserDetector.js';
 import { mergeThemeWithDefault } from '../utils/theme/ThemeMergeUtils.js';
+import { googleFamilySpecsFromThemeFonts } from '../utils/theme/ThemeFontResolutionUtils.js';
 /* END-USER-IMPORTS */
 
 export default class Preload extends Phaser.Scene {
@@ -244,8 +245,9 @@ export default class Preload extends Phaser.Scene {
 			this.checkType(themeData);
 			this._themeImagesQueued = true;
 
-			if (themeData.fontLoader) {
-				this.load.addFile(new WebFontFile(this.load, themeData.fontLoader.fonts));
+			const fontSpecs = googleFamilySpecsFromThemeFonts(themeData);
+			if (fontSpecs?.length) {
+				this.load.addFile(new WebFontFile(this.load, fontSpecs));
 			}
 
 			if (this._themeImagesTotal > 0) {

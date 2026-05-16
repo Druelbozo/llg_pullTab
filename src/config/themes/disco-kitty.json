@@ -7,9 +7,9 @@
     "peelBack": "peelBack-disco-kitty"
   },
   "text": {
-    "mainText": {
-      "color": "#bf45fe",
-      "strokeColor": "#0"
+    "palette": {
+      "primaryColor": "#bf45fe",
+      "secondaryColor": "#0"
     }
   },
   "videoKeys": {

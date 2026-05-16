@@ -6,9 +6,9 @@
     "peel": "peel-crazy-banana"
   },
   "text": {
-    "mainText": {
-      "color": "#33b5d4",
-      "strokeColor": "#e3e6c6"
+    "palette": {
+      "primaryColor": "#33b5d4",
+      "secondaryColor": "#e3e6c6"
     }
   }
 }
