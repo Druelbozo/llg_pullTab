@@ -65,20 +65,6 @@
                 "key": "DI_WinImage_Default"
             },
             {
-                "url": [
-                    "assets/Videos/LoseVideo/DV_LoseVideo_Default.mp4"
-                ],
-                "type": "video",
-                "key": "DV_LoseVideo_Default"
-            },
-            {
-                "url": [
-                    "assets/Videos/WinVideo/DV_WinVideo_Default.mp4"
-                ],
-                "type": "video",
-                "key": "DV_WinVideo_Default"
-            },
-            {
                 "url": "assets/images/common/UI/icons/exitIcon.png",
                 "type": "image",
                 "key": "exitIcon"

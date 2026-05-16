@@ -326,14 +326,29 @@ export default class Preload extends Phaser.Scene {
 			}
 		}
 
-		if (!themeData?.videos || typeof themeData.videos !== 'object') {
+		const vk = themeData.videoKeys;
+		if (!vk || typeof vk !== 'object') {
 			return;
 		}
 
-		for (const value of Object.values(themeData.videos)) {
-			if (value && typeof value === 'object' && value.type === "video") {
-				this.loadVideo(value, themeData);
+		for (const [slotKey, stem] of Object.entries(vk)) {
+			if (stem === undefined || stem === null || stem === '') {
+				continue;
 			}
+			const cacheBuster = Date.now();
+
+			let path = '';
+			if (typeof stem === 'string' && stem.startsWith('http')) {
+				path = stem;
+			} else if (typeof stem !== 'string') {
+				console.warn('[Preload] Ignoring videoKeys slot:', slotKey, stem);
+				continue;
+			} else {
+				path = `assets/videos/${slotKey}/${stem}.mp4?t=${cacheBuster}`;
+			}
+
+			console.log(`[Preload] Queued theme video key="${slotKey}" path="${path}"`);
+			this.load.video(slotKey, path, 'loadeddata', true);
 		}
 	}
 
@@ -352,33 +367,6 @@ export default class Preload extends Phaser.Scene {
 		console.log(`[Preload] Queued icons atlas ${phaserKey} (${atlasStem})`);
 		this.load.atlas(phaserKey, png, json);
 	}
-
-	loadVideo(value, themeData)
-	{
-
-
-		if (!value.videoKey || value.videoKey === "") {
-			console.log(`Skipping load for ${value.videoKey}: videoKey is empty`);
-			return;
-		}
-
-		let path = "";
-
-		console.log(`Loading video: key="${value.videoKey}", videoKey="${value.videoKey}"`);
-
-		if (value.key.startsWith('http')) 
-		{
-			path = value.videoKey;
-		}
-		else 
-		{	
-			// Loading Locally - add cache-busting parameter to ensure we get the latest audio
-			const cacheBuster = Date.now();
-			path = `assets/Videos/${value.key}/${value.videoKey}.mp4`;
-		}
-		console.log(path, "!!!!!!!!!!!!!!");
-		this.load.video(value.key, path, "loadeddata", true);
-	}	
 
 	loadAudio(value, themeData)
 	{

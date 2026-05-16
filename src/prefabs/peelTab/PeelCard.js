@@ -155,17 +155,17 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 			this.dI_CardCover_Default.setTexture("card")
 		}
 
-		if(this.scene.cache.video.exists("WinVideo"))
+		if(this.scene.cache.video.exists("win"))
 		{
-			const win_Video = this.scene.add.video(-80, -300, "WinVideo");
+			const win_Video = this.scene.add.video(-80, -300, "win");
 			this.win_Video = win_Video;
 			win_Video.setOrigin(1, 0);
 			this.videoContainer.add(win_Video);
 		}
 
-		if(this.scene.cache.video.exists("LoseVideo"))
+		if(this.scene.cache.video.exists("lose"))
 		{
-			const lose_Video = this.scene.add.video(-80, -300, "LoseVideo");
+			const lose_Video = this.scene.add.video(-80, -300, "lose");
 			this.lose_Video = lose_Video;
 			lose_Video.setOrigin(1, 0);
 			this.videoContainer.add(lose_Video);
@@ -252,7 +252,7 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 
 	playWinVideo()
 	{
-		if(!this.scene.cache.video.exists("WinVideo")) return;
+		if(!this.scene.cache.video.exists("win")) return;
 
 		this.win_Video.alpha = 1;
 		this.win_Video.visible = true;
@@ -270,7 +270,7 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 
 	playLoseVideo()
 	{
-		if(!this.scene.cache.video.exists("LoseVideo")) return;
+		if(!this.scene.cache.video.exists("lose")) return;
 
 		this.lose_Video.alpha = 1;
 		this.lose_Video.visible = true;

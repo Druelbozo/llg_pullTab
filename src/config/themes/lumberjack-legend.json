@@ -10,18 +10,8 @@
       "strokeColor": "#0"
     }
   },
-  "videos": {
-    "WinVideo": {
-      "type": "video",
-      "key": "WinVideo",
-      "videoKey": "DV_winvideo_lumberjack",
-      "description": "Plays during win"
-    },
-    "LoseVideo": {
-      "type": "video",
-      "key": "LoseVideo",
-      "videoKey": "",
-      "description": "Background"
-    }
+  "videoKeys": {
+    "win": "win-lumberjack-legend",
+    "lose": ""
   }
 }

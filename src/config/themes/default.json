@@ -29,8 +29,8 @@
     "mainText": {
       "fontFamily": "New Amsterdam",
       "fontSize": 65,
-      "color": "#ffffff",
-      "strokeColor": "#000000",
+      "color": "#fdb50f",
+      "strokeColor": "#0",
       "strokeThickness": 15,
       "content": "",
       "offset": {
@@ -39,18 +39,8 @@
       }
     }
   },
-  "videos": {
-    "WinVideo": {
-      "type": "video",
-      "key": "WinVideo",
-      "videoKey": "DV_WinVideo_Default",
-      "description": "Plays during win"
-    },
-    "LoseVideo": {
-      "type": "video",
-      "key": "LoseVideo",
-      "videoKey": "DV_LoseVideo_Default",
-      "description": "Lose state"
-    }
+  "videoKeys": {
+    "win": "win-crazy-banana",
+    "lose": "lose-crazy-banana"
   }
 }
