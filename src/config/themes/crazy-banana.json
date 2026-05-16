@@ -14,6 +14,9 @@
   "controlBar": {
     "palette": {
       "primaryColor": "#0083c5"
+    },
+    "header": {
+      "color": "#0083c5"
     }
   }
 }

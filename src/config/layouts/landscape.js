@@ -5,14 +5,14 @@ export default {
     paddingPercent: { top: 0.01, bottom: 0.01 },
     insetPercent: { horizontal: 0.01 },
     header: {
-      items: ['winText', 'betText', 'balanceText'],
+      items: ['winText', 'balanceText'],
       fontSize: 21,
       verticalOffset: 0.004,
       lines: 1
     },
     layoutGroups: [
       ['soundButton', 'infoButton', 'speedButton'],
-      ['playButton', 'autoButton']
+      ['autoButton', 'playButton']
     ]
   },
   cardContainer: { areaPercent: 0.65, offsetYPercent: 0 },
