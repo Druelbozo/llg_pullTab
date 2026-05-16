@@ -15,5 +15,13 @@
       "primaryColor": "#bf45fe",
       "secondaryColor": "#0"
     }
+  },
+  "controlBar": {
+    "palette": {
+      "primaryColor": "#bf45fe"
+    }
+  },
+  "music": {
+    "audioKey": "disco-kitty.ogg"
   }
 }

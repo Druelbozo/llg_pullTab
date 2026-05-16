@@ -15,7 +15,6 @@ import ThemeManager from "../prefabs/game/ThemeManager.js";
 /* START-USER-IMPORTS */
 import { bootstrapPullTabControlBar } from "../services/pulltab/PullTabControlBarBootstrap.js";
 import AudioService from "../services/game/AudioService.js";
-import { openSoundOptionsModal } from "../dom/soundOptions/soundOptionsModal.js";
 import { GameConfig } from "../config/Global.js";
 /* END-USER-IMPORTS */
 

@@ -67,5 +67,6 @@ export const GameConfig = {
         whoosh: "whoosh.ogg",
         win: "win.ogg",
         lose: "lose.ogg",
+        pageTurn: "paper-rip.ogg",
     },
 };

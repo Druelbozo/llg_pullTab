@@ -14,5 +14,8 @@
       "primaryColor": "#26d658",
       "secondaryColor": "#0"
     }
+  },
+  "music": {
+    "audioKey": "mega-monster3.ogg"
   }
 }

@@ -304,6 +304,7 @@ export default class Peel extends Phaser.GameObjects.Container {
 	autoPeel()
 	{
 		if(this.peeled) return;
+		this.scene.audioService?.playSfx('pageTurn');
 		this.peel.setPosition(100,50);
 		this.peel.angle = 50;
 
