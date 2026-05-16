@@ -1,6 +1,33 @@
 import { defineConfig } from 'vite';
+import fs from 'fs';
+import path from 'path';
 import { createRequire } from 'module';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
+
+/** Normalize dist/assets/Videos → dist/assets/videos after static-copy (matches runtime URLs). */
+function normalizeDistVideosFolderCase() {
+	return {
+		name: 'normalize-dist-videos-folder-case',
+		closeBundle() {
+			const base = path.resolve('dist/assets');
+			if (!fs.existsSync(base)) return;
+			const hit = fs.readdirSync(base, { withFileTypes: true }).find(
+				(d) => d.isDirectory() && d.name.toLowerCase() === 'videos'
+			);
+			if (!hit || hit.name === 'videos') return;
+
+			const wrong = path.join(base, hit.name);
+			const tmp = path.join(base, `_videos_dist_tmp_${Date.now()}`);
+			const rightPath = path.join(base, 'videos');
+			try {
+				fs.renameSync(wrong, tmp);
+				fs.renameSync(tmp, rightPath);
+			} catch (e) {
+				console.warn('[vite] Could not rename dist %s → videos: %s', hit.name, e.message);
+			}
+		},
+	};
+}
 
 const require = createRequire(import.meta.url);
 
@@ -65,5 +92,6 @@ export default defineConfig({
         },
       ],
     }),
+    normalizeDistVideosFolderCase(),
   ],
 });

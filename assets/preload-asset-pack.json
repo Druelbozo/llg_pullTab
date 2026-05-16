@@ -2,11 +2,6 @@
     "section1": {
         "files": [
             {
-                "url": "assets/guapen.png",
-                "type": "image",
-                "key": "guapen"
-            },
-            {
                 "url": "assets/images/common/logo/llg-newlogo-lite.png",
                 "type": "image",
                 "key": "llg-newlogo-lite"
