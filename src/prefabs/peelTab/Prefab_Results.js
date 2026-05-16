@@ -75,14 +75,14 @@ export default class Prefab_Results extends Phaser.GameObjects.Container {
 			strokeThickness: style.strokeThickness,
 		})	
 
-			if(this.scene.textures.exists("WinImage"))
+			if(this.scene.textures.exists("win"))
 			{
-				this.winImage.setTexture("WinImage"); 
+				this.winImage.setTexture("win"); 
 			}
 
-			if(this.scene.textures.exists("LoseImage"))
+			if(this.scene.textures.exists("lose"))
 			{
-				this.loseImage.setTexture("LoseImage");
+				this.loseImage.setTexture("lose");
 			}	
 	}
 

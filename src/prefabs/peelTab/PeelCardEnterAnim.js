@@ -61,18 +61,18 @@ export default class PeelCardEnterAnim extends Phaser.GameObjects.Container {
 		{
 					console.log("!!!!",config.prizes[i]);
 			const peel = this.scene.add.image(0, 0, "DI_Peel_Default");
-			if(this.scene.textures.exists("Peel"))
+			if(this.scene.textures.exists("peel"))
 			{
-				peel.setTexture("Peel");
+				peel.setTexture("peel");
 			}
 			else
 			{
 				peel.setTexture("DI_Peel_Default");
 			}
 
-			if(this.scene.textures.exists("CardCover"))
+			if(this.scene.textures.exists("card"))
 			{
-				this.cardCover.setTexture("CardCover");
+				this.cardCover.setTexture("card");
 			}
 
 			peel.setOrigin(0, 0);

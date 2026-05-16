@@ -38,7 +38,7 @@
                                 "hideOnFail"
                             ],
                             "label": "setImage",
-                            "imageKey": "{\"key\":\"Background\"}",
+                            "imageKey": "{\"key\":\"background\"}",
                             "hideOnFail": false
                         }
                     ]

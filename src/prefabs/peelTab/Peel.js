@@ -152,15 +152,15 @@ export default class Peel extends Phaser.GameObjects.Container {
 
 		this.peelIcons.init(values);
 
-		this.scene.textures.exists("Peel")
+		this.scene.textures.exists("peel")
 		{
-			this.front.setTexture("Peel")
-			this.peel.setTexture("Peel")
+			this.front.setTexture("peel")
+			this.peel.setTexture("peel")
 		}
 
-		this.scene.textures.exists("PeelBack")
+		this.scene.textures.exists("peelBack")
 		{
-			this.back.setTexture("PeelBack")
+			this.back.setTexture("peelBack")
 		}
 	}
 

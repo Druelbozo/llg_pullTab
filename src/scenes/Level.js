@@ -89,7 +89,7 @@ export default class Level extends Phaser.Scene {
 		this.add.existing(themeManager);
 
 		// setImage (prefab fields)
-		setImage.imageKey = {"key":"Background"};
+		setImage.imageKey = {"key":"background"};
 		setImage.hideOnFail = false;
 
 		// screenAnchor_1 (prefab fields)

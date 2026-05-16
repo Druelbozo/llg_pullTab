@@ -31,47 +31,47 @@
     }
   },
   "images": {
-    "Peel": {
+    "peel": {
       "type": "image",
-      "key": "Peel",
+      "key": "peel",
       "imageKey": "DI_Peel_CrazyBanana",
       "description": "Peel that is removed"
     },
-    "PeelBack": {
+    "peelBack": {
       "type": "image",
-      "key": "PeelBack",
+      "key": "peelBack",
       "imageKey": "DI_PeelBack_Default",
       "description": "Revealed after peel is removed"
     },
-    "CardCover": {
+    "card": {
       "type": "image",
-      "key": "CardCover",
+      "key": "card",
       "imageKey": "DI_card_lumberjack",
       "description": "Visual Card cover"
     },
-    "Icons": {
+    "icons": {
       "type": "image",
-      "key": "Icons",
+      "key": "icons",
       "imageKey": "DI_icons_lumberjack",
       "description": "Icons Under Peel",
       "imageWidth": 100,
       "imageHeight": 100
     },
-    "Background": {
+    "background": {
       "type": "image",
-      "key": "Background",
+      "key": "background",
       "imageKey": "DI_background_lumberjack",
       "description": "Background"
     },
-    "WinImage": {
+    "win": {
       "type": "image",
-      "key": "WinImage",
+      "key": "win",
       "imageKey": "DI_WinImage_Default",
       "description": "Win Image"
     },
-    "LoseImage": {
+    "lose": {
       "type": "image",
-      "key": "LoseImage",
+      "key": "lose",
       "imageKey": "DI_LoseImage_Default",
       "description": "Lose Image"
     }          

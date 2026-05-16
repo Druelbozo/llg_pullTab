@@ -61,9 +61,9 @@ export default class PeelIcons extends Phaser.GameObjects.Container {
 				icon.x = i * this.padding + this.offset;
 				icon.y = 50;
 
-				if(this.scene.textures.exists("Icons"))
+				if(this.scene.textures.exists("icons"))
 				{
-					icon.setTexture("Icons", icons[i]);
+					icon.setTexture("icons", icons[i]);
 				}
 				else
 				{
@@ -80,9 +80,9 @@ export default class PeelIcons extends Phaser.GameObjects.Container {
 				//rand = 1;
 				const icon = this.iconContainer.list[i];
 
-				if(this.scene.textures.exists("Icons"))
+				if(this.scene.textures.exists("icons"))
 				{
-					icon.setTexture("Icons", icons[i]);
+					icon.setTexture("icons", icons[i]);
 				}
 				else
 				{

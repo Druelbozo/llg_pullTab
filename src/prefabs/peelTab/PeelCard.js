@@ -150,9 +150,9 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 			ease: "Back.out"			
 		})
 
-		this.scene.textures.exists("CardCover")
+		this.scene.textures.exists("card")
 		{
-			this.dI_CardCover_Default.setTexture("CardCover")
+			this.dI_CardCover_Default.setTexture("card")
 		}
 
 		if(this.scene.cache.video.exists("WinVideo"))
