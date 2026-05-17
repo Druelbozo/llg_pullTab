@@ -10,6 +10,7 @@ import AutoPlayOptions from '../../dom/AutoPlayOptions.js';
 import { GameConfig } from '../../config/Global.js';
 import ViewportHelper from '../../utils/viewport/ViewportHelper.js';
 import { openSoundOptionsModal } from '../../dom/soundOptions/soundOptionsModal.js';
+import { openPullTabGameInfoModal } from '../../dom/modal/content/pullTabGameInfoContent.js';
 import {
     calculateContainerPositions,
     calculateContainerDimensions,
@@ -523,9 +524,8 @@ export function bootstrapPullTabControlBar(scene) {
                 cm.infoButtonId = scene.buttonManager.registerButton(infoButtonResult, {
                     id: 'info_button',
                     onClick: () => {
-                        const msg = scene.serverManager?.gameConfig?.message ?? 'Pull-tab rules';
-                        // eslint-disable-next-line no-alert
-                        window.alert(msg);
+                        scene.audioService?.unlockAudio();
+                        openPullTabGameInfoModal(scene);
                     },
                 });
             }

@@ -92,3 +92,124 @@
 .modal-content::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.3);
 }
+
+/* Game info typography (scratch-style parity) */
+.modal-content h2 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #fff;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.12);
+}
+
+.modal-content h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #fff;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.modal-content p {
+    margin-bottom: 1rem;
+}
+
+.modal-content strong {
+    color: #fff;
+    font-weight: 600;
+}
+
+.modal-content ul {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 1rem;
+}
+
+.modal-content ul li {
+    padding-left: 1.5rem;
+    position: relative;
+    margin-bottom: 0.5rem;
+}
+
+.modal-content ul li::before {
+    content: '\2022';
+    position: absolute;
+    left: 0;
+    color: #9aa3ad;
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.modal-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+}
+
+.modal-content table th,
+.modal-content table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    color: #fff;
+}
+
+.modal-content table th {
+    font-weight: 600;
+    color: #d5d9e0;
+    background-color: rgba(255, 255, 255, 0.14);
+}
+
+.modal-content table td.right,
+.modal-content table th.right {
+    text-align: right;
+}
+
+/* Paytable sprites (Phaser-style icons atlas rendered as CSS background) */
+.modal-content table .prize-amount-cell {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.pulltab-paytable-symbol-row {
+    display: flex;
+    align-items: center;
+    gap: 0.56rem;
+}
+
+.modal-content table .prize-sprite.pulltab-paytable-icon,
+.modal-content table .pulltab-paytable-symbol .prize-sprite {
+    display: inline-block;
+    flex-shrink: 0;
+    background-repeat: no-repeat;
+    vertical-align: middle;
+}
+
+.pulltab-tier-symbol code,
+.modal-content table .pulltab-tier-symbol {
+    font-size: 0.95rem;
+    color: #e2e8f0;
+    word-break: break-all;
+}
+
+.pulltab-paytable-empty {
+    color: #fca5a5;
+    font-size: 0.95rem;
+}
+
+.pulltab-paytable-icon-missing {
+    display: inline-block;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.modal-content .fineprint {
+    font-size: 0.875rem;
+    color: #94a3b8;
+    margin-top: 1rem;
+}
