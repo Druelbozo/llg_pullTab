@@ -13,7 +13,10 @@ import StateManager from "../prefabs/game/StateManager.js";
 import ServerManager from "../prefabs/game/ServerManager.js";
 import ThemeManager from "../prefabs/game/ThemeManager.js";
 /* START-USER-IMPORTS */
-import { bootstrapPullTabControlBar } from "../services/pulltab/PullTabControlBarBootstrap.js";
+import {
+	bootstrapPullTabControlBar,
+	applyPullTabControlBarLayoutFromScene,
+} from "../services/pulltab/PullTabControlBarBootstrap.js";
 import AudioService from "../services/game/AudioService.js";
 import { GameConfig } from "../config/Global.js";
 /* END-USER-IMPORTS */
@@ -157,6 +160,13 @@ export default class Level extends Phaser.Scene {
 
 		bootstrapPullTabControlBar(this);
 		this.events.emit("scene-awake");
+	}
+
+	/**
+	 * Phaser/game `scale.resize` → `main.js` calls this so control bar reposition matches scratch-card flow.
+	 */
+	resize() {
+		applyPullTabControlBarLayoutFromScene(this);
 	}
 
 	/**

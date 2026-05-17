@@ -120,14 +120,16 @@ window.addEventListener('load', async function () {
 	setTimeout(ensureCorrectSize, 50);
 	setTimeout(ensureCorrectSize, 200);
 
-	const onChangeScreen = () => 
+	const onChangeScreen = () =>
 	{
-    	if (game.scene.scenes.length > 0)
+		// Registered order is Boot → Preload → Level — never use scenes[0] here (that's Preload once added).
+		if (!game.scene || typeof game.scene.getScene !== 'function') return;
+		if (typeof game.scene.isActive === 'function' && game.scene.isActive('Level'))
 		{
-			let currentScene = game.scene.scenes[0];
-			if (currentScene instanceof Level && typeof currentScene.resize === 'function')
+			const levelScene = game.scene.getScene('Level');
+			if (levelScene && typeof levelScene.resize === 'function')
 			{
-				currentScene.resize();
+				levelScene.resize();
 			}
 		}
 	}

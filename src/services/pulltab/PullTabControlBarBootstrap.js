@@ -192,6 +192,75 @@ function calculateAndApplyPullTabLayout(scene, layoutPositions, uiConfig, baseUI
     return true;
 }
 
+/**
+ * Full control-bar + peel-card layout pass (same steps as initial bootstrap after buttons exist).
+ * Mirror scratch `Level._recalculateControlBarLayout`: clear cache, resize buttons, reposition groups, refresh bar background.
+ *
+ * @param {Phaser.Scene} scene
+ * @returns {boolean}
+ */
+export function applyPullTabControlBarLayoutFromScene(scene) {
+    if (!scene.controlBarManager || !scene.layoutManager) {
+        return false;
+    }
+    // Async bootstrap builds buttons inside layoutConfigsPromise; skip until HUD exists.
+    if (!scene.controlBarManager.soundButton) {
+        return false;
+    }
+
+    scene.layoutManager.clearLayoutCache?.();
+
+    const currentLayoutName = scene.layoutManager.getCurrentLayoutName();
+    const { uiConfig, baseUIConfig } = getLayoutConfigs(scene.layoutManager, currentLayoutName);
+
+    const width = getScreenWidth(scene);
+    const height = getScreenHeight(scene);
+    const verticalPaddingBottom = 0;
+    const availableHeight = height;
+
+    const contentHeightPercent =
+        getContentHeightPercent(uiConfig, availableHeight, height) ||
+        getContentHeightPercent(baseUIConfig, availableHeight, height) ||
+        0.08;
+
+    const cm = scene.controlBarManager;
+    cm._resizeButtonsSynchronously?.();
+
+    const containerWidths = calculatePullTabContainerWidths(
+        scene,
+        uiConfig,
+        baseUIConfig,
+        contentHeightPercent,
+        availableHeight,
+        height
+    );
+
+    const layoutPositions = scene.layoutManager.getLayoutPositions();
+
+    calculateAndApplyPullTabLayout(
+        scene,
+        layoutPositions,
+        uiConfig,
+        baseUIConfig,
+        containerWidths,
+        width,
+        height,
+        contentHeightPercent,
+        availableHeight,
+        verticalPaddingBottom
+    );
+
+    updatePullTabControlBarBackground(scene, layoutPositions, width, height);
+
+    cm.updateThemeColors?.();
+
+    // Keep ControlBarManager resize debounce in sync (avoids redundant partial refreshes)
+    cm._lastScreenWidth = width;
+    cm._lastScreenHeight = height;
+
+    return true;
+}
+
 function updatePullTabControlBarBackground(scene, layoutPositions, width, height) {
     if (
         layoutPositions.controlBarBackgroundTop == null ||
@@ -482,36 +551,7 @@ export function bootstrapPullTabControlBar(scene) {
 
             attachPullTabPlayButtonAndHudSync(scene);
 
-            const layoutPositions = scene.layoutManager.getLayoutPositions();
-
-            cm._resizeButtonsSynchronously?.();
-
-            const currentLayoutName = scene.layoutManager.getCurrentLayoutName();
-            const layouts = getLayoutConfigs(scene.layoutManager, currentLayoutName);
-
-            const containerWidths = calculatePullTabContainerWidths(
-                scene,
-                layouts.uiConfig,
-                layouts.baseUIConfig,
-                contentHeightPercent,
-                availableHeight,
-                height
-            );
-
-            calculateAndApplyPullTabLayout(
-                scene,
-                layoutPositions,
-                layouts.uiConfig,
-                layouts.baseUIConfig,
-                containerWidths,
-                width,
-                height,
-                contentHeightPercent,
-                availableHeight,
-                verticalPaddingBottom
-            );
-
-            updatePullTabControlBarBackground(scene, layoutPositions, width, height);
+            applyPullTabControlBarLayoutFromScene(scene);
 
             cm.setControlBarVisible(true);
             cm.updateThemeColors?.();
