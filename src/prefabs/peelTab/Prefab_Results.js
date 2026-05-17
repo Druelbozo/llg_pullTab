@@ -110,12 +110,16 @@ export default class Prefab_Results extends Phaser.GameObjects.Container {
 	showWinnings()
 	{
 		let session = this.scene.serverManager.gameSession;
+		const payoutMinor = session?.payoutMinor ?? session?.apiRound?.payoutMinor;
+		const payoutDollars = Number.isFinite(Number(payoutMinor))
+			? Number(payoutMinor) / 100
+			: Number(session?.prize) || 0;
 
 		let val = {value: 0}
 		this.scene.tweens.add
 		({
 			targets: val,
-			value: session.prize,
+			value: payoutDollars,
 			duration: 1000 / this.speed,
 			ease: 'Linear',
 			onUpdate: () =>

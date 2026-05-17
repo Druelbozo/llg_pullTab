@@ -111,30 +111,29 @@ export default class PeelManager extends Phaser.GameObjects.Container {
 		}
 		else
 		{
-			console.log("Not Enough Funds")
-			this.stateManager?.setState("ready", "PeelManager: Insufficient balance");
+			// ServerManager.buy() returns false for insufficient balance *and* API/network failures — avoid implying funds only.
+			console.warn("[PeelManager] Buy did not start (insufficient balance, validation error, or API failure — see ServerManager logs)");
+			this.stateManager?.setState("ready", "PeelManager: buy did not complete");
 		}
 
 	}
 
 	checkResults()
 	{
-		//Contact ServerManager
-		//Get Result
-		let session = this.scene.serverManager.gameSession; // GET RESULTS FROM SERVERMANAGER;
-		console.log("Checking Results...");
+		const session = this.scene.serverManager.gameSession;
+		console.log("Checking Results...", session?.rows ?? session);
 
-		const prizeUsd = Number(session.prize);
-		const winMinor =
-			session.result === "win" && Number.isFinite(prizeUsd) ? Math.round(prizeUsd * 100) : 0;
+		const payoutMinor = Math.round(Number(session?.payoutMinor ?? 0));
+		const winMinor = payoutMinor;
 		this.scene.events.emit("pulltab-win-minor-changed", winMinor);
 
-		if(session.result === "win")
+		const won = payoutMinor > 0;
+
+		if (won)
 		{
-			const prize = session.prize;
 			this.scene.time.delayedCall(1000 / this.speed, () => {
 				this.scene.audioService?.playSfx('win');
-				const credited = this.scene.serverManager?.creditPrizeUsd(prize);
+				const credited = this.scene.serverManager?.creditEconomyMinor(payoutMinor);
 				if (credited) {
 					this.scene.audioService?.playLoopingSfx('tally');
 				}

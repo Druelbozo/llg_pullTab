@@ -24,16 +24,7 @@ export default class Level extends Phaser.Scene {
 		super("Level");
 
 		/* START-USER-CTR-CODE */
-		// Initialize the Scratch Cards Service
-		// Automatically detects if running locally or on live server
-		const isLocal = window.location.hostname === 'localhost' || 
-		                window.location.hostname === '127.0.0.1' || 
-		                window.location.hostname.includes('localhost');
-		const apiUrl = isLocal
-			? 'http://localhost:3001'  // Local: use CORS proxy
-			: 'https://q0pcptpjxd.execute-api.us-east-1.amazonaws.com/dev';  // Live: direct API
-
-		//this.scratchCardsService = new ScratchCardsService(apiUrl);
+		// Gameplay API: PullTabsService / ProviderAPIService use GameConfig.api + resolveApiBaseUrl().
 
 		// Initialize game services
 		//this.gameStateService = new GameStateService(this);

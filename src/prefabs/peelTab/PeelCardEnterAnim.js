@@ -54,12 +54,20 @@ export default class PeelCardEnterAnim extends Phaser.GameObjects.Container {
 	// Write your code here.
 	init()
 	{
-		let config = this.scene.serverManager.gameConfig
-		console.log("!!!!",config.prizes.length);
+		let config = this.scene.serverManager.gameConfig;
+		const preloadCfg = this.scene.registry.get('preloadGameConfig') || {};
+		const peelRows = Math.round(
+			Math.max(
+				3,
+				Math.min(
+					20,
+					Number(config.rowCount) || Number(preloadCfg.rowCount) || 7
+				)
+			)
+		);
 		let tabSize;
-		for (let i = 0; i < config.prizes.length; i++)
+		for (let i = 0; i < peelRows; i++)
 		{
-					console.log("!!!!",config.prizes[i]);
 			const peel = this.scene.add.image(0, 0, "DI_Peel_Default");
 			if(this.scene.textures.exists("peel"))
 			{
@@ -83,7 +91,7 @@ export default class PeelCardEnterAnim extends Phaser.GameObjects.Container {
 
 			let prizeText = this.scene.add.text(0, 0, "", {});
 			prizeText.setOrigin(0.5, 0);
-			prizeText.text = config.prizes[i];
+			prizeText.text = config.prizes[i % (config.prizes.length || 1)];
 			prizeText.setStyle({ "align": "center", "color": "#252525ff", "fontFamily": "Anton-Regular", "fontSize": "60px", "resolution": 2 });
 			this.prizeContainer.add(prizeText);
 			prizeText.y = 100 * i + 10;

@@ -100,7 +100,8 @@ export default class Peel extends Phaser.GameObjects.Container {
 
 	/* START-USER-CODE */
 	pullpoint;
-	cursorPoint
+	cursorPoint;
+	_layoutInitialized = false;
 	enabled = false;
 	peeling = false;
 	peeled = false;
@@ -108,9 +109,35 @@ export default class Peel extends Phaser.GameObjects.Container {
 	cursorPos = new Phaser.Math.Vector2()
 	pullPos = new Phaser.Math.Vector2()
 
+	/**
+	 * Before first {@link Peel.init} (buy → playing), hide mask helpers and swap themed peel art.
+	 * Otherwise DI_Peel_Default + visible maskZone draw as grey “PEEL” tiles and a huge translucent sheet.
+	 */
+	prepareIdleAppearance()
+	{
+		if (this.scene.textures.exists("peel"))
+		{
+			this.front.setTexture("peel");
+			this.peel.setTexture("peel");
+			this.peelMask.setTexture("peel");
+		}
+		if (this.scene.textures.exists("peelBack"))
+		{
+			this.back.setTexture("peelBack");
+		}
+		this.peel.setVisible(false);
+		this.peelMask.setVisible(false);
+		this.shade.setVisible(false);
+		this.maskZone.setVisible(false);
+	}
+
 	// Write your code here.
 	init(values)
 	{
+		if (!this._layoutInitialized)
+		{
+			this._layoutInitialized = true;
+
 		const pullpoint = this.scene.add.container(this.maskZone.x, this.maskZone.y);
 		pullpoint.rotation = this.maskZone.rotation;
 		this.add(pullpoint);
@@ -150,7 +177,11 @@ export default class Peel extends Phaser.GameObjects.Container {
 		this.peelMask.setScale(transform.scaleX, transform.scaleY);			
 		this.peelMask.rotation = (transform.rotation);
 
-		this.peelIcons.init(values);
+		}
+
+		if (values !== undefined && values !== null && Array.isArray(values)) {
+			this.peelIcons.init(values);
+		}
 
 		this.scene.textures.exists("peel")
 		{
@@ -281,6 +312,9 @@ export default class Peel extends Phaser.GameObjects.Container {
 
 	reset()
 	{
+		this.peeled = false;
+		this.peeling = false;
+
 		this.peel.alpha = 1;
 		this.peel.x = 0;
 		this.peel.y = 0;
@@ -290,15 +324,16 @@ export default class Peel extends Phaser.GameObjects.Container {
 		this.shade.alpha = 0.25;
 		this.shade.visible = false;
 
-		this.pullpoint.x = 0;
-		this.pullpoint.y = 0;
-		this.pullpoint.angle = 0;
+		// pullpoint/cursorPoint are created on first init(); ready() resets tabs before play has started.
+		if (this.pullpoint)
+		{
+			this.pullpoint.x = 0;
+			this.pullpoint.y = 0;
+			this.pullpoint.angle = 0;
+		}
 
 		this.maskZone.setPosition(0, 0);
-		this.maskZone.rotation = (0);	
-
-		this.peeled = false;
-		this.peeling = false;
+		this.maskZone.rotation = (0);
 	}
 
 	autoPeel()

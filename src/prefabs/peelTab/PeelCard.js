@@ -111,15 +111,27 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 		let tabSize = 0
 
 		let config = this.scene.serverManager.gameConfig
+		const preloadCfg = this.scene.registry.get('preloadGameConfig') || {};
+		const peelRows = Math.round(
+			Math.max(
+				3,
+				Math.min(
+					20,
+					Number(config.rowCount) ||
+						Number(preloadCfg.rowCount) ||
+						7
+				)
+			)
+		);
 
 		this.messageText.text = config.message;
 
-		for (let i = 0; i < 6; i++)
+		for (let i = 0; i < peelRows; i++)
 		{
 			let tab = this.group.get(0, 0);
 			this.peelContainer.add(tab);
 
-			tab.init();
+			tab.prepareIdleAppearance();
 
 			tab.y = tabSize + this.padding * i;
 			tab.x = 0;
@@ -128,11 +140,12 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 
 		this.peelContainer.list.reverse();
 
-		for (let i = 0; i < config.prizes.length; i++)
+		for (let i = 0; i < peelRows; i++)
 		{
 			let prizeText = this.scene.add.text(0, 0, "", {});
 			prizeText.setOrigin(0.5, 0);
-			prizeText.text = config.prizes[i];
+			const plen = config.prizes?.length || 1;
+			prizeText.text = config.prizes[i % plen];
 			prizeText.setStyle({ "align": "center", "color": "#252525ff", "fontFamily": "Anton-Regular", "fontSize": "60px", "resolution": 2 });
 			this.prizeContainer.add(prizeText);
 			prizeText.y = 100 * i + this.textPadding;
@@ -194,13 +207,18 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 	start()
 	{
 		let session = this.scene.serverManager.gameSession;
+		const tabs = Array.isArray(session?.tabs) ? session.tabs : [];
 
 		this.activeTabs = this.peelContainer.list.length;
 	 	for (let i = 0; i < this.peelContainer.list.length; i++)
 		{
 			let tab = this.peelContainer.list[i];
 			tab.reset();
-			tab.init(session.tabs[i]);
+			const triple = tabs[i];
+			if (!triple || triple.length < 3) {
+				console.warn("[PeelCard] Missing tab triple for row", i, session);
+			}
+			tab.init(Array.isArray(triple) ? triple : undefined);
 			tab.enabled = true;
 			tab.once("peeled", () => this.onTabPeeled(), this);
 		}		

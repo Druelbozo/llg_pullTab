@@ -5,4 +5,7 @@
 
 export default {
 	theme: 'mega-monster',
+	paytableId: 'prize_poker_6288k_v0001',
+	creditValueMinor: 25,
+	rowCount: 7,
 };

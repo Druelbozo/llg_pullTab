@@ -23,6 +23,11 @@ function mergePullTabConfig(base = {}, meta = {}) {
 		paytableId: meta.paytableId ?? base.paytableId,
 		creditValueMinor:
 			meta.creditValueMinor ?? base.creditValueMinor ?? 100,
+		rowCount: Number.isFinite(Number(meta.rowCount)) && Number(meta.rowCount) > 0
+			? Math.round(Number(meta.rowCount))
+			: (Number.isFinite(Number(base.rowCount)) && Number(base.rowCount) > 0
+				? Math.round(Number(base.rowCount))
+				: 7),
 	};
 }
 

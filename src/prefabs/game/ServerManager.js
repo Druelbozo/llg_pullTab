@@ -4,7 +4,9 @@
 /* START OF COMPILED CODE */
 
 /* START-USER-IMPORTS */
+import PullTabsService from '../../services/api/PullTabsService.js';
 import { GameConfig } from '../../config/Global.js';
+import { normalizePullTabsBuy } from '../../utils/game/pullTabBuyDisplay.js';
 /* END-USER-IMPORTS */
 
 export default class ServerManager extends Phaser.GameObjects.Container {
@@ -23,6 +25,9 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 	gameConfig;
 	balance = 1000;
 
+	/** @type {PullTabsService|null} */
+	pullTabsApi = null;
+
 	static DEFAULT_GAME_UI = {
 		type: "Normal",
 		prizes: ["$250", "$100", "$50", "$25", "$10", "$1"],
@@ -39,8 +44,13 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 		this.gameConfig = {
 			type: registryCfg.type ?? d.type,
 			prizes: Array.isArray(registryCfg.prizes) ? registryCfg.prizes : d.prizes,
-			message: registryCfg.message ?? d.message
+			message: registryCfg.message ?? d.message,
+			paytableId: registryCfg.paytableId,
+			creditValueMinor: registryCfg.creditValueMinor,
+			rowCount: registryCfg.rowCount,
 		};
+
+		this.pullTabsApi = new PullTabsService();
 
 		const useSession = this.scene.registry.get('preloadUseSessionConfig');
 		const minor = this.scene.registry.get('preloadOperatorBalance');
@@ -77,54 +87,107 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 
 	async buy()
 	{
-		this.scene?.stateManager?.setState("wait", "ServerManager: Awaiting Responce From Server ensuring no input")
+		const stateMgr = this.scene?.stateManager;
+		stateMgr?.setState("wait", "ServerManager: awaiting pull-tabs buy");
 
-		const priceMinorRaw = typeof window !== "undefined"
-			? window.__selectedGameConfig?.creditValueMinor
-			: null;
-		const priceMinor = Number.isFinite(Number(priceMinorRaw)) && Number(priceMinorRaw) > 0
-			? Math.round(Number(priceMinorRaw))
-			: 100;
+		const gc = typeof window !== "undefined" ? window.__selectedGameConfig || {} : {};
+		const sid = typeof window !== "undefined" && window.__sessionId ? String(window.__sessionId).trim() : "";
+		const isSession = sid !== "";
+
+		const paytableId = String(gc.paytableId ?? this.gameConfig.paytableId ?? "").trim();
+		const creditMinor = Math.round(
+			Number(
+				gc.creditValueMinor ??
+					this.gameConfig.creditValueMinor ??
+					100
+			)
+		);
+		const priceMinor = Number.isFinite(creditMinor) && creditMinor > 0 ? creditMinor : 100;
+
+		if (!isSession && paytableId.length === 0) {
+			console.error("[ServerManager] Non-session pull-tabs buy requires paytableId in game config.");
+			stateMgr?.setState("ready", "ServerManager: missing paytableId");
+			return false;
+		}
 
 		const balancePennies = Math.round(this.balance * 100);
 		if (balancePennies < priceMinor) {
-			this.scene?.stateManager?.setState("ready", "ServerManager: insufficient balance");
-			return Promise.resolve(false);
+			stateMgr?.setState("ready", "ServerManager: insufficient balance");
+			return false;
 		}
 
-		const startMinor = balancePennies;
+		if (!this.pullTabsApi) {
+			this.pullTabsApi = new PullTabsService();
+		}
 
-		let balance = this.getBalance();
+		try {
+			const resp = await this.pullTabsApi.buy(paytableId, priceMinor);
+			const normalized = normalizePullTabsBuy(this.scene, resp);
 
-		this.gameSession = 
-		{
-			result: "win",
-			prize: 25,
-			tabs:
-			[
-				[1,5,0],
-				[0,0,8],
-				[2,6,4],
-				[7,7,7],
-				[5,3,1],
-				[7,8,6]
-			],
-		};
+			let tabsRow = [...normalized.tabs];
+			if (tabsRow.length > normalized.rowCount) {
+				tabsRow = tabsRow.slice(0, normalized.rowCount);
+			}
 
-		this.balance -= priceMinor / 100;
-		this._emitBalanceMinorUpdate(true, startMinor);
-		this.scene.audioService?.playSfx('buy');
+			const isFreePlay = resp?.isFreePlay === true;
 
-		this.scene.events.emit("OnBalanceChanged", balance);
+			const bobRaw = resp?.operatorBalanceAfterBet;
+			const hasBob =
+				bobRaw !== undefined &&
+				bobRaw !== null &&
+				bobRaw !== "" &&
+				Number.isFinite(Number(bobRaw));
 
-		return Promise.resolve(true);
+			const prevMinor = Math.round(this.balance * 100);
+
+			if (isSession && hasBob) {
+				this.balance = Math.round(Number(bobRaw)) / 100;
+				this._emitBalanceMinorUpdate(false);
+			} else if (!isFreePlay) {
+				this.balance -= priceMinor / 100;
+				this._emitBalanceMinorUpdate(true, prevMinor);
+			}
+
+			this.gameSession = {
+				payoutMinor: normalized.payoutMinor,
+				won: normalized.won,
+				tabs: tabsRow,
+				rows: normalized.rowsRaw,
+				rowCount: normalized.rowCount,
+				outcomeTierId: resp?.outcomeTierId ?? null,
+				outcomeSymbol: resp?.outcomeSymbol ?? null,
+				apiRound: resp,
+			};
+
+			this.scene.registry.set(
+				"pullTabResolvedRowCount",
+				normalized.rowCount
+			);
+
+			this.scene.audioService?.playSfx('buy');
+			this.scene.events.emit(
+				"OnBalanceChanged",
+				this.getBalance()
+			);
+
+			return true;
+		} catch (err) {
+			console.warn("[ServerManager] pull-tabs buy failed", err);
+			stateMgr?.setState(
+				"ready",
+				"ServerManager: buy failed"
+			);
+			return false;
+		}
 	}
 
-	creditPrizeUsd(prizeUsd) {
-		const p = Number(prizeUsd);
-		if (!Number.isFinite(p) || p <= 0) return false;
+	creditEconomyMinor(payoutMinorEconomy) {
+		const payout = Math.round(Number(payoutMinorEconomy));
+		if (!Number.isFinite(payout) || payout <= 0) {
+			return false;
+		}
 		const startMinor = Math.round(this.balance * 100);
-		this.balance += p;
+		this.balance += payout / 100;
 		this._emitBalanceMinorUpdate(true, startMinor, {
 			stopLoopingOnBalanceTweenComplete: true,
 		});
