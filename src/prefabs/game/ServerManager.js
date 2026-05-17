@@ -7,6 +7,8 @@
 import PullTabsService from '../../services/api/PullTabsService.js';
 import { GameConfig } from '../../config/Global.js';
 import { normalizePullTabsBuy } from '../../utils/game/pullTabBuyDisplay.js';
+import { maxPayoutMinorFromAwardTiers } from '../../utils/game/pullTabAwardTierUtils.js';
+import { formatPullTabBannerMessage } from '../../utils/formatting/FormattingUtils.js';
 /* END-USER-IMPORTS */
 
 export default class ServerManager extends Phaser.GameObjects.Container {
@@ -51,6 +53,8 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 		};
 
 		this.pullTabsApi = new PullTabsService();
+
+		void this.refreshBannerFromPaytable();
 
 		const useSession = this.scene.registry.get('preloadUseSessionConfig');
 		const minor = this.scene.registry.get('preloadOperatorBalance');
@@ -197,6 +201,45 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 	async getBalance()
 	{
 		return this.balance;
+	}
+
+	/**
+	 * Loads `get-paytable-info`, sets peel banner message to max tier payout using economy formatting (GC / SC / USD).
+	 */
+	refreshBannerFromPaytable() {
+		const gc = typeof window !== "undefined" ? window.__selectedGameConfig || {} : {};
+
+		const paytableId = String(gc.paytableId ?? this.gameConfig?.paytableId ?? "").trim();
+		const creditMinor = Math.round(
+			Number(
+				gc.creditValueMinor ??
+					this.gameConfig?.creditValueMinor ??
+					100
+			)
+		);
+		const credit = Number.isFinite(creditMinor) && creditMinor > 0 ? creditMinor : 100;
+
+		if (!this.pullTabsApi) {
+			this.pullTabsApi = new PullTabsService();
+		}
+
+		if (!paytableId) {
+			return;
+		}
+
+		void this.pullTabsApi
+			.getPaytableInfo(paytableId, credit)
+			.then((info) => {
+				const maxMinor = maxPayoutMinorFromAwardTiers(info?.awardTiers, credit);
+				if (maxMinor == null) return;
+				const text = formatPullTabBannerMessage(maxMinor);
+				if (!text.trim()) return;
+				this.gameConfig.message = text;
+				this.scene.events.emit("pulltab-banner-update", text);
+			})
+			.catch(() => {
+				/* keep registry / default banner */
+			});
 	}
 
 	/* END-USER-CODE */

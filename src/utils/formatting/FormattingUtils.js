@@ -317,6 +317,28 @@ export function formatCreditValueOptionLabel(amountMinor, currencyCode) {
 }
 
 /**
+ * Peel banner line: replaces a hard-coded top prize with payout from `get-paytable-info` tiers.
+ * SC/USD: dollar-style economy amount with `$`; GC: grouped coin count + `" COINS"` (scratch-like).
+ *
+ * @param {number} topPayoutMinor - Largest tier payout minors at the current credit denomination
+ * @returns {string} Uppercase banner text, or empty if invalid.
+ */
+export function formatPullTabBannerMessage(topPayoutMinor) {
+    const n = Number(topPayoutMinor);
+    const safeMax = Number.isFinite(n) && n > 0 ? Math.round(n) : 0;
+    if (safeMax <= 0) {
+        return '';
+    }
+    const code = getActiveCurrencyCode();
+    const amtStr = formatMinorForDisplayWithSymbol(safeMax, code);
+    let line = `OPEN THE TABS FOR WINS UP TO ${amtStr}`;
+    if (isGoldCoinsCurrency(code)) {
+        line += ' COINS';
+    }
+    return line.toUpperCase();
+}
+
+/**
  * Legacy name: minors → dollar string without `$`, two fraction digits. Uses {@link getMinorPerDisplayDollar}.
  */
 export function formatPenniesToDollars(pennies) {

@@ -69,6 +69,11 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 		});
 
 		this.scene.events.on("onGameSpeedChanged", (value) => {this.speed = value;}, this)
+		this.scene.events.on("pulltab-banner-update", (/** @type {string} */ text) => {
+			if (typeof text === 'string' && text.trim().length > 0 && this.messageText) {
+				this.messageText.text = text.trim();
+			}
+		});
 		this.scene.events.on("scene-awake", ()=> this.awake(), this);
 		this.scene.events.on("server-awake", ()=> this.init(), this);
 

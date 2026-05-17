@@ -19,7 +19,7 @@ export const GameConfig = {
 
         TEST_BALANCE: 300000,
 
-        CURRENCY_CODE: 'SC',
+        CURRENCY_CODE: 'GC',
         MINOR_PER_DISPLAY_DOLLAR: 100,
         BALANCE_MINOR_PER_DOLLAR: 100,
         ECONOMY_GC_UNITS_PER_DISPLAY_DOLLAR: 1000,

@@ -173,25 +173,31 @@
     vertical-align: middle;
 }
 
-.pulltab-paytable-symbol-row {
+.pulltab-paytable-icons-triple {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    flex-shrink: 0;
+}
+
+.pulltab-paytable-payout-row {
     display: flex;
     align-items: center;
     gap: 0.56rem;
 }
 
 .modal-content table .prize-sprite.pulltab-paytable-icon,
-.modal-content table .pulltab-paytable-symbol .prize-sprite {
+.modal-content table .pulltab-paytable-payouts .prize-sprite {
     display: inline-block;
     flex-shrink: 0;
     background-repeat: no-repeat;
     vertical-align: middle;
 }
 
-.pulltab-tier-symbol code,
-.modal-content table .pulltab-tier-symbol {
-    font-size: 0.95rem;
-    color: #e2e8f0;
-    word-break: break-all;
+.modal-content table .pulltab-paytable-payout-text {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
 }
 
 .pulltab-paytable-empty {

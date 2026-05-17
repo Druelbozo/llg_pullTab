@@ -5,6 +5,7 @@
 import Modal from '../../Modal.js';
 import PullTabsService from '../../../services/api/PullTabsService.js';
 import { tierSymbolToFrameIndex } from '../../../utils/game/pullTabBuyDisplay.js';
+import { isJunkAwardTierSymbol, payoutMinorForAwardTier } from '../../../utils/game/pullTabAwardTierUtils.js';
 import {
     formatMinorForDisplayWithSymbol,
     formatCreditValueOptionLabel,
@@ -55,32 +56,6 @@ function formatRtpForDisplay(rtp) {
         return `${r.toFixed(2)}%`;
     }
     return String(rtp);
-}
-
-/**
- * @param {string} symbol
- * @returns {boolean}
- */
-function isJunkSymbol(symbol) {
-    return /junk/i.test(String(symbol ?? '').trim());
-}
-
-/**
- * @param {object} tier
- * @param {number} creditValueMinor
- * @returns {number}
- */
-function tierPayoutMinor(tier, creditValueMinor) {
-    const pm = tier?.payoutMinor;
-    if (typeof pm === 'number' && Number.isFinite(pm)) {
-        return Math.round(pm);
-    }
-    const mul = tier?.multiplier;
-    const c = Math.round(Number(creditValueMinor));
-    if (typeof mul === 'number' && Number.isFinite(mul) && c > 0) {
-        return Math.round(mul * c);
-    }
-    return 0;
 }
 
 /**
@@ -258,11 +233,11 @@ export async function pullTabGameInfoContent(scene) {
 
     /** @type {object[]} */
     const rawTiers = Array.isArray(payMeta?.awardTiers) ? payMeta.awardTiers : [];
-    const tiers = rawTiers.filter((t) => t && typeof t === 'object' && !isJunkSymbol(t.symbol));
+    const tiers = rawTiers.filter((t) => t && typeof t === 'object' && !isJunkAwardTierSymbol(t.symbol));
 
     tiers.sort((a, b) => {
-        const pa = tierPayoutMinor(a, creditValueMinor);
-        const pb = tierPayoutMinor(b, creditValueMinor);
+        const pa = payoutMinorForAwardTier(a, creditValueMinor);
+        const pb = payoutMinorForAwardTier(b, creditValueMinor);
         if (pa !== pb) {
             return pa - pb;
         }
@@ -276,7 +251,7 @@ export async function pullTabGameInfoContent(scene) {
 
     if (payErr && tiers.length === 0) {
         tableRowsHtml.push(
-            `<tr><td colspan="3" class="pulltab-paytable-empty">${esc(
+            `<tr><td colspan="2" class="pulltab-paytable-empty">${esc(
                 payErr.replace(/^API Error:\s*/i, '').trim(),
             )}</td></tr>`,
         );
@@ -286,12 +261,17 @@ export async function pullTabGameInfoContent(scene) {
             const frameIdx = tierSymbolToFrameIndex(sym);
             const sprite = atlasJson ? buildIconsAtlasSpriteCss(atlasJson, frameIdx, 36) : null;
 
-            let iconCell =
+            let iconMarkup =
                 sprite != null
                     ? `<span class="prize-sprite pulltab-paytable-icon" role="presentation" aria-hidden="true" style="${sprite.styleAttr}"></span>`
-                    : '<span class="pulltab-paytable-icon-missing"></span>';
+                    : '<span class="pulltab-paytable-icon-missing" aria-hidden="true"></span>';
 
-            const payoutMinor = tierPayoutMinor(tier, creditValueMinor);
+            /** Three icons to mirror a triple-on-row win. */
+            const iconsTriple =
+                `<div class="pulltab-paytable-icons-triple" role="presentation" aria-hidden="true">` +
+                `${iconMarkup}${iconMarkup}${iconMarkup}</div>`;
+
+            const payoutMinor = payoutMinorForAwardTier(tier, creditValueMinor);
             const payoutStr =
                 payoutMinor > 0
                     ? formatMinorForDisplayWithSymbol(payoutMinor, currency)
@@ -304,17 +284,16 @@ export async function pullTabGameInfoContent(scene) {
 
             tableRowsHtml.push(
                 `<tr>` +
-                    `<td class="prize-amount-cell pulltab-paytable-symbol"><div class="pulltab-paytable-symbol-row">${iconCell}<span class="pulltab-tier-symbol">${esc(
-                        sym,
+                    `<td class="prize-amount-cell pulltab-paytable-payouts"><div class="pulltab-paytable-payout-row">${iconsTriple}<span class="pulltab-paytable-payout-text">${esc(
+                        payoutStr,
                     )}</span></div></td>` +
-                    `<td>${esc(payoutStr)}</td>` +
                     `<td class="right">${typeof avail === 'number' ? String(avail) : esc(avail)}</td>` +
                     `</tr>`,
             );
         }
 
         if (tableRowsHtml.length === 0) {
-            tableRowsHtml.push('<tr><td colspan="3" class="pulltab-paytable-empty">No pay tiers returned.</td></tr>');
+            tableRowsHtml.push('<tr><td colspan="2" class="pulltab-paytable-empty">No pay tiers returned.</td></tr>');
         }
     }
 
@@ -365,8 +344,7 @@ export async function pullTabGameInfoContent(scene) {
         `<p>Payout amounts are for one ticket priced at <strong>${esc(denomLabel)}</strong>.</p>` +
         `<table class="pulltab-paytable">` +
         `<thead><tr>` +
-        `<th>Winning symbol</th>` +
-        `<th>Payout</th>` +
+        `<th>Payouts</th>` +
         `<th class="right">Tickets in deal</th>` +
         `</tr></thead>` +
         `<tbody>${tableRowsHtml.join('')}</tbody>` +

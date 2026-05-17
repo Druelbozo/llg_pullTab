@@ -18,7 +18,7 @@ export default class PeelMessageText extends Phaser.GameObjects.Text {
 
 		/* START-USER-CTR-CODE */
 		// Write your code here.
-		this.scene.events.on("server-awake", (server) => this.init(server), this)
+		this.scene.events.on("server-awake", () => this.init(), this)
 		this.scene.events.on("onThemeInitalized", (themeManager) => this.initVisual(themeManager), this);
 		/* END-USER-CTR-CODE */
 	}
@@ -27,9 +27,9 @@ export default class PeelMessageText extends Phaser.GameObjects.Text {
 	shown = false;
 
 	// Write your code here.
-	init(server)
+	init()
 	{
-		this.text = "OPEN THE TAB FOR WINS UP TO $999"
+		/* Banner text comes from PeelCard (merged config); paytable refreshes emit `pulltab-banner-update`. */
 	}
 
 	initVisual(theme)
