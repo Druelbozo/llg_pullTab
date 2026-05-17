@@ -19,6 +19,10 @@ import {
 } from "../services/pulltab/PullTabControlBarBootstrap.js";
 import AudioService from "../services/game/AudioService.js";
 import { GameConfig } from "../config/Global.js";
+import {
+	calculateCoverScale,
+	getSpriteNaturalTextureSize,
+} from "../utils/ui/graphics/BackgroundScaler.js";
 /* END-USER-IMPORTS */
 
 export default class Level extends Phaser.Scene {
@@ -52,7 +56,10 @@ export default class Level extends Phaser.Scene {
 
 		// screenAnchor_2 (cover mode fills viewport on wide screens)
 		const screenAnchor_2 = new ScreenAnchor(bg_Container_1);
+		// Scratch-style fill: scale from texture aspect (BackgroundScalingService), not design ref ratios.
 		screenAnchor_2.scaleMode = 'cover';
+		screenAnchor_2.scale = false;
+		screenAnchor_2.position = false;
 
 		// peelCard
 		const peelCard = new PeelCard(this, 540, 910);
@@ -101,6 +108,10 @@ export default class Level extends Phaser.Scene {
 
 		this.peelCard = peelCard;
 
+		this.bgBackdropContainer = bg_Container_1;
+		this.bgBackdropScreenAnchor = screenAnchor_2;
+		bg_Container_1.setDepth(-10000);
+
 		this.dI_Background_banana_1 = dI_Background_banana_1;
 		this.peelManager = peelManager;
 		this.musicManager = musicManager;
@@ -111,6 +122,10 @@ export default class Level extends Phaser.Scene {
 
 	/** @type {Phaser.GameObjects.Image} */
 	dI_Background_banana_1;
+	/** @type {Phaser.GameObjects.Container} */
+	bgBackdropContainer;
+	/** @type {ScreenAnchor} */
+	bgBackdropScreenAnchor;
 	/** @type {PeelManager} */
 	peelManager;
 	/** @type {MusicManager} */
@@ -127,8 +142,46 @@ export default class Level extends Phaser.Scene {
 
 	/* START-USER-CODE */
 
+	_backdropCoverRetryCount = 0;
+
 	// Write more your code here
 
+	/**
+	 * Full-screen theme backdrop using texture-native cover math (mirror scratch BackgroundScalingService).
+	 */
+	_syncPullTabBackdropCover() {
+		const sprite = this.dI_Background_banana_1;
+		const container = this.bgBackdropContainer;
+		if (!sprite?.active || !container?.scene) return;
+
+		const vw = this.scale.width;
+		const vh = this.scale.height;
+		if (!vw || !vh || vw <= 0 || vh <= 0) return;
+
+		const texKey = sprite.texture?.key;
+		if (!texKey || !this.textures.exists(texKey) || texKey === '_MISSING') return;
+
+		const { width: iw, height: ih } = getSpriteNaturalTextureSize(sprite);
+		if (!iw || !ih) {
+			if (this._backdropCoverRetryCount < 40) {
+				this._backdropCoverRetryCount++;
+				this.time.delayedCall(48, () => this._syncPullTabBackdropCover());
+			}
+			return;
+		}
+
+		const cover = calculateCoverScale(iw, ih, vw, vh);
+		if (!Number.isFinite(cover) || cover <= 0) return;
+		this._backdropCoverRetryCount = 0;
+
+		container.setPosition(vw / 2, vh / 2);
+		container.setVisible(true);
+
+		sprite.setOrigin(0.5, 0.5);
+		sprite.setPosition(0, 0);
+		sprite.setScale(cover);
+		sprite.setVisible(true);
+	}
 	create() {
 		this.editorCreate();
 
@@ -156,16 +209,20 @@ export default class Level extends Phaser.Scene {
 				}
 			}
 			this._updateSoundIcon();
+			this._syncPullTabBackdropCover();
 		});
 
 		bootstrapPullTabControlBar(this);
 		this.events.emit("scene-awake");
+
+		this.time.delayedCall(0, () => this._syncPullTabBackdropCover());
 	}
 
 	/**
 	 * Phaser/game `scale.resize` → `main.js` calls this so control bar reposition matches scratch-card flow.
 	 */
 	resize() {
+		this._syncPullTabBackdropCover();
 		applyPullTabControlBarLayoutFromScene(this);
 	}
 
