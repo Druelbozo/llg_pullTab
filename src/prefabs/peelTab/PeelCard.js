@@ -9,7 +9,10 @@ import PeelCardEnterAnim from "./PeelCardEnterAnim.js";
 /* START-USER-IMPORTS */
 import Peel from "./Peel.js";
 import { GameConfig } from "../../config/Global.js";
-import { applyPeelCardBackTintFromTheme } from "../../utils/theme/PeelCardThemeUtils.js";
+import {
+	applyPeelCardBackTintFromTheme,
+	layoutPeelCardHorizontalContentInset,
+} from "../../utils/theme/PeelCardThemeUtils.js";
 /* END-USER-IMPORTS */
 
 export default class PeelCard extends Phaser.GameObjects.Container {
@@ -111,23 +114,31 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 	activeTabs
 
 	// Write your code here.
+
+	_peelThemeListenerBound = false;
+
+	_applyPeelCardThemeVisuals()
+	{
+		const td =
+			this.scene.themeData ||
+			this.scene.registry.get('preloadThemeData');
+		applyPeelCardBackTintFromTheme(this.cardBack, td);
+		layoutPeelCardHorizontalContentInset(this, td);
+	}
+
 	awake()
 	{
 		this.gameContainer.visible = false;
+		if (!this._peelThemeListenerBound) {
+			this._peelThemeListenerBound = true;
+			this.scene.events.on('onThemeInitalized', this._applyPeelCardThemeVisuals, this);
+		}
+		this._applyPeelCardThemeVisuals();
 	}
 
 	init()
 	{
 		let tabSize = 0
-
-		const applyCardBackTint = () => {
-			applyPeelCardBackTintFromTheme(
-				this.cardBack,
-				this.scene.themeData || this.scene.registry.get('preloadThemeData'),
-			);
-		};
-		applyCardBackTint();
-		this.scene.events.on('onThemeInitalized', applyCardBackTint, this);
 
 		let config = this.scene.serverManager.gameConfig
 		const preloadCfg = this.scene.registry.get('preloadGameConfig') || {};
@@ -211,6 +222,7 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 			this.videoContainer.add(lose_Video);
 		}
 
+		this._applyPeelCardThemeVisuals();
 	}
 
 	ready()

@@ -19,7 +19,8 @@
     "crossY": 50
   },
   "peelCard": {
-    "cardBackTint": "#f5f5dc"
+    "cardBackTint": "#f5f5dc",
+    "horizontalContentInset": 30
   },
   "fonts": [
     {

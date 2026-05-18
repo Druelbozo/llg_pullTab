@@ -10,6 +10,7 @@ import { GameConfig } from '../../config/Global.js';
 import gameConfig from '../../config/game/game-config.js';
 import { getScratchGridFromGameConfig } from '../game/ScratchGridDimensionsUtils.js';
 import { getScreenWidth, getScreenHeight } from '../viewport/ViewportUtils.js';
+import { resolvePeelCardHorizontalContentInset } from '../theme/PeelCardThemeUtils.js';
 
 
 /**
@@ -2028,6 +2029,55 @@ function getPeelTabStripWorldBounds(tab) {
 }
 
 /**
+ * Horizontal gap ruler (orange line + label), styled like {@link drawControlBarElementBounds} spacing.
+ *
+ * @param {Phaser.Scene} scene
+ * @param {{ graphics: Phaser.GameObjects.Graphics, labelText?: Phaser.GameObjects.Text, elementName: string }[]} items - mutated
+ * @param {number} xA
+ * @param {number} xB
+ * @param {number} yWorld
+ * @param {string} elementName - debug id / cleanup tag
+ * @param {string|null|undefined} [displayLabelOrNull] - if set (non-empty), used instead of the measured `{spacing}px`
+ */
+function appendPeelDebugHorizontalSpacing(scene, items, xA, xB, yWorld, elementName, displayLabelOrNull = null) {
+    const left = Math.min(xA, xB);
+    const right = Math.max(xA, xB);
+    const spacing = right - left;
+    if (!(spacing > 0)) {
+        return;
+    }
+
+    const spacingGraphics = scene.add.graphics();
+    spacingGraphics.lineStyle(1, 0xff8800, 0.8);
+    spacingGraphics.lineBetween(left, yWorld, right, yWorld);
+    spacingGraphics.setDepth(100009);
+    spacingGraphics.setVisible(true);
+
+    const centerX = (left + right) / 2;
+    const spacingLabel =
+        typeof displayLabelOrNull === 'string' && displayLabelOrNull.trim() !== ''
+            ? displayLabelOrNull.trim()
+            : `${spacing.toFixed(1)}px`;
+    const spacingLabelObj = scene.add.text(centerX, yWorld - 8, spacingLabel, {
+        font: '10px Arial',
+        fill: '#ff8800',
+        backgroundColor: '#000000',
+        padding: { x: 2, y: 1 },
+    });
+    spacingLabelObj.setOrigin(0.5, 1);
+    spacingLabelObj.setDepth(100012);
+    spacingLabelObj.setVisible(true);
+
+    items.push({
+        graphics: spacingGraphics,
+        labelText: spacingLabelObj,
+        elementName,
+    });
+
+    log(`PeelCardElementBounds: Horizontal spacing (${elementName}): ${spacingLabel}`, 'layout');
+}
+
+/**
  * Remove peel-card debug overlays (when toggling off or before redraw).
  *
  * @param {Phaser.Scene|null|undefined} scene
@@ -2140,6 +2190,94 @@ export function drawPeelCardElementBounds(params) {
         });
     }
 
+    /**
+     * @param {Phaser.GameObjects.GameObject|null|undefined} go
+     * @returns {Phaser.Geom.Rectangle|null}
+     */
+    const safeWorldBounds = (go) => {
+        if (!go || !go.active) {
+            return null;
+        }
+        try {
+            const b = typeof go.getBounds === 'function' ? go.getBounds() : null;
+            if (b && b.width > 0 && b.height > 0) {
+                return b;
+            }
+        } catch (_e) {
+            /* ignore */
+        }
+        return null;
+    };
+
+    const cardBackBounds = safeWorldBounds(peelCard.cardBack);
+    const cardCoverBounds = safeWorldBounds(peelCard.dI_CardCover_Default);
+
+    /** @type {string|null} */
+    let symmetryGapLabel = null;
+    let leftGapPx = null;
+    let rightGapPx = null;
+    if (cardBackBounds && cardCoverBounds && Array.isArray(peelList) && peelList.length > 0) {
+        leftGapPx = cardCoverBounds.x - cardBackBounds.x;
+        const stripForSymmetry = getPeelTabStripWorldBounds(peelList[0]);
+        const cardRightX = cardBackBounds.x + cardBackBounds.width;
+        if (stripForSymmetry && stripForSymmetry.width > 0) {
+            const peelRightWorld = stripForSymmetry.x + stripForSymmetry.width;
+            rightGapPx = cardRightX - peelRightWorld;
+        }
+        const themeInsetConfigured = resolvePeelCardHorizontalContentInset(
+            /** @type {Record<string, unknown>|null} */ (
+                scene.themeData || scene.registry?.get?.('preloadThemeData') || null
+            ),
+        );
+        if (typeof leftGapPx === 'number' && Number.isFinite(leftGapPx) && typeof rightGapPx === 'number') {
+            const avgPx = (leftGapPx + rightGapPx) / 2;
+            symmetryGapLabel = `${avgPx.toFixed(1)}px`;
+            const drift = Math.abs(leftGapPx - rightGapPx);
+            if (drift > 0.75 || Math.abs(avgPx - themeInsetConfigured) > 2) {
+                symmetryGapLabel += ` (L:${leftGapPx.toFixed(1)} R:${rightGapPx.toFixed(1)} │ theme:${themeInsetConfigured})`;
+            }
+        }
+    }
+
+    if (cardBackBounds && cardCoverBounds) {
+        const yLeftGap =
+            (cardBackBounds.y +
+                cardBackBounds.height / 2 +
+                (cardCoverBounds.y + cardCoverBounds.height / 2)) /
+            2;
+        appendPeelDebugHorizontalSpacing(
+            scene,
+            items,
+            cardBackBounds.x,
+            cardCoverBounds.x,
+            yLeftGap,
+            'cardBack-cardCover-leftGap',
+            symmetryGapLabel,
+        );
+    }
+
+    if (cardBackBounds && Array.isArray(peelList) && peelList.length > 0) {
+        const topPeelStrip = getPeelTabStripWorldBounds(peelList[0]);
+        if (topPeelStrip && topPeelStrip.width > 0) {
+            const peelRight = topPeelStrip.x + topPeelStrip.width;
+            const cardRight = cardBackBounds.x + cardBackBounds.width;
+            const yRightGap =
+                (topPeelStrip.y +
+                    topPeelStrip.height / 2 +
+                    (cardBackBounds.y + cardBackBounds.height / 2)) /
+                2;
+            appendPeelDebugHorizontalSpacing(
+                scene,
+                items,
+                peelRight,
+                cardRight,
+                yRightGap,
+                'peelRow[0]-cardBack-rightGap',
+                symmetryGapLabel,
+            );
+        }
+    }
+
     scene.peelCardElementBoundsDebug = items;
-    log(`PeelCardElementBounds: drew ${items.length} debug rects`, 'layout');
+    log(`PeelCardElementBounds: drew ${items.length} debug overlays (bounds + spacing)`, 'layout');
 }

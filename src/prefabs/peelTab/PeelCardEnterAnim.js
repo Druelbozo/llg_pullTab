@@ -5,7 +5,10 @@
 
 /* START-USER-IMPORTS */
 import { GameConfig } from "../../config/Global.js";
-import { applyPeelCardBackTintFromTheme } from "../../utils/theme/PeelCardThemeUtils.js";
+import {
+	applyPeelCardBackTintFromTheme,
+	layoutPeelCardHorizontalContentInsetSubtree,
+} from "../../utils/theme/PeelCardThemeUtils.js";
 /* END-USER-IMPORTS */
 
 export default class PeelCardEnterAnim extends Phaser.GameObjects.Container {
@@ -105,10 +108,15 @@ export default class PeelCardEnterAnim extends Phaser.GameObjects.Container {
 			}
 		}
 
-		applyPeelCardBackTintFromTheme(
-			this.cardBack,
-			this.scene.themeData || this.scene.registry.get('preloadThemeData'),
-		);
+		const td = this.scene.themeData || this.scene.registry.get('preloadThemeData');
+
+		applyPeelCardBackTintFromTheme(this.cardBack, td);
+		layoutPeelCardHorizontalContentInsetSubtree({
+			themeData: td,
+			cardBack: this.cardBack,
+			peelContainer: this.peelContainer,
+			cardCoverImage: this.cardCover,
+		});
 	}
 
 	enter(callBack, ctx)
