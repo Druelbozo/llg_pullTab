@@ -17,7 +17,7 @@ export default {
   },
   cardContainer: { areaPercent: 0.95, offsetYPercent: 0 },
   messageText: {
-    heightPercent: 0.125,
+    heightPercent: 0.15,
     percentY: 0,
     centerVertically: true,
     stroke: { lineWidth: 4 }

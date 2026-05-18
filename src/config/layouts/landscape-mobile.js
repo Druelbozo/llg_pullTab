@@ -5,19 +5,19 @@ export default {
     paddingPercent: { top: 0.01, bottom: 0.01 },
     insetPercent: { horizontal: 0.01 },
     header: {
-      items: ['winText', 'betText', 'balanceText'],
+      items: ['winText', 'balanceText'],
       fontSize: 17,
       verticalOffset: 0.015,
       lines: 2
     },
     layoutGroups: [
       ['soundButton', 'infoButton', 'speedButton'],
-      ['playButton', 'autoButton']
+      ['autoButton', 'playButton']
     ]
   },
-  cardContainer: { areaPercent: 0.98, offsetYPercent: 0 },
+  cardContainer: { areaPercent: 0.9, offsetYPercent: 0 },
   messageText: {
-    heightPercent: 0.17,
+    heightPercent: 0.1,
     percentY: -0.025,
     centerInLeftBand: true,
     insetPercent: { horizontal: 0.06 },
