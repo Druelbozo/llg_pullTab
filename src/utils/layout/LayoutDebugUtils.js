@@ -1990,6 +1990,44 @@ export function drawScratchBackingGridDebug(params) {
 }
 
 /**
+ * Prefer the peel **track** (`Peel.back`) world rect — the full Peel container's `getBounds()`
+ * also wraps a large mask zone and a wide-scaled shade, which inflate the AABB to ~card width.
+ *
+ * @param {Phaser.GameObjects.GameObject & { back?: Phaser.GameObjects.Image, front?: Phaser.GameObjects.Image }} tab
+ * @returns {Phaser.Geom.Rectangle|null}
+ */
+function getPeelTabStripWorldBounds(tab) {
+    if (!tab?.active) {
+        return null;
+    }
+    const prefer = [tab.back, tab.front].filter(
+        (img) =>
+            img &&
+            img.active &&
+            img.visible !== false &&
+            typeof img.getBounds === 'function',
+    );
+    for (const img of prefer) {
+        try {
+            const b = img.getBounds();
+            if (b && b.width > 0 && b.height > 0) {
+                return b;
+            }
+        } catch (_e) {
+            /* continue */
+        }
+    }
+    if (typeof tab.getBounds === 'function') {
+        try {
+            return tab.getBounds();
+        } catch (_e) {
+            return null;
+        }
+    }
+    return null;
+}
+
+/**
  * Remove peel-card debug overlays (when toggling off or before redraw).
  *
  * @param {Phaser.Scene|null|undefined} scene
@@ -2035,19 +2073,11 @@ export function drawPeelCardElementBounds(params) {
     const items = [];
 
     /**
-     * @param {Phaser.GameObjects.GameObject|null|undefined} go
+     * @param {Phaser.Geom.Rectangle|{ x: number, y: number, width: number, height: number }|null|undefined} bounds
      * @param {string} name
      * @param {number} color
      */
-    const addBounds = (go, name, color) => {
-        if (!go || !go.active) return;
-        let bounds;
-        try {
-            bounds = typeof go.getBounds === 'function' ? go.getBounds() : null;
-        } catch (err) {
-            debug(`PeelCardElementBounds: getBounds failed for ${name}`, 'layout', err);
-            return;
-        }
+    const addRect = (bounds, name, color) => {
         if (!bounds || bounds.width <= 0 || bounds.height <= 0) {
             return;
         }
@@ -2075,13 +2105,31 @@ export function drawPeelCardElementBounds(params) {
         items.push({ graphics, labelText: label, elementName: name });
     };
 
+    /**
+     * @param {Phaser.GameObjects.GameObject|null|undefined} go
+     * @param {string} name
+     * @param {number} color
+     */
+    const addBounds = (go, name, color) => {
+        if (!go || !go.active) return;
+        let bounds;
+        try {
+            bounds = typeof go.getBounds === 'function' ? go.getBounds() : null;
+        } catch (err) {
+            debug(`PeelCardElementBounds: getBounds failed for ${name}`, 'layout', err);
+            return;
+        }
+        addRect(bounds, name, color);
+    };
+
     addBounds(peelCard.cardBack, 'cardBack', 0xff5555);
     addBounds(peelCard.dI_CardCover_Default, 'cardCover', 0x55ff55);
 
     const peelList = peelCard.peelContainer?.list;
     if (Array.isArray(peelList)) {
         peelList.forEach((tab, i) => {
-            addBounds(tab, `peelRow[${i}]`, 0x5555ff);
+            const strip = getPeelTabStripWorldBounds(tab);
+            addRect(strip, `peelRow[${i}]`, 0x5555ff);
         });
     }
 
