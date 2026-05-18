@@ -1,5 +1,5 @@
 /**
- * HTML for Pull-tab Game Info modal: rules copy + API paytable (icons / payout / ticket counts).
+ * HTML for Pull-tab Game Info modal: rules copy + API paytable (icons / payouts).
  */
 
 import Modal from '../../Modal.js';
@@ -8,8 +8,10 @@ import { tierSymbolToFrameIndex } from '../../../utils/game/pullTabBuyDisplay.js
 import { isJunkAwardTierSymbol, payoutMinorForAwardTier } from '../../../utils/game/pullTabAwardTierUtils.js';
 import {
     formatMinorForDisplayWithSymbol,
-    formatCreditValueOptionLabel,
+    formatGcMinorAmount,
+    minorsToDisplayDollarStringWithSymbol,
     getActiveCurrencyCode,
+    isGoldCoinsCurrency,
 } from '../../../utils/formatting/FormattingUtils.js';
 import { debug, warn } from '../../../utils/logger/LoggerUtils.js';
 
@@ -35,6 +37,21 @@ function esc(s) {
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
+}
+
+/**
+ * One-line ticket price for modal copy: GC "N coins"; SC/USD "$X.XX" (economy minors).
+ * @param {number} creditValueMinor
+ * @param {'USD'|'GC'|'SC'} currencyCode
+ * @returns {string}
+ */
+function formatTicketPriceSentenceFragment(creditValueMinor, currencyCode) {
+    const raw = Math.round(Number(creditValueMinor));
+    const minor = Number.isFinite(raw) && raw > 0 ? raw : 100;
+    if (isGoldCoinsCurrency(currencyCode)) {
+        return `${formatGcMinorAmount(minor)} coins`;
+    }
+    return minorsToDisplayDollarStringWithSymbol(minor);
 }
 
 /**
@@ -110,7 +127,7 @@ function buildIconsAtlasSpriteCss(atlasJson, atlasFrameIndex, displayPx = 36) {
 
 /**
  * @param {SceneRef} scene
- * @returns {{ paytableId: string, creditValueMinor: number, theme: string, operatorMessage?: string }}
+ * @returns {{ paytableId: string, creditValueMinor: number, theme: string }}
  */
 function resolvePullTabCatalogContext(scene) {
     /** @type {Record<string, unknown>} */
@@ -135,14 +152,7 @@ function resolvePullTabCatalogContext(scene) {
         .split(/[:]/)[0]
         .trim() || 'mega-monster';
 
-    const operatorMessage =
-        typeof smCfg?.message === 'string' && smCfg.message.trim()
-            ? smCfg.message.trim()
-            : typeof gc.message === 'string' && gc.message.trim()
-              ? gc.message.trim()
-              : undefined;
-
-    return { paytableId, creditValueMinor, theme, operatorMessage };
+    return { paytableId, creditValueMinor, theme };
 }
 
 /** @returns {Promise<object|null>} */
@@ -185,9 +195,7 @@ async function fetchIconsAtlasJson(themeName) {
  */
 export async function pullTabGameInfoContent(scene) {
     const currency = getActiveCurrencyCode();
-    const { paytableId, creditValueMinor, theme, operatorMessage } = resolvePullTabCatalogContext(scene);
-
-    const denomLabel = formatCreditValueOptionLabel(creditValueMinor, currency);
+    const { paytableId, creditValueMinor, theme } = resolvePullTabCatalogContext(scene);
 
     let atlasJson = await fetchIconsAtlasJson(theme);
     if (!atlasJson) {
@@ -211,25 +219,8 @@ export async function pullTabGameInfoContent(scene) {
     }
 
     const rtpStr = formatRtpForDisplay(payMeta?.rtp);
-    const ticketPoolSize =
-        typeof payMeta?.ticketPoolSize === 'number' && Number.isFinite(payMeta.ticketPoolSize)
-            ? Math.round(payMeta.ticketPoolSize)
-            : null;
-    const totalWinningTickets =
-        typeof payMeta?.totalWinningTickets === 'number' && Number.isFinite(payMeta.totalWinningTickets)
-            ? Math.round(payMeta.totalWinningTickets)
-            : null;
-    const losersInDeal =
-        typeof payMeta?.losersInDeal === 'number' && Number.isFinite(payMeta.losersInDeal)
-            ? Math.round(payMeta.losersInDeal)
-            : null;
 
-    const poolBullet =
-        ticketPoolSize != null && ticketPoolSize > 0
-            ? `<li>Each ticket is drawn uniformly from a finite pool of <strong>${ticketPoolSize.toLocaleString(
-                  'en-US',
-              )}</strong> outcomes at this denomination.</li>`
-            : `<li>Each ticket is drawn uniformly from a finite pool configured for this paytable and denomination.</li>`;
+    const ticketPricePhrase = formatTicketPriceSentenceFragment(creditValueMinor, currency);
 
     /** @type {object[]} */
     const rawTiers = Array.isArray(payMeta?.awardTiers) ? payMeta.awardTiers : [];
@@ -266,10 +257,11 @@ export async function pullTabGameInfoContent(scene) {
                     ? `<span class="prize-sprite pulltab-paytable-icon" role="presentation" aria-hidden="true" style="${sprite.styleAttr}"></span>`
                     : '<span class="pulltab-paytable-icon-missing" aria-hidden="true"></span>';
 
-            /** Three icons to mirror a triple-on-row win. */
+            /** Three icons to mirror a triple-on-row win; single dash before payout amount only. */
             const iconsTriple =
                 `<div class="pulltab-paytable-icons-triple" role="presentation" aria-hidden="true">` +
-                `${iconMarkup}${iconMarkup}${iconMarkup}</div>`;
+                `${iconMarkup}${iconMarkup}${iconMarkup}</div>` +
+                `<span aria-hidden="true"> - </span>`;
 
             const payoutMinor = payoutMinorForAwardTier(tier, creditValueMinor);
             const payoutStr =
@@ -297,37 +289,9 @@ export async function pullTabGameInfoContent(scene) {
         }
     }
 
-    const poolParts = [];
-    if (ticketPoolSize != null) {
-        poolParts.push(`${ticketPoolSize.toLocaleString()} total tickets`);
-    }
-    if (totalWinningTickets != null) {
-        poolParts.push(`${totalWinningTickets.toLocaleString()} winning tickets`);
-    }
-    if (losersInDeal != null) {
-        poolParts.push(`${losersInDeal.toLocaleString()} losing tickets`);
-    }
-
-    let poolLine = '';
-    if (poolParts.length > 0) {
-        poolLine = `<p class="fineprint pulltab-paytable-meta">${esc(poolParts.join(' · '))}</p>`;
-    }
-
     let rtpLine = '';
     if (rtpStr != null && rtpStr.length > 0) {
         rtpLine = `<p class="fineprint">Return to player (theoretical): <strong>${esc(rtpStr)}</strong>.</p>`;
-    }
-
-    const idLine =
-        paytableId != null && paytableId.length > 0
-            ? `<p class="fineprint">Paytable ID: <code>${esc(paytableId)}</code></p>`
-            : '';
-
-    let messageBlock = '';
-    if (operatorMessage) {
-        messageBlock =
-            `<h3>This game</h3>` +
-            `<p>${esc(operatorMessage)}</p>`;
     }
 
     return (
@@ -336,12 +300,10 @@ export async function pullTabGameInfoContent(scene) {
         `<ul>` +
         `<li>Each ticket has several horizontal tabs. Peel or reveal each tab to uncover the symbols underneath.</li>` +
         `<li>This paytable pays when an entire winning row matches the same prize symbol (<strong>three of a kind on that row</strong>).</li>` +
-        `${poolBullet}` +
         `<li>To play another ticket, peel again after the outcome is settled (ticket cost applies each round).</li>` +
-        `<li>You can mute sound effects and music separately from the sound button on the toolbar.</li>` +
         `</ul>` +
         `<h3>Paytable</h3>` +
-        `<p>Payout amounts are for one ticket priced at <strong>${esc(denomLabel)}</strong>.</p>` +
+        `<p>Payout amounts are for one ticket priced at <strong>${esc(ticketPricePhrase)}</strong>.</p>` +
         `<table class="pulltab-paytable">` +
         `<thead><tr>` +
         `<th>Payouts</th>` +
@@ -350,11 +312,8 @@ export async function pullTabGameInfoContent(scene) {
         `<tbody>${tableRowsHtml.join('')}</tbody>` +
         `</table>` +
         rtpLine +
-        poolLine +
-        idLine +
         `<h3>General</h3>` +
-        `<p>Malfunctions void all pays and plays. Outcomes come from certified server-side RNG. Play responsibly and comply with applicable rules from your gaming operator.</p>` +
-        messageBlock
+        `<p>Malfunctions void all pays and plays. Outcomes come from certified server-side RNG. Play responsibly and comply with applicable rules from your gaming operator.</p>`
     );
 }
 
