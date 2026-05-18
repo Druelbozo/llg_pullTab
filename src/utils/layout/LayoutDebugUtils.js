@@ -1988,3 +1988,110 @@ export function drawScratchBackingGridDebug(params) {
 
     log(`ScratchBackingGridDebug: Card grid ${cols}×${rows} on backing (scratchArea ${scratchArea})`, 'layout');
 }
+
+/**
+ * Remove peel-card debug overlays (when toggling off or before redraw).
+ *
+ * @param {Phaser.Scene|null|undefined} scene
+ */
+export function clearPeelCardElementBounds(scene) {
+    if (!scene) {
+        return;
+    }
+    if (!scene.peelCardElementBoundsDebug?.length) {
+        scene.peelCardElementBoundsDebug = [];
+        return;
+    }
+    scene.peelCardElementBoundsDebug.forEach((item) => {
+        if (item.graphics) {
+            item.graphics.clear();
+            item.graphics.destroy();
+        }
+        if (item.labelText) {
+            item.labelText.destroy();
+        }
+    });
+    scene.peelCardElementBoundsDebug = [];
+}
+
+/**
+ * Pull-tab peel card surface: `cardBack` NineSlice, card cover image, each Peel strip row, each prize label text.
+ * Toggle with `GameConfig.debug.SHOW_PEEL_CARD_VISUAL_DEBUGGING` (keyboard `w` when shortcuts enabled).
+ *
+ * @param {{ scene: Phaser.Scene, peelCard: Phaser.GameObjects.Container|null|undefined }} params
+ */
+export function drawPeelCardElementBounds(params) {
+    const { scene, peelCard } = params;
+    clearPeelCardElementBounds(scene);
+
+    if (!GameConfig.debug.SHOW_PEEL_CARD_VISUAL_DEBUGGING) {
+        return;
+    }
+    if (!scene || !peelCard?.active) {
+        return;
+    }
+
+    /** @type {{ graphics: Phaser.GameObjects.Graphics, labelText: Phaser.GameObjects.Text, elementName: string }[]} */
+    const items = [];
+
+    /**
+     * @param {Phaser.GameObjects.GameObject|null|undefined} go
+     * @param {string} name
+     * @param {number} color
+     */
+    const addBounds = (go, name, color) => {
+        if (!go || !go.active) return;
+        let bounds;
+        try {
+            bounds = typeof go.getBounds === 'function' ? go.getBounds() : null;
+        } catch (err) {
+            debug(`PeelCardElementBounds: getBounds failed for ${name}`, 'layout', err);
+            return;
+        }
+        if (!bounds || bounds.width <= 0 || bounds.height <= 0) {
+            return;
+        }
+
+        const graphics = scene.add.graphics();
+        graphics.lineStyle(2, color, 1);
+        graphics.strokeRect(bounds.x, bounds.y, bounds.width, bounds.height);
+        graphics.setDepth(100010);
+        graphics.setVisible(true);
+
+        const label = scene.add.text(
+            bounds.x + bounds.width / 2,
+            bounds.y - 14,
+            `${name}\n${bounds.width.toFixed(0)}×${bounds.height.toFixed(0)}`,
+            {
+                font: '11px Arial',
+                fill: `#${color.toString(16).padStart(6, '0')}`,
+                backgroundColor: '#000000',
+                padding: { x: 3, y: 2 },
+            },
+        );
+        label.setOrigin(0.5, 1);
+        label.setDepth(100011);
+
+        items.push({ graphics, labelText: label, elementName: name });
+    };
+
+    addBounds(peelCard.cardBack, 'cardBack', 0xff5555);
+    addBounds(peelCard.dI_CardCover_Default, 'cardCover', 0x55ff55);
+
+    const peelList = peelCard.peelContainer?.list;
+    if (Array.isArray(peelList)) {
+        peelList.forEach((tab, i) => {
+            addBounds(tab, `peelRow[${i}]`, 0x5555ff);
+        });
+    }
+
+    const prizeList = peelCard.prizeContainer?.list;
+    if (Array.isArray(prizeList)) {
+        prizeList.forEach((row, i) => {
+            addBounds(row, `prizeLabel[${i}]`, 0xffcc00);
+        });
+    }
+
+    scene.peelCardElementBoundsDebug = items;
+    log(`PeelCardElementBounds: drew ${items.length} debug rects`, 'layout');
+}

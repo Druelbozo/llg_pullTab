@@ -36,7 +36,7 @@ export const GameConfig = {
          * When `false`, the left-column payout strings (`gameConfig.prizes`) beside each Peel row are not created.
          * `true` or omitted → same as legacy (labels shown).
          */
-        SHOW_PEEL_PRIZE_LABELS: false,
+        SHOW_PEEL_PRIZE_LABELS: true,
 
         SESSION_DEMO_BALANCE: 10000
     },
@@ -53,6 +53,7 @@ export const GameConfig = {
         SHOW_DEBUG_OVERLAY: null,
         SHOW_CONTROL_BAR_VISUAL_DEBUGGING: false,
         SHOW_CARD_CONTAINER_VISUAL_DEBUGGING: false,
+        SHOW_PEEL_CARD_VISUAL_DEBUGGING: false,
         SHOW_SCRATCH_BACKING_GRID_VISUAL_DEBUGGING: false,
         SHOW_AUTO_PLAY_OPTIONS_VISUAL_DEBUGGING: false,
         SHOW_PRELOAD_VISUAL_DEBUGGING: false,

@@ -18,7 +18,10 @@ import {
 	applyPullTabControlBarLayoutFromScene,
 } from "../services/pulltab/PullTabControlBarBootstrap.js";
 import AudioService from "../services/game/AudioService.js";
+import InputManager from "../services/system/InputManager.js";
 import { GameConfig } from "../config/Global.js";
+import { log } from "../utils/logger/LoggerUtils.js";
+import { drawPeelCardElementBounds } from "../utils/layout/LayoutDebugUtils.js";
 import {
 	calculateCoverScale,
 	getSpriteNaturalTextureSize,
@@ -140,6 +143,9 @@ export default class Level extends Phaser.Scene {
 	/** @type {Phaser.GameObjects.Container} */
 	peelCard;
 
+	/** @type {import('../services/system/InputManager.js').default|null} */
+	inputManager;
+
 	/* START-USER-CODE */
 
 	_backdropCoverRetryCount = 0;
@@ -213,6 +219,7 @@ export default class Level extends Phaser.Scene {
 		});
 
 		bootstrapPullTabControlBar(this);
+		this._setupVisualDebugShortcuts();
 		this.events.emit("scene-awake");
 
 		this.time.delayedCall(0, () => this._syncPullTabBackdropCover());
@@ -224,6 +231,45 @@ export default class Level extends Phaser.Scene {
 	resize() {
 		this._syncPullTabBackdropCover();
 		applyPullTabControlBarLayoutFromScene(this);
+		if (GameConfig.debug.SHOW_PEEL_CARD_VISUAL_DEBUGGING) {
+			drawPeelCardElementBounds({ scene: this, peelCard: this.peelCard });
+		}
+	}
+
+	/**
+	 * Scratch-style `q` (control bar) / `w` (peel card) when ENABLE_VISUAL_DEBUG_SHORTCUTS is true.
+	 */
+	_setupVisualDebugShortcuts() {
+		if (!GameConfig.debug.ENABLE_VISUAL_DEBUG_SHORTCUTS) {
+			return;
+		}
+		this.inputManager = new InputManager(this);
+
+		/** @param {KeyboardEvent} e */
+		const allowShortcut = (e) => {
+			const t = /** @type {HTMLElement|null} */ (e.target);
+			return !(t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA'));
+		};
+
+		this.inputManager.registerShortcut('q', (e) => {
+			if (!allowShortcut(e)) return;
+			GameConfig.debug.SHOW_CONTROL_BAR_VISUAL_DEBUGGING = !GameConfig.debug.SHOW_CONTROL_BAR_VISUAL_DEBUGGING;
+			log(
+				`Control bar visual debugging: ${GameConfig.debug.SHOW_CONTROL_BAR_VISUAL_DEBUGGING ? 'ON' : 'OFF'}`,
+				'layout',
+			);
+			applyPullTabControlBarLayoutFromScene(this);
+		});
+
+		this.inputManager.registerShortcut('w', (e) => {
+			if (!allowShortcut(e)) return;
+			GameConfig.debug.SHOW_PEEL_CARD_VISUAL_DEBUGGING = !GameConfig.debug.SHOW_PEEL_CARD_VISUAL_DEBUGGING;
+			log(
+				`Peel card visual debugging: ${GameConfig.debug.SHOW_PEEL_CARD_VISUAL_DEBUGGING ? 'ON' : 'OFF'}`,
+				'layout',
+			);
+			drawPeelCardElementBounds({ scene: this, peelCard: this.peelCard });
+		});
 	}
 
 	/**
