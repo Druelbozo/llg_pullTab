@@ -73,6 +73,52 @@ export function setDebugCategories(categories) {
     });
 }
 
+/** Keys matched by `GameConfig.debug.SHOW_LOG_CATEGORIES` (and {@link applyLoggingFromGameConfig}). */
+export const LOGGER_DEBUG_CATEGORY_KEYS = Object.freeze(
+    ['api', 'theme', 'layout', 'ui', 'game', 'assets'],
+);
+
+/**
+ * Apply `debug.SHOW_LOG_CATEGORIES` from game config (scratch-cards style). Call once at boot before scenes.
+ *
+ * - `[]` — disable all categories, `debugEnabled: false`, `logLevel: 'warn'`.
+ * - `['all']` — every category on, `debugEnabled: true`, `logLevel: 'debug'`.
+ * - `['theme', 'api', ...]` — only those categories on (subset of {@link LOGGER_DEBUG_CATEGORY_KEYS}).
+ *
+ * @param {{ debug?: { SHOW_LOG_CATEGORIES?: string[] } }|null|undefined} cfg - typically {@link GameConfig}
+ */
+export function applyLoggingFromGameConfig(cfg) {
+    if (!cfg || typeof cfg !== 'object' || !cfg.debug) {
+        return;
+    }
+    const raw = cfg.debug.SHOW_LOG_CATEGORIES;
+    if (!Array.isArray(raw)) {
+        return;
+    }
+
+    /** @type {Record<string, boolean>} */
+    const next = {};
+    if (raw.length === 0) {
+        for (const k of LOGGER_DEBUG_CATEGORY_KEYS) {
+            next[k] = false;
+        }
+        setDebugCategories(next);
+        configureLogger({ debugEnabled: false, logLevel: 'warn' });
+        return;
+    }
+
+    const wantsAll = raw.includes('all');
+    for (const k of LOGGER_DEBUG_CATEGORY_KEYS) {
+        next[k] = wantsAll || raw.includes(k);
+    }
+    setDebugCategories(next);
+    const anyOn = wantsAll || LOGGER_DEBUG_CATEGORY_KEYS.some((k) => next[k]);
+    configureLogger({
+        debugEnabled: anyOn,
+        logLevel: anyOn ? 'debug' : 'warn',
+    });
+}
+
 /**
  * Get current debug category configuration
  * @returns {Object} Copy of current category settings

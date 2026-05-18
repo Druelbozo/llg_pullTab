@@ -6,6 +6,13 @@ const USE_QUIET_LOG_CATEGORIES =
     (typeof __LLG_QUIET_LOG_CATEGORIES__ !== 'undefined' && __LLG_QUIET_LOG_CATEGORIES__) ||
     import.meta.env.PRODUCTION;
 
+/**
+ * Default for `debug.SHOW_LOG_CATEGORIES` in dev (see `applyLoggingFromGameConfig` in LoggerUtils.js).
+ *
+ * - **`[]`** — quiet: all logger categories off; raw `console` mirroring reduced when `initializeConsoleCapture()` runs from main.js.
+ * - **`['all']`** — every category on (`api`, `theme`, `layout`, `ui`, `game`, `assets`).
+ * - **`['theme', 'assets']`** — enable only listed categories (scratch-cards style tuning).
+ */
 const SHOW_LOG_CATEGORIES_DEVELOPMENT = ['all'];
 
 export const GameConfig = {
@@ -60,6 +67,7 @@ export const GameConfig = {
         SHOW_AUTO_PLAY_OPTIONS_VISUAL_DEBUGGING: false,
         SHOW_PRELOAD_VISUAL_DEBUGGING: false,
         ENABLE_VISUAL_DEBUG_SHORTCUTS: !USE_QUIET_LOG_CATEGORIES,
+        /** See `SHOW_LOG_CATEGORIES_DEVELOPMENT` (top of this file). Wired by {@link applyLoggingFromGameConfig}. */
         SHOW_LOG_CATEGORIES: USE_QUIET_LOG_CATEGORIES ? [] : SHOW_LOG_CATEGORIES_DEVELOPMENT,
     },
     /**

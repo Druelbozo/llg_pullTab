@@ -8,7 +8,11 @@ import PullTabsService from '../../services/api/PullTabsService.js';
 import { GameConfig } from '../../config/Global.js';
 import { normalizePullTabsBuy } from '../../utils/game/pullTabBuyDisplay.js';
 import { maxPayoutMinorFromAwardTiers } from '../../utils/game/pullTabAwardTierUtils.js';
-import { formatPullTabBannerMessage } from '../../utils/formatting/FormattingUtils.js';
+import {
+	formatPullTabBannerMessage,
+	economyMinorToWalletMinors,
+} from '../../utils/formatting/FormattingUtils.js';
+import { warn, error as logErr } from '../../utils/logger/LoggerUtils.js';
 /* END-USER-IMPORTS */
 
 export default class ServerManager extends Phaser.GameObjects.Container {
@@ -108,14 +112,16 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 		);
 		const priceMinor = Number.isFinite(creditMinor) && creditMinor > 0 ? creditMinor : 100;
 
+		const walletDebitMinor = economyMinorToWalletMinors(priceMinor);
+
 		if (!isSession && paytableId.length === 0) {
-			console.error("[ServerManager] Non-session pull-tabs buy requires paytableId in game config.");
+			logErr('[ServerManager] Non-session pull-tabs buy requires paytableId in game config.', 'api');
 			stateMgr?.setState("ready", "ServerManager: missing paytableId");
 			return false;
 		}
 
 		const balancePennies = Math.round(this.balance * 100);
-		if (balancePennies < priceMinor) {
+		if (balancePennies < walletDebitMinor) {
 			stateMgr?.setState("ready", "ServerManager: insufficient balance");
 			return false;
 		}
@@ -146,9 +152,9 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 
 			if (isSession && hasBob) {
 				this.balance = Math.round(Number(bobRaw)) / 100;
-				this._emitBalanceMinorUpdate(false);
+				this._emitBalanceMinorUpdate(true, prevMinor);
 			} else if (!isFreePlay) {
-				this.balance -= priceMinor / 100;
+				this.balance -= walletDebitMinor / 100;
 				this._emitBalanceMinorUpdate(true, prevMinor);
 			}
 
@@ -176,7 +182,7 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 
 			return true;
 		} catch (err) {
-			console.warn("[ServerManager] pull-tabs buy failed", err);
+			warn(`[ServerManager] pull-tabs buy failed: ${err?.message ?? err}`, 'api', err);
 			stateMgr?.setState(
 				"ready",
 				"ServerManager: buy failed"
@@ -190,8 +196,9 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 		if (!Number.isFinite(payout) || payout <= 0) {
 			return false;
 		}
+		const walletCreditMinor = economyMinorToWalletMinors(payout);
 		const startMinor = Math.round(this.balance * 100);
-		this.balance += payout / 100;
+		this.balance += walletCreditMinor / 100;
 		this._emitBalanceMinorUpdate(true, startMinor, {
 			stopLoopingOnBalanceTweenComplete: true,
 		});

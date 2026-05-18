@@ -7,6 +7,11 @@ import ResizeHandler from "./utils/game/ResizeHandler.js";
 import ViewportHelper from "./utils/ui/ViewportHelper.js";
 import ProviderAPIService from "./services/api/ProviderAPIService.js";
 import { GameConfig } from "./config/Global.js";
+import { applyLoggingFromGameConfig, warn, error as logErr } from "./utils/logger/LoggerUtils.js";
+import { initializeConsoleCapture } from "./utils/logger/ConsoleCapture.js";
+
+applyLoggingFromGameConfig(GameConfig);
+initializeConsoleCapture();
 
 const DEFAULT_UI_COPY = {
 	type: "Normal",
@@ -55,13 +60,13 @@ window.addEventListener('load', async function () {
 			if (!config) {
 				const name = getSelectedConfigName() || DEFAULT_CONFIG;
 				config = mergePullTabConfig({ theme: name }, {});
-				console.warn('Game config failed to load, using fallback theme:', name);
+				warn(`Game config failed to load, using fallback theme: ${name}`, 'game');
 			} else {
 				config = mergePullTabConfig(config, {});
 			}
 			window.__selectedGameConfig = config;
 		} catch (err) {
-			console.error('Failed to load game config:', err);
+			logErr(`Failed to load game config: ${err?.message ?? err}`, 'game', err);
 			window.__selectedGameConfig = mergePullTabConfig({ theme: 'mega-monster' }, {});
 		}
 	}
@@ -182,7 +187,7 @@ class Boot extends Phaser.Scene {
 					this.registry.set('preloadOperatorBalance', GameConfig.game.SESSION_DEMO_BALANCE_MINOR);
 				}
 			} catch (err) {
-				console.error('Boot: Failed to fetch session:', err);
+				logErr(`Boot: Failed to fetch session: ${err?.message ?? err}`, 'api', err);
 				window.__sessionId = null;
 				try {
 					const { loadSelectedConfig } = await import('./config/game/game-config.js');

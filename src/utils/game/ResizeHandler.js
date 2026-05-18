@@ -1,4 +1,5 @@
 import ViewportHelper from '../ui/ViewportHelper.js';
+import { log, warn } from '../logger/LoggerUtils.js';
 
 /**
  * ResizeHandler - Reusable utility for handling window resize events in Phaser games
@@ -34,7 +35,7 @@ export default class ResizeHandler {
      */
     constructor(game, config = {}) {
         if (!game || !game.scale) {
-            console.warn('⚠️ ResizeHandler: Game instance or scale manager not available');
+            warn('ResizeHandler: Game instance or scale manager not available', 'layout');
             return;
         }
 
@@ -77,7 +78,7 @@ export default class ResizeHandler {
                 this.game.scale.resize(newWidth, newHeight);
                 
                 if (this.config.enableLogging) {
-                    console.log(`📱 Game resized to: ${newWidth}x${newHeight}`);
+                    log(`ResizeHandler: game resized ${newWidth}x${newHeight}`, 'layout');
                 }
                 
                 // Trigger resize event on Phaser scale manager to ensure scenes get notified
@@ -133,7 +134,7 @@ export default class ResizeHandler {
         this.pollingInterval = setInterval(checkResize, this.config.pollingInterval);
         
         if (this.config.enableLogging) {
-            console.log('✅ ResizeHandler: Resize handler set up');
+            log('ResizeHandler: resize listeners active', 'layout');
         }
     }
 
@@ -169,7 +170,7 @@ export default class ResizeHandler {
         this.game = null;
         
         if (this.config.enableLogging) {
-            console.log('✅ ResizeHandler: Cleaned up');
+            log('ResizeHandler: cleaned up', 'layout');
         }
     }
 }

@@ -13,6 +13,7 @@ import {
 	applyPeelCardBackTintFromTheme,
 	layoutPeelCardHorizontalContentInset,
 } from "../../utils/theme/PeelCardThemeUtils.js";
+import { warn } from "../../utils/logger/LoggerUtils.js";
 /* END-USER-IMPORTS */
 
 export default class PeelCard extends Phaser.GameObjects.Container {
@@ -256,7 +257,7 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 			tab.reset();
 			const triple = tabs[i];
 			if (!triple || triple.length < 3) {
-				console.warn("[PeelCard] Missing tab triple for row", i, session);
+				warn('[PeelCard] Missing tab triple for row', 'game', i, session);
 			}
 			tab.init(Array.isArray(triple) ? triple : undefined);
 			tab.enabled = true;

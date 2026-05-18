@@ -4,6 +4,7 @@
 /* START OF COMPILED CODE */
 
 /* START-USER-IMPORTS */
+import { log } from '../../utils/logger/LoggerUtils.js';
 /* END-USER-IMPORTS */
 
 export default class MusicManager extends Phaser.GameObjects.Container {
@@ -72,7 +73,7 @@ export default class MusicManager extends Phaser.GameObjects.Container {
 			case "music":
 				if(!this.music[key])
 				{
-					console.log("Music Manager: Adding " + channel + " : " + key)
+					log(`MusicManager: adding channel=${channel} key=${key}`, 'assets');
 					let audio = this.scene.sound.add(key)
 					this.music[key] = audio;
 					this.music[key].setVolume(volume)
@@ -87,7 +88,7 @@ export default class MusicManager extends Phaser.GameObjects.Container {
 
 				if(!this.sfx[key])
 				{
-					console.log("Music Manager: Adding " + channel + " : " + key)
+					log(`MusicManager: adding channel=${channel} key=${key}`, 'assets');
 					let audio = this.scene.sound.add(key)
 					this.sfx[key] = audio;
 					this.sfx[key].setVolume(volume)

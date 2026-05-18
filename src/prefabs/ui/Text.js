@@ -4,6 +4,7 @@
 /* START OF COMPILED CODE */
 
 /* START-USER-IMPORTS */
+import { debug } from '../../utils/logger/LoggerUtils.js';
 /* END-USER-IMPORTS */
 
 export default class Text extends Phaser.GameObjects.Container {
@@ -91,7 +92,7 @@ export default class Text extends Phaser.GameObjects.Container {
 	initalizeDOMText()
 	{
 
-		if(this.debug) console.log(this.domText);
+		if(this.debug) debug('Text.domText', 'ui', this.domText);
 		this.regularText.visible = (false);
 		if(this.domText !== undefined) {return;}
 
@@ -160,7 +161,7 @@ export default class Text extends Phaser.GameObjects.Container {
 
 		if(this.visable != isVisible)
 		{
-			if(this.debug) console.log("Is Visable", isVisible)
+			if(this.debug) debug('Text visible', 'ui', isVisible);
 			if(isVisible)
 			{
 				this.init();

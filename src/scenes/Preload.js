@@ -10,6 +10,7 @@ import { mergeThemeWithDefault } from '../utils/theme/ThemeMergeUtils.js';
 import { googleFamilySpecsFromThemeFonts } from '../utils/theme/ThemeFontResolutionUtils.js';
 import { GameConfig } from '../config/Global.js';
 import { setEffectiveSfx } from '../utils/audio/SfxConfigUtils.js';
+import { log, warn, error as logErr } from '../utils/logger/LoggerUtils.js';
 /* END-USER-IMPORTS */
 
 export default class Preload extends Phaser.Scene {
@@ -115,7 +116,7 @@ export default class Preload extends Phaser.Scene {
 			if (this._themeImagesVerified.has(key)) return;
 			this._themeImagesLoaded++;
 			this._themeImagesVerified.add(key);
-			console.log(`[Preload] Theme asset loaded (${type}): "${key}" (${this._themeImagesLoaded}/${this._themeImagesTotal})`);
+			log(`[Preload] Theme asset loaded (${type}): "${key}" (${this._themeImagesLoaded}/${this._themeImagesTotal})`, 'assets');
 			this._checkAssetsReady();
 		});
 
@@ -151,7 +152,7 @@ export default class Preload extends Phaser.Scene {
 				if (w > 0 && h > 0) {
 					this._themeImagesLoaded++;
 					this._themeImagesVerified.add(key);
-					console.log(`[Preload] Theme texture in cache: "${key}" (${this._themeImagesLoaded}/${this._themeImagesTotal})`);
+					log(`[Preload] Theme texture in cache: "${key}" (${this._themeImagesLoaded}/${this._themeImagesTotal})`, 'assets');
 				}
 			}
 		}
@@ -172,7 +173,7 @@ export default class Preload extends Phaser.Scene {
 
 		if (allThemeImagesLoaded && !this._hasTransitioned) {
 			this._hasTransitioned = true;
-			console.log(`[Preload] All assets ready: theme images=${this._themeImagesLoaded}/${this._themeImagesTotal}`);
+			log(`[Preload] All assets ready: theme images=${this._themeImagesLoaded}/${this._themeImagesTotal}`, 'assets');
 			this.transitionToLevel();
 		}
 	}
@@ -213,7 +214,7 @@ export default class Preload extends Phaser.Scene {
 		const cfg = this.registry.get('preloadGameConfig') || (typeof window !== 'undefined' && window.__selectedGameConfig) || {};
 		const selectedTheme = cfg.theme || 'default';
 
-		console.log(`[Preload] Loading theme bundle: ${selectedTheme}`);
+		log(`[Preload] Loading theme bundle: ${selectedTheme}`, 'assets');
 
 		const cacheBuster = Date.now();
 		let defaultTheme = null;
@@ -223,17 +224,17 @@ export default class Preload extends Phaser.Scene {
 			const defaultResp = await fetch(`src/config/themes/default.json?t=${cacheBuster}`);
 			if (defaultResp.ok) {
 				defaultTheme = await defaultResp.json();
-				console.log('[Preload] default.json loaded');
+				log('[Preload] default.json loaded', 'assets');
 			} else {
-				console.warn('[Preload] default.json missing — theme merge may be incomplete');
+				warn('[Preload] default.json missing — theme merge may be incomplete', 'theme');
 			}
 
 			const themeResp = await fetch(`src/config/themes/${selectedTheme}.json?t=${cacheBuster}`);
 			if (themeResp.ok) {
 				themeOverride = await themeResp.json();
-				console.log(`[Preload] src/config/themes/${selectedTheme}.json loaded`);
+				log(`[Preload] src/config/themes/${selectedTheme}.json loaded`, 'assets');
 			} else if (selectedTheme !== 'default') {
-				console.warn(`[Preload] Theme "${selectedTheme}" not found (${themeResp.status})`);
+				warn(`[Preload] Theme "${selectedTheme}" not found (${themeResp.status})`, 'theme');
 			} else if (selectedTheme === 'default') {
 				themeOverride = defaultTheme;
 			}
@@ -253,18 +254,18 @@ export default class Preload extends Phaser.Scene {
 			}
 
 			if (this._themeImagesTotal > 0) {
-				console.log(`[Preload] Queued ${this._themeImagesTotal} theme asset(s)`);
-				console.log(`[Preload] Theme texture keys: [${Array.from(this._themeImageKeys).join(', ')}]`);
+				log(`[Preload] Queued ${this._themeImagesTotal} theme asset(s)`, 'assets');
+				log(`[Preload] Theme texture keys: [${Array.from(this._themeImageKeys).join(', ')}]`, 'assets');
 
 				if (!this.load.isLoading() && this.load.list.size > 0) {
-					console.log('[Preload] Loader idle with theme files queued, starting loader...');
+					log('[Preload] Loader idle with theme files queued, starting loader...', 'assets');
 					this.load.start();
 				}
 			} else {
-				console.log('[Preload] No theme imageKeys to queue');
+				log('[Preload] No theme imageKeys to queue', 'assets');
 			}
 		} catch (error) {
-			console.error('[Preload] Error loading themes', error);
+			logErr(`[Preload] Error loading themes: ${error?.message ?? error}`, 'assets', error);
 			this.registry.set('pullTabIconsLayout', {});
 			this._themeImagesQueued = true;
 		}
@@ -291,7 +292,7 @@ export default class Preload extends Phaser.Scene {
 				});
 			}
 		} catch (err) {
-			console.warn('[Preload] Icons layout fetch failed:', err?.message ?? err);
+			warn(`[Preload] Icons layout fetch failed: ${err?.message ?? err}`, 'assets', err);
 		}
 	}
 
@@ -299,7 +300,7 @@ export default class Preload extends Phaser.Scene {
 	{
 		const ik = themeData.imageKeys;
 		if (!ik || typeof ik !== 'object') {
-			console.warn('[Preload] themeData.imageKeys missing');
+			warn('[Preload] themeData.imageKeys missing', 'theme');
 		} else {
 			for (const [slotKey, stem] of Object.entries(ik)) {
 				if (stem === undefined || stem === null || stem === '') {
@@ -354,13 +355,13 @@ export default class Preload extends Phaser.Scene {
 			if (typeof stem === 'string' && stem.startsWith('http')) {
 				path = stem;
 			} else if (typeof stem !== 'string') {
-				console.warn('[Preload] Ignoring videoKeys slot:', slotKey, stem);
+				warn('[Preload] Ignoring videoKeys slot:', 'assets', slotKey, stem);
 				continue;
 			} else {
 				path = `assets/videos/${slotKey}/${stem}.mp4?t=${cacheBuster}`;
 			}
 
-			console.log(`[Preload] Queued theme video key="${slotKey}" path="${path}"`);
+			log(`[Preload] Queued theme video key="${slotKey}" path="${path}"`, 'assets');
 			this.load.video(slotKey, path, 'loadeddata', true);
 		}
 	}
@@ -368,7 +369,7 @@ export default class Preload extends Phaser.Scene {
 	queueIconsAtlas(phaserKey, atlasStem)
 	{
 		if (typeof atlasStem !== 'string' || atlasStem.startsWith('http')) {
-			console.warn('[Preload] Ignoring icons atlas stem:', atlasStem);
+			warn('[Preload] Ignoring icons atlas stem:', 'assets', atlasStem);
 			return;
 		}
 		this._themeImageKeys.add(phaserKey);
@@ -377,20 +378,20 @@ export default class Preload extends Phaser.Scene {
 		const cb = Date.now();
 		const png = `assets/images/theme/icons/${atlasStem}.png?t=${cb}`;
 		const json = `assets/images/theme/icons/${atlasStem}.json?t=${cb}`;
-		console.log(`[Preload] Queued icons atlas ${phaserKey} (${atlasStem})`);
+		log(`[Preload] Queued icons atlas ${phaserKey} (${atlasStem})`, 'assets');
 		this.load.atlas(phaserKey, png, json);
 	}
 
 	queueThemeMusic(musicData)
 	{
 		if (!musicData.audioKey || musicData.audioKey === '') {
-			console.log('[Preload] Skipping theme music — audioKey empty');
+			log('[Preload] Skipping theme music — audioKey empty', 'assets');
 			return;
 		}
 
 		const phaserKey = musicData.audioKey;
 		let audioPath = '';
-		console.log(`[Preload] Theme music audioKey="${musicData.audioKey}", Phaser key="${phaserKey}"`);
+		log(`[Preload] Theme music audioKey="${musicData.audioKey}", Phaser key="${phaserKey}"`, 'assets');
 
 		if (String(musicData.audioKey).startsWith('http')) {
 			audioPath = musicData.audioKey;
@@ -408,7 +409,7 @@ export default class Preload extends Phaser.Scene {
 
 		// If loader is idle but has files queued, start it (handles theme images queued after asset-pack)
 		if (!this.load.isLoading() && this.load.list.size > 0) {
-			console.log('[Preload] Loader idle with files queued, starting loader...');
+			log('[Preload] Loader idle with files queued, starting loader...', 'assets');
 			this.load.start();
 		}
 
@@ -431,7 +432,7 @@ export default class Preload extends Phaser.Scene {
 			const checkAndTransition = () => {
 				const elapsed = Date.now() - waitStartTime;
 				if (elapsed > MAX_WAIT_TIME) {
-					console.warn(`[Preload] Timeout after ${elapsed}ms - forcing transition (${this._themeImagesLoaded}/${this._themeImagesTotal})`);
+					warn(`[Preload] Timeout after ${elapsed}ms - forcing transition (${this._themeImagesLoaded}/${this._themeImagesTotal})`, 'assets');
 					if (!this._hasTransitioned) {
 						this._hasTransitioned = true;
 						this.transitionToLevel();

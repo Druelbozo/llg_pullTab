@@ -6,6 +6,7 @@
 /* START-USER-IMPORTS */
 import { mergeThemeWithDefault } from '../../utils/theme/ThemeMergeUtils.js';
 import { defaultControlBarFontFamilyFromTheme } from '../../utils/theme/ThemeFontResolutionUtils.js';
+import { log, warn } from '../../utils/logger/LoggerUtils.js';
 /* END-USER-IMPORTS */
 
 export default class ThemeManager extends Phaser.GameObjects.Container {
@@ -28,13 +29,13 @@ export default class ThemeManager extends Phaser.GameObjects.Container {
 	{
 		const cfg = this.scene.registry.get('preloadGameConfig') || (typeof window !== 'undefined' && window.__selectedGameConfig) || {};
 		const selectedOptions = cfg.theme || 'default';
-		console.log('ThemeManager init:', selectedOptions);
+		log(`ThemeManager init theme=${selectedOptions}`, 'theme');
 
 		let optionsData = this.scene.registry.get('preloadThemeData');
 		const cacheBuster = Date.now();
 
 		if (!optionsData || typeof optionsData !== 'object' || Object.keys(optionsData).length === 0) {
-			console.warn('ThemeManager: preloadThemeData missing, fetching default + theme');
+			warn('ThemeManager: preloadThemeData missing, fetching default + theme', 'theme');
 			let def = {};
 			let ov = {};
 			try {
@@ -43,7 +44,7 @@ export default class ThemeManager extends Phaser.GameObjects.Container {
 				const thRes = await fetch(`src/config/themes/${selectedOptions}.json?t=${cacheBuster}`);
 				if (thRes.ok) ov = await thRes.json();
 			} catch (e) {
-				console.warn('ThemeManager fallback fetch failed', e);
+				warn('ThemeManager fallback fetch failed', 'theme', e);
 			}
 			optionsData = mergeThemeWithDefault(def, ov);
 			this.scene.registry.set('preloadThemeData', optionsData);
@@ -74,7 +75,7 @@ export default class ThemeManager extends Phaser.GameObjects.Container {
 			return;
 		}
 
-		console.log('Theme Failed');
+		log('ThemeManager: theme apply failed — no merged optionsData', 'theme');
 	}
 
 	/* END-USER-CODE */

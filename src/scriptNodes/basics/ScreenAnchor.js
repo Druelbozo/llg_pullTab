@@ -6,6 +6,7 @@
 import ScriptNode from "../../../phaserjs_editor_scripts_base/ScriptNode.js";
 /* START-USER-IMPORTS */
 import ViewportHelper from "../../utils/ui/ViewportHelper.js";
+import { debug, log } from "../../utils/logger/LoggerUtils.js";
 /* END-USER-IMPORTS */
 
 export default class ScreenAnchor extends ScriptNode {
@@ -73,7 +74,7 @@ export default class ScreenAnchor extends ScriptNode {
 
 		// Debug: Log if this is rectangle_3 or gameBar
 		if(this.gameObject.name === 'rectangle_3' || (this.gameObject.parent && this.gameObject.parent.name === 'gameBar')) {
-			console.log('[ScreenAnchor.awake] Initializing:', {
+			log('[ScreenAnchor.awake] Initializing', 'layout', {
 				element: this.gameObject.name || 'unnamed',
 				originalX: this.gameObject.x,
 				originalY: this.gameObject.y,
@@ -92,7 +93,7 @@ export default class ScreenAnchor extends ScriptNode {
 		if(this.gameObject.body)
 		{
 			this.bodyRadius = this.gameObject.body.radius;
-			console.log(this.bodyRadius);
+			debug(`ScreenAnchor bodyRadius=${this.bodyRadius}`, 'layout');
 		}
 
 		// Only set up event listeners if position or scale is enabled
@@ -160,7 +161,7 @@ export default class ScreenAnchor extends ScriptNode {
 
 			// Debug: Log if this is rectangle_3 or gameBar being positioned
 			if(this.gameObject.name === 'rectangle_3' || (this.gameObject.parent && this.gameObject.parent.name === 'gameBar')) {
-				console.log('[ScreenAnchor.onChangeScreen] Positioning element:', {
+				log('[ScreenAnchor.onChangeScreen] Positioning element', 'layout', {
 					element: this.gameObject.name || 'unnamed',
 					position: this.position,
 					heightPos: this.heightPos,
@@ -207,8 +208,10 @@ export default class ScreenAnchor extends ScriptNode {
 
 		}
 
-		if(this.debug){console.log(this.name, "Position: ", this.gameObject.x, this.gameObject.y)}
-		if(this.debug){console.log(this.name, "Scale: ",this.gameObject.scaleX, this.gameObject.scaleY)}
+		if(this.debug){
+			debug(`${this.name} position ${this.gameObject.x} ${this.gameObject.y}`, 'layout');
+			debug(`${this.name} scale ${this.gameObject.scaleX} ${this.gameObject.scaleY}`, 'layout');
+		}
 		// Removed debug log for width/height to reduce console noise
 	}
 

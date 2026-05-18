@@ -4,6 +4,7 @@
 /* START OF COMPILED CODE */
 
 /* START-USER-IMPORTS */
+import { log } from '../../utils/logger/LoggerUtils.js';
 /* END-USER-IMPORTS */
 
 export default class StateManager extends Phaser.GameObjects.Container {
@@ -22,7 +23,7 @@ export default class StateManager extends Phaser.GameObjects.Container {
 	// Write your code here.
 	setState(state, ctx)
 	{
-		console.log("StateManager: Changing State To: -" + state + "- from: -" + this.state + "- Context: " + ctx);
+		log(`StateManager: ${this.state} → ${state} (${ctx})`, 'game');
 		this.state = state;
 		this.scene.events.emit("onStateChanged", this.state); 
 	}

@@ -6,6 +6,7 @@
 /* START-USER-IMPORTS */
 import { GameConfig } from '../../config/Global.js';
 import HapticUtils from '../../utils/device/HapticUtils.js';
+import { log, warn } from '../../utils/logger/LoggerUtils.js';
 /* END-USER-IMPORTS */
 
 export default class PeelManager extends Phaser.GameObjects.Container {
@@ -101,8 +102,8 @@ export default class PeelManager extends Phaser.GameObjects.Container {
 
 		if(success)
 		{
-			this.stateManager.setState("playing", "PeelManager -  Player has enough currency, starting game")
-				console.log(this.autoMode);
+			this.stateManager.setState("playing", "PeelManager -  Player has enough currency, starting game");
+			log(`PeelManager buy ok autoMode=${this.autoMode}`, 'game');
 
 			if(this.autoMode)
 			{
@@ -112,7 +113,7 @@ export default class PeelManager extends Phaser.GameObjects.Container {
 		else
 		{
 			// ServerManager.buy() returns false for insufficient balance *and* API/network failures — avoid implying funds only.
-			console.warn("[PeelManager] Buy did not start (insufficient balance, validation error, or API failure — see ServerManager logs)");
+			warn('[PeelManager] Buy did not start (insufficient balance, validation error, or API failure — see ServerManager logs)', 'game');
 			this.stateManager?.setState("ready", "PeelManager: buy did not complete");
 		}
 
@@ -121,7 +122,7 @@ export default class PeelManager extends Phaser.GameObjects.Container {
 	checkResults()
 	{
 		const session = this.scene.serverManager.gameSession;
-		console.log("Checking Results...", session?.rows ?? session);
+		log('PeelManager checkResults', 'game', session?.rows ?? session);
 
 		const payoutMinor = Math.round(Number(session?.payoutMinor ?? 0));
 		const winMinor = payoutMinor;
@@ -157,7 +158,7 @@ export default class PeelManager extends Phaser.GameObjects.Container {
 		if(this.autoMode)
 		{
 			this.autoRoundsLeft--
-			console.log("Auto Rounds Left: " + this.autoRoundsLeft)
+			log(`PeelManager auto rounds left=${this.autoRoundsLeft}`, 'game');
 			this.scene.time.delayedCall(3000 / this.speed, () => this.stateManager.setState("reset", "PeelManager -  Resetting Game"))
 		}
 	}
@@ -175,7 +176,7 @@ export default class PeelManager extends Phaser.GameObjects.Container {
 		this.autoRounds = rounds;
 		this.autoRoundsLeft = this.autoRounds;
 
-		console.log("AUTOMODE: " + this.autoMode + ", ROUNDS: " + rounds);
+		log(`PeelManager setAuto autoMode=${this.autoMode} rounds=${rounds}`, 'game');
 		this.scene.events.emit("onAutoChanged", this.autoMode);
 	}
 

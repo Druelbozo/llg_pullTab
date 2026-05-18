@@ -1,6 +1,7 @@
 import { getUrlParam } from '../../utils/browser/UrlUtils.js';
 import { fetchWithTimeout } from '../../utils/network/fetchWithTimeout.js';
 import { GameConfig } from '../../config/Global.js';
+import { log, warn, error as logErr } from '../../utils/logger/LoggerUtils.js';
 
 const SESSION_FETCH_TIMEOUT_MS = 15000;
 const SESSION_CACHE_DURATION_MS = 5000;
@@ -34,7 +35,7 @@ export default class ProviderAPIService {
             this.sessionId = sessionId;
             this.mode = mode === 'real' ? 'real' : 'demo';
             this.isSessionMode = true;
-            console.log('[ProviderAPIService] Session mode', { sessionId: this.sessionId, mode: this.mode });
+            log(`[ProviderAPIService] Session mode sessionId=${this.sessionId} mode=${this.mode}`, 'api');
         }
     }
 
@@ -58,7 +59,7 @@ export default class ProviderAPIService {
         if (this.providerSessionData && this.providerSessionCacheTime) {
             const cacheAge = now - this.providerSessionCacheTime;
             if (cacheAge < SESSION_CACHE_DURATION_MS) {
-                console.log('[ProviderAPIService] Using cached session');
+                log('[ProviderAPIService] Using cached session', 'api');
                 return this.providerSessionData;
             }
         }
@@ -66,7 +67,7 @@ export default class ProviderAPIService {
         const baseUrl = this._getBaseUrl();
         const url = `${baseUrl}/provider/session`;
 
-        console.log('[ProviderAPIService] Fetching session', { url });
+        log(`[ProviderAPIService] Fetching session url=${url}`, 'api');
 
         try {
             const response = await fetchWithTimeout(url, {
@@ -84,16 +85,16 @@ export default class ProviderAPIService {
             this.providerSessionData = { ...sessionData, sessionId: this.sessionId };
             this.providerSessionCacheTime = now;
 
-            console.log('[ProviderAPIService] Session received', {
-                mode: sessionData.mode,
-                theme: sessionData.gameMetadata?.theme
-            });
+            log(
+                `[ProviderAPIService] Session received mode=${sessionData.mode} theme=${sessionData.gameMetadata?.theme ?? ''}`,
+                'api',
+            );
 
             return this.providerSessionData;
         } catch (err) {
-            console.error('[ProviderAPIService] Session fetch failed', err);
+            logErr(`[ProviderAPIService] Session fetch failed: ${err?.message ?? err}`, 'api', err);
             if (this.providerSessionData) {
-                console.warn('[ProviderAPIService] Using stale cached session');
+                warn('[ProviderAPIService] Using stale cached session', 'api');
                 return this.providerSessionData;
             }
             throw err;

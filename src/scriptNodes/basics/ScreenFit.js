@@ -6,6 +6,7 @@
 import ScriptNode from "../../../phaserjs_editor_scripts_base/ScriptNode.js";
 /* START-USER-IMPORTS */
 import ViewportHelper from "../../utils/ui/ViewportHelper.js";
+import { debug } from "../../utils/logger/LoggerUtils.js";
 /* END-USER-IMPORTS */
 
 export default class ScreenFit extends ScriptNode {
@@ -115,7 +116,7 @@ export default class ScreenFit extends ScriptNode {
 
 		let size = x <= y ? x : y;
 
-		console.log(y , x);
+		debug(`ScreenFit scale candidates y=${y} x=${x}`, 'layout');
 		this.gameObject.scaleX = size;
 		this.gameObject.scaleY = size;
 
