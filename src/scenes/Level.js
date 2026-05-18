@@ -17,6 +17,7 @@ import {
 	bootstrapPullTabControlBar,
 	applyPullTabControlBarLayoutFromScene,
 } from "../services/pulltab/PullTabControlBarBootstrap.js";
+import { setupPullTabDebugOverlay } from "../services/pulltab/PullTabDebugOverlayBootstrap.js";
 import AudioService from "../services/game/AudioService.js";
 import InputManager from "../services/system/InputManager.js";
 import { GameConfig } from "../config/Global.js";
@@ -219,6 +220,7 @@ export default class Level extends Phaser.Scene {
 		});
 
 		bootstrapPullTabControlBar(this);
+		setupPullTabDebugOverlay(this);
 		this._setupVisualDebugShortcuts();
 		this.events.emit("scene-awake");
 
@@ -237,7 +239,9 @@ export default class Level extends Phaser.Scene {
 	}
 
 	/**
-	 * Scratch-style `q` (control bar) / `w` (peel card) when ENABLE_VISUAL_DEBUG_SHORTCUTS is true.
+	 * Scratch-style dev shortcuts when `ENABLE_VISUAL_DEBUG_SHORTCUTS` is true (non-production):
+	 * Ctrl+I toggles Phaser `debugInfo` if defined; **1–7** open debug overlay panels / **Esc** closes (see `DebugOverlay`).
+	 * **Q** control bar bounds, **W** peel card bounds.
 	 */
 	_setupVisualDebugShortcuts() {
 		if (!GameConfig.debug.ENABLE_VISUAL_DEBUG_SHORTCUTS) {
@@ -250,6 +254,13 @@ export default class Level extends Phaser.Scene {
 			const t = /** @type {HTMLElement|null} */ (e.target);
 			return !(t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA'));
 		};
+
+		this.inputManager.registerShortcut('ctrl+i', (e) => {
+			if (!allowShortcut(e)) return;
+			if (this.debugInfo) {
+				this.debugInfo.visible = !this.debugInfo.visible;
+			}
+		});
 
 		this.inputManager.registerShortcut('q', (e) => {
 			if (!allowShortcut(e)) return;

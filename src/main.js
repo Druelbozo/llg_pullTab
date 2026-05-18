@@ -1,5 +1,6 @@
 import Level from "./scenes/Level.js";
 import Preload from "./scenes/Preload.js";
+import "./dom/debugOverlay/styles/debugOverlay.css";
 import "./dom/modal/styles/modal.css";
 import "./dom/soundOptions/styles/soundOptions.css";
 import "./dom/autoplayOptions/styles/autoplayOptions.css";

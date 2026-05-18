@@ -59,13 +59,14 @@ export const GameConfig = {
     debug: {
         SHOW_TEST_ERROR_MODAL: false,
         SHOW_TEST_LOGIN_MODAL: false,
-        SHOW_DEBUG_OVERLAY: null,
+        SHOW_DEBUG_OVERLAY: null, // 1=Game, 2=Layout (live), 3=Device, 4=Viewport (live), 5=Pull-tab assets/icons, 6=Console+log upload, 7=Log strip only. ESC hides. With key 6 launch: console.log mirror off + logger warn-only (see applyLoggingFromGameConfig).
         SHOW_CONTROL_BAR_VISUAL_DEBUGGING: false,
         SHOW_CARD_CONTAINER_VISUAL_DEBUGGING: false,
         SHOW_PEEL_CARD_VISUAL_DEBUGGING: false,
         SHOW_SCRATCH_BACKING_GRID_VISUAL_DEBUGGING: false,
         SHOW_AUTO_PLAY_OPTIONS_VISUAL_DEBUGGING: false,
         SHOW_PRELOAD_VISUAL_DEBUGGING: false,
+        // Dev: Ctrl+I toggles Phaser `debugInfo` if present; keys 1–7 = debug overlay panels when ENABLE_VISUAL_DEBUG_SHORTCUTS (see DebugOverlay). Q/W peel visual debug.
         ENABLE_VISUAL_DEBUG_SHORTCUTS: !USE_QUIET_LOG_CATEGORIES,
         /** See `SHOW_LOG_CATEGORIES_DEVELOPMENT` (top of this file). Wired by {@link applyLoggingFromGameConfig}. */
         SHOW_LOG_CATEGORIES: USE_QUIET_LOG_CATEGORIES ? [] : SHOW_LOG_CATEGORIES_DEVELOPMENT,

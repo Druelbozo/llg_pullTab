@@ -117,6 +117,11 @@ export function applyLoggingFromGameConfig(cfg) {
         debugEnabled: anyOn,
         logLevel: anyOn ? 'debug' : 'warn',
     });
+
+    /** Scratch-style console panel launch: tighten in-game logger; pairs with ConsoleCapture SHOW_DEBUG_OVERLAY===6. */
+    if (cfg.debug?.SHOW_DEBUG_OVERLAY === 6) {
+        configureLogger({ debugEnabled: false, logLevel: 'warn' });
+    }
 }
 
 /**
