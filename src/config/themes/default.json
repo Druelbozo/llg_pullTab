@@ -18,6 +18,9 @@
     "iconRowY": 50,
     "crossY": 50
   },
+  "peelCard": {
+    "cardBackTint": "#f5f5dc"
+  },
   "fonts": [
     {
       "family": "Titan One",

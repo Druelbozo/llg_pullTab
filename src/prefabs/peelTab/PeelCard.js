@@ -8,6 +8,8 @@ import Prefab_Results from "./Prefab_Results.js";
 import PeelCardEnterAnim from "./PeelCardEnterAnim.js";
 /* START-USER-IMPORTS */
 import Peel from "./Peel.js";
+import { GameConfig } from "../../config/Global.js";
+import { applyPeelCardBackTintFromTheme } from "../../utils/theme/PeelCardThemeUtils.js";
 /* END-USER-IMPORTS */
 
 export default class PeelCard extends Phaser.GameObjects.Container {
@@ -22,6 +24,7 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 		// cardBack
 		const cardBack = scene.add.nineslice(0, 0, "CardBack", undefined, 1000, 650, 10, 10, 10, 10);
 		gameContainer.add(cardBack);
+		this.cardBack = cardBack;
 
 		// prizeContainer
 		const prizeContainer = scene.add.container(0, -300);
@@ -94,6 +97,8 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 	messageText;
 	/** @type {Phaser.GameObjects.Container} */
 	gameContainer;
+	/** @type {Phaser.GameObjects.NineSlice|Phaser.GameObjects.Image} */
+	cardBack;
 	/** @type {PeelCardEnterAnim} */
 	peelCardEnterAnim;
 
@@ -114,6 +119,15 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 	init()
 	{
 		let tabSize = 0
+
+		const applyCardBackTint = () => {
+			applyPeelCardBackTintFromTheme(
+				this.cardBack,
+				this.scene.themeData || this.scene.registry.get('preloadThemeData'),
+			);
+		};
+		applyCardBackTint();
+		this.scene.events.on('onThemeInitalized', applyCardBackTint, this);
 
 		let config = this.scene.serverManager.gameConfig
 		const preloadCfg = this.scene.registry.get('preloadGameConfig') || {};
@@ -145,15 +159,23 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 
 		this.peelContainer.list.reverse();
 
-		for (let i = 0; i < peelRows; i++)
-		{
-			let prizeText = this.scene.add.text(0, 0, "", {});
-			prizeText.setOrigin(0.5, 0);
-			const plen = config.prizes?.length || 1;
-			prizeText.text = config.prizes[i % plen];
-			prizeText.setStyle({ "align": "center", "color": "#252525ff", "fontFamily": "Anton-Regular", "fontSize": "60px", "resolution": 2 });
-			this.prizeContainer.add(prizeText);
-			prizeText.y = 100 * i + this.textPadding;
+		const showPeelPrizeLabels = GameConfig.game.SHOW_PEEL_PRIZE_LABELS !== false;
+		if (showPeelPrizeLabels) {
+			for (let i = 0; i < peelRows; i++) {
+				const prizeText = this.scene.add.text(0, 0, "", {});
+				prizeText.setOrigin(0.5, 0);
+				const plen = config.prizes?.length || 1;
+				prizeText.text = config.prizes[i % plen];
+				prizeText.setStyle({
+					align: "center",
+					color: "#252525ff",
+					fontFamily: "Anton-Regular",
+					fontSize: "60px",
+					resolution: 2,
+				});
+				this.prizeContainer.add(prizeText);
+				prizeText.y = 100 * i + this.textPadding;
+			}
 		}
 
 

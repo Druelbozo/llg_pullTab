@@ -32,6 +32,12 @@ export const GameConfig = {
         SHOW_PLAYBUTTON_BUYIN_AMOUNT: true,
         START_MUTED: false,
 
+        /**
+         * When `false`, the left-column payout strings (`gameConfig.prizes`) beside each Peel row are not created.
+         * `true` or omitted → same as legacy (labels shown).
+         */
+        SHOW_PEEL_PRIZE_LABELS: false,
+
         SESSION_DEMO_BALANCE: 10000
     },
     ui: {
