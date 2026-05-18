@@ -27,6 +27,7 @@ import {
 import { getScreenWidth, getScreenHeight } from '../../utils/viewport/ViewportUtils.js';
 import { warn, error } from '../../utils/logger/LoggerUtils.js';
 import { drawControlBarBackgroundBounds } from '../../utils/layout/LayoutDebugUtils.js';
+import { computeAreaPercentUniformScale } from '../../utils/layout/CardContainerUtils.js';
 
 /**
  * Pull-tab bounds for background sizing (includes speed row).
@@ -284,11 +285,97 @@ function updatePullTabControlBarBackground(scene, layoutPositions, width, height
     drawControlBarBackgroundBounds({ scene, layoutPositions });
 }
 
+function getPullTabCardBackBaseDisplaySize(peelCard) {
+    const cb = peelCard?.cardBack;
+    const gc = peelCard?.gameContainer;
+    if (!cb) {
+        return { width: 1, height: 1 };
+    }
+    const gcsx = Math.abs(gc?.scaleX ?? 1);
+    const gcsy = Math.abs(gc?.scaleY ?? 1);
+    const bw = Math.abs((cb.width ?? 0) * (cb.scaleX ?? 1) * gcsx);
+    const bh = Math.abs((cb.height ?? 0) * (cb.scaleY ?? 1) * gcsy);
+    return {
+        width: Math.max(1, bw),
+        height: Math.max(1, bh),
+    };
+}
+
+/**
+ * Re-apply peel scale/position from cached layout (e.g. after PeelCard intros).
+ *
+ * @param {Phaser.Scene} scene
+ */
+export function syncPullTabPeelCardLayout(scene) {
+    if (!scene.layoutManager) return;
+    applyPeelCardLayout(scene, scene.layoutManager.getLayoutPositions());
+}
+
 function applyPeelCardLayout(scene, layoutPositions) {
-    const card = scene.peelCard;
-    if (!card || layoutPositions.cardContainerY == null) return;
+    const peel = scene.peelCard;
+    if (!peel || layoutPositions.cardContainerY == null) return;
+
     const x = layoutPositions.cardContainerX ?? getScreenWidth(scene) / 2;
-    card.setPosition(x, layoutPositions.cardContainerY);
+    peel.setPosition(x, layoutPositions.cardContainerY);
+
+    const peelCardScreenFit = scene.peelCardScreenFit;
+    const releaseLayoutManagedScale = () => {
+        if (peelCardScreenFit && typeof peelCardScreenFit === 'object') {
+            peelCardScreenFit.layoutManagedScale = false;
+        }
+    };
+
+    const vpW = layoutPositions.screenWidth ?? getScreenWidth(scene);
+    const cbTop = layoutPositions.controlBarBackgroundTop;
+    const cardCfg = layoutPositions.cardContainerConfig;
+    const ap = cardCfg?.areaPercent ?? cardCfg?.heightPercent ?? 0.65;
+
+    if (
+        cbTop == null ||
+        Number.isNaN(cbTop) ||
+        cbTop <= 0 ||
+        cbTop >= getScreenHeight(scene) ||
+        !Number.isFinite(vpW) ||
+        vpW <= 0
+    ) {
+        layoutPositions.cardArea = null;
+        layoutPositions.cardBackDisplay = null;
+        layoutPositions.peelCardScale = undefined;
+        releaseLayoutManagedScale();
+        return;
+    }
+
+    const Aw = vpW;
+    const Ah = cbTop;
+    const { width: bw, height: bh } = getPullTabCardBackBaseDisplaySize(peel);
+
+    const s = computeAreaPercentUniformScale({
+        cardAreaWidth: Aw,
+        cardAreaHeight: Ah,
+        areaPercent: ap,
+        baseCardWidth: bw,
+        baseCardHeight: bh,
+    });
+
+    layoutPositions.cardArea = { width: Aw, height: Ah };
+    layoutPositions.cardContainerAreaPercent = ap;
+    layoutPositions.peelCardScale = s;
+    layoutPositions.cardBackDisplay = { width: bw * s, height: bh * s };
+    layoutPositions.cardContainerWidth = layoutPositions.cardBackDisplay.width;
+    layoutPositions.cardContainerHeight = layoutPositions.cardBackDisplay.height;
+
+    if (!Number.isFinite(s) || s <= 0) {
+        layoutPositions.cardArea = null;
+        layoutPositions.cardBackDisplay = null;
+        layoutPositions.peelCardScale = undefined;
+        releaseLayoutManagedScale();
+        return;
+    }
+
+    if (peelCardScreenFit && typeof peelCardScreenFit === 'object') {
+        peelCardScreenFit.layoutManagedScale = true;
+    }
+    peel.setScale(s, s);
 }
 
 /**
@@ -434,10 +521,12 @@ export function bootstrapPullTabControlBar(scene) {
 
     scene.events.once('server-awake', () => {
         scene.time.delayedCall(0, () => {
-            if (!scene.controlBarManager || !scene.serverManager) return;
-            scene.balancePennies = Math.round(scene.serverManager.balance * 100);
-            scene.controlBarManager.updateHeaderBalanceText(scene.balancePennies, false);
-            scene.controlBarManager.updateHeaderBetText();
+            if (scene.controlBarManager && scene.serverManager) {
+                scene.balancePennies = Math.round(scene.serverManager.balance * 100);
+                scene.controlBarManager.updateHeaderBalanceText(scene.balancePennies, false);
+                scene.controlBarManager.updateHeaderBetText();
+            }
+            applyPullTabControlBarLayoutFromScene(scene);
         });
     });
 

@@ -107,6 +107,62 @@ export function getImageOriginalDimensions(image, aspectRatio = 0) {
 }
 
 /**
+ * Uniform scale for a card (e.g. pull-tab peel `cardBack`) inside a cardArea rectangle.
+ * The cardArea spans full viewport width and from y=0 down to control-bar top (height = cardAreaHeight).
+ *
+ * areaPercent applies along the **narrow** dimension of the cardArea (tie: width if Aw === Ah):
+ * - If Aw <= Ah: primary target width = Aw * areaPercent
+ * - Else: primary target height = Ah * areaPercent
+ *
+ * Then shrink-only containment so the scaled card fits inside Aw × Ah.
+ *
+ * @param {Object} options
+ * @param {number} options.cardAreaWidth - Aw (px)
+ * @param {number} options.cardAreaHeight - Ah (px)
+ * @param {number} options.areaPercent - fraction in (0, 1]
+ * @param {number} options.baseCardWidth - card local display width at peel/collection scale 1 for the axis basis
+ * @param {number} options.baseCardHeight - card local display height at scale 1
+ * @returns {number} Uniform scale factor (>= 0)
+ */
+export function computeAreaPercentUniformScale({
+    cardAreaWidth,
+    cardAreaHeight,
+    areaPercent,
+    baseCardWidth,
+    baseCardHeight,
+}) {
+    const epsilon = 1e-6;
+    let ap = Number(areaPercent);
+    if (!Number.isFinite(ap)) {
+        ap = 0.65;
+    }
+    ap = Math.min(1, Math.max(epsilon, ap));
+
+    const Aw = Number(cardAreaWidth);
+    const Ah = Number(cardAreaHeight);
+    const bw = Number(baseCardWidth);
+    const bh = Number(baseCardHeight);
+
+    if (!Number.isFinite(Aw) || !Number.isFinite(Ah) || Aw <= epsilon || Ah <= epsilon) {
+        return 1;
+    }
+    if (!Number.isFinite(bw) || !Number.isFinite(bh) || bw <= epsilon || bh <= epsilon) {
+        return 1;
+    }
+
+    const s0 = Aw <= Ah ? (Aw * ap) / bw : (Ah * ap) / bh;
+    if (!Number.isFinite(s0) || s0 <= 0) {
+        return 1;
+    }
+
+    const wDisp = bw * s0;
+    const hDisp = bh * s0;
+    const k = Math.min(1, Aw / wDisp, Ah / hDisp);
+    const s = s0 * k;
+    return Number.isFinite(s) && s > 0 ? s : 1;
+}
+
+/**
  * Calculate card container scale based on desired height and max width constraints
  * @param {Object} options - Calculation options
  * @param {Phaser.GameObjects.Image} options.shockWave - The shockWave image object

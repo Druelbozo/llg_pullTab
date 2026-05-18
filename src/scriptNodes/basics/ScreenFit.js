@@ -29,6 +29,8 @@ export default class ScreenFit extends ScriptNode {
 	overrideX = 0;
 	/** @type {number} */
 	overrideY = 0;
+	/** @type {boolean} */
+	layoutManagedScale = false;
 
 	/* START-USER-CODE */
 	refWidth = 0;
@@ -106,6 +108,8 @@ export default class ScreenFit extends ScriptNode {
 
 	onChangeScreen()
 	{
+		if (this.layoutManagedScale) return;
+
 		if(this.currentScreenWidth == this.scene.scale.width && this.currentScreenHeight == this.scene.scale.height) { return;}
 
 		this.currentScreenWidth = this.scene.scale.width - this.xPadding;

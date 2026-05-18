@@ -111,6 +111,7 @@ export default class Level extends Phaser.Scene {
 		screenFit.yPadding = 220;
 
 		this.peelCard = peelCard;
+		this.peelCardScreenFit = screenFit;
 
 		this.bgBackdropContainer = bg_Container_1;
 		this.bgBackdropScreenAnchor = screenAnchor_2;

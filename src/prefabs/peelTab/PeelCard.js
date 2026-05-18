@@ -13,6 +13,7 @@ import {
 	applyPeelCardBackTintFromTheme,
 	layoutPeelCardHorizontalContentInset,
 } from "../../utils/theme/PeelCardThemeUtils.js";
+import { syncPullTabPeelCardLayout } from "../../services/pulltab/PullTabControlBarBootstrap.js";
 import { warn } from "../../utils/logger/LoggerUtils.js";
 /* END-USER-IMPORTS */
 
@@ -236,6 +237,8 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 
 		this.gameContainer.visible = true;
 		this.messageText.show();
+		syncPullTabPeelCardLayout(this.scene);
+
 	 	for (let i = 0; i < this.peelContainer.list.length; i++)
 		{
 			let tab = this.peelContainer.list[i];

@@ -35,9 +35,14 @@ export function formatLayoutDebugInfo(layoutManager) {
 	const controlBarTop = layoutPositions?.controlBarBackgroundTop || 0;
 	const cardContainerX = layoutPositions?.cardContainerX || 0;
 	const cardContainerY = layoutPositions?.cardContainerY || 0;
+	const cardArea = layoutPositions?.cardArea;
+	const cardBackDisplay = layoutPositions?.cardBackDisplay;
+	const peelScale = layoutPositions?.peelCardScale;
+	const areaPct = layoutPositions?.cardContainerAreaPercent ?? layoutPositions?.cardContainerConfig?.areaPercent;
+
 	const cardContainerWidth = layoutPositions?.cardContainerWidth || 0;
 	const cardContainerHeight = layoutPositions?.cardContainerHeight || 0;
-	
+
 	// Get container positions
 	const containerPositions = layoutPositions?.containerPositions || {};
 	const containerCount = Object.keys(containerPositions).length;
@@ -60,9 +65,23 @@ export function formatLayoutDebugInfo(layoutManager) {
 		`--- Control Bar ---`,
 		`Background Top: ${controlBarTop.toFixed(1)}`,
 		`Containers: ${containerCount}`,
-		`--- Card Container ---`,
+		`--- Card area (scratch-style) ---`,
+		cardArea
+			? `Aw×Ah: ${cardArea.width.toFixed(1)} × ${cardArea.height.toFixed(1)}`
+			: `Aw×Ah: (n/a)`,
+		typeof areaPct === 'number' && Number.isFinite(areaPct)
+			? `areaPercent: ${areaPct} (narrow axis: ${cardArea ? (cardArea.width <= cardArea.height ? 'width' : 'height') : '—'})`
+			: `areaPercent: —`,
+		typeof peelScale === 'number' && Number.isFinite(peelScale)
+			? `peelCard scale: ${peelScale.toFixed(4)}`
+			: `peelCard scale: —`,
+		`--- Peel cardBack (scaled) ---`,
+		cardBackDisplay
+			? `display: ${cardBackDisplay.width.toFixed(1)} × ${cardBackDisplay.height.toFixed(1)}`
+			: `display: —`,
+		`--- Card anchor (center) ---`,
 		`Position: (${cardContainerX.toFixed(1)}, ${cardContainerY.toFixed(1)})`,
-		`Size: ${cardContainerWidth.toFixed(1)} x ${cardContainerHeight.toFixed(1)}`,
+		`Legacy cardContainer slot (debug): ${cardContainerWidth.toFixed(1)} × ${cardContainerHeight.toFixed(1)}`,
 		`--- Container Positions ---`,
 		...Object.entries(containerPositions).map(([name, pos]) => 
 			`${name}: (${pos.x?.toFixed(1) || 'N/A'}, ${pos.y?.toFixed(1) || 'N/A'})`
