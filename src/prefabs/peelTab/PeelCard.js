@@ -123,6 +123,7 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 			this.scene.themeData ||
 			this.scene.registry.get('preloadThemeData');
 		applyPeelCardBackTintFromTheme(this.cardBack, td);
+		applyPeelCardBackTintFromTheme(this.peelCardEnterAnim?.cardBack || null, td);
 		layoutPeelCardHorizontalContentInset(this, td);
 	}
 

@@ -34,9 +34,11 @@ export const GameConfig = {
 
         /**
          * When `false`, the left-column payout strings (`gameConfig.prizes`) beside each Peel row are not created.
-         * `true` or omitted → same as legacy (labels shown).
+         * In that mode the peel **`cardBack`** NineSlice width is sized from theme **`peelCard.horizontalContentInset`**
+         * × 3 plus cover + peel strip widths so left margin, cover→peel gutter, and right margin all equal that inset.
+         * `true` or omitted → legacy: prize labels shown, fixed 1000px wide `cardBack`, two edge insets only (extra space stays inside the slice).
          */
-        SHOW_PEEL_PRIZE_LABELS: true,
+        SHOW_PEEL_PRIZE_LABELS: false,
 
         SESSION_DEMO_BALANCE: 10000
     },

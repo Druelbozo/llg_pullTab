@@ -7,7 +7,7 @@
 import { GameConfig } from "../../config/Global.js";
 import {
 	applyPeelCardBackTintFromTheme,
-	layoutPeelCardHorizontalContentInsetSubtree,
+	refreshPeelCardHorizontalLayoutSurface,
 } from "../../utils/theme/PeelCardThemeUtils.js";
 /* END-USER-IMPORTS */
 
@@ -111,12 +111,14 @@ export default class PeelCardEnterAnim extends Phaser.GameObjects.Container {
 		const td = this.scene.themeData || this.scene.registry.get('preloadThemeData');
 
 		applyPeelCardBackTintFromTheme(this.cardBack, td);
-		layoutPeelCardHorizontalContentInsetSubtree({
-			themeData: td,
-			cardBack: this.cardBack,
-			peelContainer: this.peelContainer,
-			cardCoverImage: this.cardCover,
-		});
+		refreshPeelCardHorizontalLayoutSurface(
+			{
+				cardBack: this.cardBack,
+				peelContainer: this.peelContainer,
+				cardCoverImage: this.cardCover,
+			},
+			td,
+		);
 	}
 
 	enter(callBack, ctx)
