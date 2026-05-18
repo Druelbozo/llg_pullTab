@@ -51,6 +51,7 @@ export default class PeelMessageText extends Phaser.GameObjects.Text {
 	show()
 	{
 		if(this.shown) return;
+		this.setVisible(true);
 		this.setScale(0,0);
 		this.scene.tweens.add
 		({

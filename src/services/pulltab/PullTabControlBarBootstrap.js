@@ -23,11 +23,18 @@ import {
     getHeaderConfig,
     getCardContainerConfig,
     getControlBarSpacingPercent,
+    getMessageTextConfig,
+    getMessageTextLayoutFontSize,
 } from '../../utils/layout/ConfigAccessUtils.js';
 import { getScreenWidth, getScreenHeight } from '../../utils/viewport/ViewportUtils.js';
 import { warn, error } from '../../utils/logger/LoggerUtils.js';
 import { drawControlBarBackgroundBounds } from '../../utils/layout/LayoutDebugUtils.js';
 import { computeAreaPercentUniformScale } from '../../utils/layout/CardContainerUtils.js';
+import {
+    computeCenterInLeftBandPlacement,
+    resolveMessageTextWordWrapWidth,
+} from '../../utils/layout/MessageTextPositioningUtils.js';
+import { applyMessageTextTheme } from '../../utils/ui/theme/ThemeApplicationUtils.js';
 
 /**
  * Pull-tab bounds for background sizing (includes speed row).
@@ -190,6 +197,7 @@ function calculateAndApplyPullTabLayout(scene, layoutPositions, uiConfig, baseUI
     }
 
     applyPeelCardLayout(scene, layoutPositions);
+    layoutPullTabPeelMessageText(scene, layoutPositions, uiConfig, baseUIConfig);
 
     return true;
 }
@@ -302,13 +310,121 @@ function getPullTabCardBackBaseDisplaySize(peelCard) {
 }
 
 /**
+ * Position pull-tab banner text like scratch {@link CardContainerService.positionMessageText}:
+ * world/canvas coordinates with {@link Phaser.GameObjects.Text#setPosition}. The banner is a scene-level
+ * object ({@link PeelCard} registers it via {@link Phaser.Scene#add}) so it is not scaled with the peel card,
+ * matching scratch’s `messageText` living outside `cardContainer`.
+ *
+ * @param {Phaser.Scene} scene
+ * @param {object} layoutPositions
+ * @param {object} uiConfig
+ * @param {object} baseUIConfig
+ */
+function layoutPullTabPeelMessageText(scene, layoutPositions, uiConfig, baseUIConfig) {
+    const peel = scene.peelCard;
+    const messageText = peel?.messageText;
+    if (!peel || !messageText || layoutPositions.cardContainerY == null) {
+        return;
+    }
+
+    const messageTextConfig = getMessageTextConfig(uiConfig, baseUIConfig);
+
+    const themeData = scene.themeData || scene.registry?.get?.('preloadThemeData');
+    if (themeData) {
+        applyMessageTextTheme(messageText, themeData, messageTextConfig.stroke || null);
+    }
+
+    let cardW = layoutPositions.cardBackDisplay?.width;
+    let cardH = layoutPositions.cardBackDisplay?.height;
+    if (!cardW || !cardH) {
+        const bb = peel.cardBack?.getBounds?.();
+        if (bb && bb.width > 1 && bb.height > 1) {
+            cardW = bb.width;
+            cardH = bb.height;
+        } else {
+            cardW = Math.max(1, layoutPositions.cardContainerWidth || 320);
+            cardH = Math.max(1, layoutPositions.cardContainerHeight || 240);
+        }
+    }
+
+    const cardSize = { width: cardW, height: cardH };
+    const cardDisplayHeight = Math.max(1, cardSize.height);
+
+    const cardTopY = layoutPositions.cardContainerY - cardDisplayHeight / 2;
+    const cardBottomY = layoutPositions.cardContainerY + cardDisplayHeight / 2;
+
+    const screenWidth =
+        typeof layoutPositions.screenWidth === 'number' && layoutPositions.screenWidth > 0
+            ? layoutPositions.screenWidth
+            : getScreenWidth(scene);
+    const cardCenterX =
+        typeof peel.x === 'number' && Number.isFinite(peel.x)
+            ? peel.x
+            : typeof layoutPositions.cardContainerX === 'number'
+              ? layoutPositions.cardContainerX
+              : screenWidth / 2;
+
+    let messageTextCenterWorldX = cardCenterX;
+    /** @type {number|undefined} */
+    let messageTextCenterWorldY;
+
+    let maxTextWidth = resolveMessageTextWordWrapWidth(
+        messageTextConfig,
+        layoutPositions,
+        cardSize,
+        cardCenterX,
+        scene,
+        screenWidth
+    );
+
+    if (messageTextConfig.centerInLeftBand === true) {
+        const placement = computeCenterInLeftBandPlacement(
+            layoutPositions,
+            cardSize,
+            cardCenterX,
+            scene,
+            messageTextConfig.insetPercentHorizontal ?? 0
+        );
+        messageTextCenterWorldX = placement.centerX;
+        messageTextCenterWorldY = placement.centerY;
+        maxTextWidth = placement.maxTextWidth;
+    } else if (messageTextConfig.centerVertically === true) {
+        const screenTop = 0;
+        messageTextCenterWorldY = (screenTop + cardTopY) / 2;
+    } else {
+        const percentY = messageTextConfig.percentY ?? 0;
+        messageTextCenterWorldY = cardTopY + percentY * (cardBottomY - cardTopY);
+    }
+
+    messageText.setOrigin(0.5, 0.5);
+
+    const fontSize = getMessageTextLayoutFontSize(cardDisplayHeight, uiConfig, baseUIConfig);
+    messageText.setFontSize(fontSize);
+    messageText.setWordWrapWidth(maxTextWidth);
+
+    if (
+        messageTextCenterWorldY == null ||
+        !Number.isFinite(messageTextCenterWorldX) ||
+        !Number.isFinite(messageTextCenterWorldY)
+    ) {
+        return;
+    }
+
+    messageText.setPosition(messageTextCenterWorldX, messageTextCenterWorldY);
+}
+
+/**
  * Re-apply peel scale/position from cached layout (e.g. after PeelCard intros).
  *
  * @param {Phaser.Scene} scene
  */
 export function syncPullTabPeelCardLayout(scene) {
     if (!scene.layoutManager) return;
-    applyPeelCardLayout(scene, scene.layoutManager.getLayoutPositions());
+    const layoutName = scene.layoutManager.getCurrentLayoutName();
+    const { uiConfig, baseUIConfig } = getLayoutConfigs(scene.layoutManager, layoutName);
+    const layoutPositions = scene.layoutManager.getLayoutPositions();
+    applyPeelCardLayout(scene, layoutPositions);
+    layoutPullTabPeelMessageText(scene, layoutPositions, uiConfig, baseUIConfig);
 }
 
 function applyPeelCardLayout(scene, layoutPositions) {

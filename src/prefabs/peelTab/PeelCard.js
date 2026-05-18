@@ -48,10 +48,12 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 		const videoContainer = scene.add.container(0, 0);
 		gameContainer.add(videoContainer);
 
-		// MessageText
-		const messageText = new PeelMessageText(scene, 0, -381);
-		messageText.setStyle({  });
-		gameContainer.add(messageText);
+		// Banner line: scene-level object (scratch `messageText` pattern) — positioned in world space by layout, not scaled with the peel card.
+		const messageText = new PeelMessageText(scene, 0, 0);
+		messageText.setStyle({});
+		scene.add.existing(messageText);
+		messageText.setDepth(50);
+		scene.pullTabBannerMessageText = messageText;
 
 		// prefab_Results
 		const prefab_Results = new Prefab_Results(scene, 0, -344);
@@ -132,6 +134,9 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 	awake()
 	{
 		this.gameContainer.visible = false;
+		if (this.messageText) {
+			this.messageText.setVisible(false);
+		}
 		if (!this._peelThemeListenerBound) {
 			this._peelThemeListenerBound = true;
 			this.scene.events.on('onThemeInitalized', this._applyPeelCardThemeVisuals, this);
@@ -236,7 +241,10 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 		}
 
 		this.gameContainer.visible = true;
-		this.messageText.show();
+		if (this.messageText) {
+			this.messageText.setVisible(true);
+			this.messageText.show();
+		}
 		syncPullTabPeelCardLayout(this.scene);
 
 	 	for (let i = 0; i < this.peelContainer.list.length; i++)
