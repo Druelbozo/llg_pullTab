@@ -59,7 +59,24 @@ export default class PeelCardEnterAnim extends Phaser.GameObjects.Container {
 	ctx = undefined;
 	speed = 1;
 
+	/** @type {Phaser.Time.TimerEvent[]} */
+	_introTimers = [];
+
 	// Write your code here.
+
+	_cancelIntroAnimations()
+	{
+		this.scene?.tweens?.killTweensOf(this);
+		if (!Array.isArray(this._introTimers)) return;
+		for (const ev of this._introTimers) {
+			try {
+				ev?.remove(false);
+			} catch {
+				/* ignore */
+			}
+		}
+		this._introTimers = [];
+	}
 	init()
 	{
 		let config = this.scene.serverManager.gameConfig;
@@ -123,10 +140,12 @@ export default class PeelCardEnterAnim extends Phaser.GameObjects.Container {
 
 	enter(callBack, ctx)
 	{
+		this._cancelIntroAnimations();
+
 		this.callBack = callBack;
 		this.ctx = ctx;
 
-		this.speed = this.scene.registry.get("GameSpeed");
+		this.speed = this.scene.registry.get("GameSpeed") ?? 1;
 		switch(this.enterAnim)
 		{
 			case "Slam":
@@ -137,39 +156,66 @@ export default class PeelCardEnterAnim extends Phaser.GameObjects.Container {
 
 	slam()
 	{
+		// Mirrors scratch cover intro (Level.js moveTween_2 + scaleTween_1/2 timing); no bloom/postFX.
+		// DROP: y -2000 → 0, 500ms Back.easeOut | SCALE: delay 300 → 0.9×0.8→1.2 (200ms Quad.out),
+		// delay 200 → 1×1 (200ms Quad.in). Total motion ~900ms before callback.
+
+		const spd = Math.max(0.01, Number(this.speed) || 1);
+
 		this.visible = true;
-		this.x = 0;
-		this.y = -1000;
 		this.alpha = 1;
-		this.setScale(1.15, 1.15);
+		this.x = 0;
+		this.y = -2000;
+		this.setScale(0.9, 0.8);
 
 		const audio = this.scene.audioService;
 		if (audio?.isAudioUnlocked()) {
 			audio.playSfx('whoosh');
 		}
 
-		this.scene.add.tween
-		({
+		const DROP_MS = Math.max(1, 500 / spd);
+		const DELAY_BEFORE_OVERSHOOT_MS = Math.max(0, 300 / spd);
+		const OVERSHOOT_MS = Math.max(1, 200 / spd);
+		const DELAY_BEFORE_SETTLE_MS = Math.max(0, 200 / spd);
+		const SETTLE_MS = Math.max(1, 200 / spd);
+
+		const finishIntro = () => {
+			this.visible = false;
+			if (this.callBack !== undefined) {
+				this.callBack();
+			}
+		};
+
+		this.scene.tweens.add({
 			targets: this,
 			y: 0,
-			duration: 800 / this.speed,
-			ease: "Back.out"
-		})
+			duration: DROP_MS,
+			ease: 'Back.easeOut',
+		});
 
-		this.scene.add.tween
-		({
-			targets: this,
-			scaleY: 1,
-			scaleX: 1,
-			duration: 750 / this.speed,
-			delay: 550 / this.speed,
-			ease: "Back.in",
-			onComplete: ()=>
-			{
-				this.visible = false;
-				if(this.callBack !== undefined) this.callBack();
-			}			
-		})
+		const queueScaleUp = this.scene.time.delayedCall(DELAY_BEFORE_OVERSHOOT_MS, () => {
+			this.scene.tweens.add({
+				targets: this,
+				scaleX: 1.2,
+				scaleY: 1.2,
+				duration: OVERSHOOT_MS,
+				ease: 'Quad.easeOut',
+				onComplete: () => {
+					const queueScaleDown = this.scene.time.delayedCall(DELAY_BEFORE_SETTLE_MS, () => {
+						this.scene.tweens.add({
+							targets: this,
+							scaleX: 1,
+							scaleY: 1,
+							duration: SETTLE_MS,
+							ease: 'Quad.easeIn',
+							onComplete: finishIntro,
+						});
+					});
+					this._introTimers.push(queueScaleDown);
+				},
+			});
+		});
+		this._introTimers.push(queueScaleUp);
 	}
 
 	/* END-USER-CODE */
