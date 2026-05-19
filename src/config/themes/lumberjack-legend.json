@@ -13,7 +13,7 @@
     "flatPeelWidthFillPercent": 0.42,
     "flatPeelStripScale": 1.1,
     "flatPeelStripInsetRight": 50,
-    "flatPeelStripOffsetY": 0,
+    "flatPeelStripY": 150,
     "peelRowGap": 10
   },
   "music": {
