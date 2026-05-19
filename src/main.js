@@ -9,6 +9,7 @@ import ViewportHelper from "./utils/ui/ViewportHelper.js";
 import ProviderAPIService from "./services/api/ProviderAPIService.js";
 import { GameConfig } from "./config/Global.js";
 import { applyLoggingFromGameConfig, warn, error as logErr } from "./utils/logger/LoggerUtils.js";
+import { loadThemeWithOverride } from "./utils/theme/ThemeMergeUtils.js";
 import { initializeConsoleCapture } from "./utils/logger/ConsoleCapture.js";
 
 applyLoggingFromGameConfig(GameConfig);
@@ -206,6 +207,18 @@ class Boot extends Phaser.Scene {
 		}
 
 		this.registry.set('preloadGameConfig', config);
+
+		const themeName = config.theme || 'default';
+		try {
+			const { themeData, themeOverride } = await loadThemeWithOverride(themeName);
+			this.registry.set('preloadThemeData', themeData);
+			this.registry.set('preloadThemeOverride', themeOverride);
+		} catch (err) {
+			logErr(`Boot: Failed to load theme: ${err?.message ?? err}`, 'theme', err);
+			this.registry.set('preloadThemeData', {});
+			this.registry.set('preloadThemeOverride', null);
+		}
+
 		this.scene.start("Preload");
 	}
 }

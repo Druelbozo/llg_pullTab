@@ -218,6 +218,9 @@ export default class Level extends Phaser.Scene {
 					this.audioService.playThemeMusic(trimmed);
 				}
 			}
+			if (this.dI_Background_banana_1 && this.textures.exists('background')) {
+				this.dI_Background_banana_1.setTexture('background');
+			}
 			this._updateSoundIcon();
 			this._syncPullTabBackdropCover();
 		});

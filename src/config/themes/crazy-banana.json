@@ -11,13 +11,18 @@
   },
   "text": {
     "palette": {
-      "primaryColor": "#33b5d4",
+      "primaryColor": "#70c8f0",
       "secondaryColor": "#e3e6c6"
+    },
+    "message": {
+      "stroke": {
+        "color": "#005aa2"
+      }
     }
   },
   "controlBar": {
     "palette": {
-      "primaryColor": "#0083c5"
+      "primaryColor": "#0089d0"
     },
     "header": {
       "color": "#0083c5"

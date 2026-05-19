@@ -3,6 +3,9 @@
  * Mirrors the Scratch pattern: nested objects merge, arrays/primitives replace, null keeps default entry.
  */
 
+import { fetchWithTimeout } from '../network/fetchWithTimeout.js';
+import { warn } from '../logger/LoggerUtils.js';
+
 /**
  * @param {Object|null} defaultTheme
  * @param {Object|null} themeOverride
@@ -51,4 +54,58 @@ export function mergeThemeWithDefault(defaultTheme, themeOverride, depth = 0) {
 	}
 
 	return merged;
+}
+
+/**
+ * Load theme JSON before Preload queues Phaser assets (Boot scene).
+ *
+ * @param {string} themeName
+ * @returns {Promise<{ themeData: Record<string, unknown>, themeOverride: Record<string, unknown>|null }>}
+ */
+export async function loadThemeWithOverride(themeName) {
+	const cacheBuster = Date.now();
+	let defaultTheme = null;
+	let themeOverride = null;
+
+	try {
+		const defaultResponse = await fetchWithTimeout(
+			`src/config/themes/default.json?t=${cacheBuster}`,
+			{},
+			8000,
+		);
+		if (defaultResponse.ok) {
+			defaultTheme = await defaultResponse.json();
+		}
+	} catch (error) {
+		warn('Failed to load default.json:', 'theme', error);
+	}
+
+	const resolvedName = themeName && themeName !== '' ? themeName : 'default';
+	try {
+		const themeResponse = await fetchWithTimeout(
+			`src/config/themes/${resolvedName}.json?t=${cacheBuster}`,
+			{},
+			8000,
+		);
+		if (themeResponse.ok) {
+			themeOverride = await themeResponse.json();
+		} else if (resolvedName === 'default' && defaultTheme) {
+			themeOverride = defaultTheme;
+		}
+	} catch (error) {
+		warn(`Failed to load theme ${resolvedName}.json:`, 'theme', error);
+	}
+
+	let themeData;
+	if (defaultTheme && themeOverride) {
+		themeData = mergeThemeWithDefault(defaultTheme, themeOverride);
+	} else if (themeOverride) {
+		themeData = themeOverride;
+	} else if (defaultTheme) {
+		themeData = defaultTheme;
+	} else {
+		themeData = {};
+	}
+
+	return { themeData, themeOverride };
 }

@@ -6,15 +6,22 @@
     "peel": "peel-disco-kitty",
     "peelBack": "peelBack-disco-kitty"
   },
+  "peelCard": {
+    "cardBackTint": "#ffc3f8"
+  },
   "text": {
     "palette": {
-      "primaryColor": "#bf45fe",
-      "secondaryColor": "#0"
+      "primaryColor": "#fdc1f6"
+    },
+    "message": {
+      "stroke": {
+        "color": "#810593"
+      }
     }
   },
   "controlBar": {
     "palette": {
-      "primaryColor": "#bf45fe"
+      "primaryColor": "#c209dd"
     }
   },
   "music": {

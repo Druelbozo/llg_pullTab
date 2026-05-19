@@ -29,18 +29,47 @@ export default class SetImage extends ScriptNode {
 	// Write your code here.
 	awake()
 	{
-		if(this.target === undefined){this.target = this.gameObject}
+		if (this.target === undefined) {
+			this.target = this.gameObject;
+		}
 
-		if(this.scene.textures.exists(this.imageKey.key))
-		{
-			this.target.setTexture(this.imageKey.key);
-		}
-		else
-		{
-			if(this.hideOnFail) this.gameObject.visible = false;
-		}
+		this._applyThemeTexture();
 
 		this.executeChildren();
+	}
+
+	_applyThemeTexture() {
+		const key = this.imageKey?.key;
+		const target = this.target;
+		if (!key || !target) {
+			return;
+		}
+
+		if (this.scene.textures.exists(key)) {
+			target.setTexture(key);
+			if (this.hideOnFail) {
+				target.visible = true;
+			}
+			return;
+		}
+
+		if (this.hideOnFail) {
+			this.gameObject.visible = false;
+		}
+
+		const onTextureReady = () => {
+			if (this.scene.textures.exists(key)) {
+				target.setTexture(key);
+				target.visible = true;
+			}
+		};
+
+		this.scene.textures.once('add', (addedKey) => {
+			if (addedKey === key) {
+				onTextureReady();
+			}
+		});
+		this.scene.events.once('onThemeInitalized', onTextureReady);
 	}
 
 	/* END-USER-CODE */

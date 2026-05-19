@@ -7,6 +7,19 @@
   "videoKeys": {
     "win": "win-yummy-hot-pot"
   },  
+  "peelCard": {
+    "cardBackTint": "#fef9df"
+  },
+  "text": {
+    "palette": {
+      "primaryColor": "#ffd806"
+    }
+  },
+  "controlBar": {
+    "palette": {
+      "primaryColor": "#ff0000"
+    }
+  },
   "music": {
     "audioKey": "yummy-hot-pot.ogg"
   }

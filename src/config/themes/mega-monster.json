@@ -8,10 +8,17 @@
   "videoKeys": {
     "win": "win-mega-monster"
   },
+  "peelCard": {
+    "cardBackTint": "#d1f1b1"
+  },
   "text": {
     "palette": {
-      "primaryColor": "#26d658",
-      "secondaryColor": "#0"
+      "primaryColor": "#25d256"
+    }
+  },
+  "controlBar": {
+    "palette": {
+      "primaryColor": "#1ca744"
     }
   },
   "music": {

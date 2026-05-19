@@ -6,7 +6,8 @@
 /* START-USER-IMPORTS */
 import WebFontFile from '../utils/ui/WebFontFile.js';
 import BrowserDetector from '../utils/ui/BrowserDetector.js';
-import { mergeThemeWithDefault } from '../utils/theme/ThemeMergeUtils.js';
+import ViewportHelper from '../utils/ui/ViewportHelper.js';
+import { loadThemeWithOverride } from '../utils/theme/ThemeMergeUtils.js';
 import { googleFamilySpecsFromThemeFonts } from '../utils/theme/ThemeFontResolutionUtils.js';
 import { GameConfig } from '../config/Global.js';
 import { setEffectiveSfx } from '../utils/audio/SfxConfigUtils.js';
@@ -114,13 +115,39 @@ export default class Preload extends Phaser.Scene {
 		this.load.on('filecomplete', (key, type) => {
 			if (!this._themeImageKeys.has(key)) return;
 			if (this._themeImagesVerified.has(key)) return;
+			if (!this._isThemeTextureReady(key)) {
+				this._checkAssetsReady();
+				return;
+			}
 			this._themeImagesLoaded++;
 			this._themeImagesVerified.add(key);
+			this._themeImagesEventFired.add(key);
 			log(`[Preload] Theme asset loaded (${type}): "${key}" (${this._themeImagesLoaded}/${this._themeImagesTotal})`, 'assets');
 			this._checkAssetsReady();
 		});
 
-		await this.loadTheme();
+		this.load.on('filecomplete-atlas', (key) => {
+			if (!this._themeImageKeys.has(key)) return;
+			if (this._themeImagesVerified.has(key)) return;
+			if (!this._isThemeTextureReady(key)) {
+				this._checkAssetsReady();
+				return;
+			}
+			this._themeImagesLoaded++;
+			this._themeImagesVerified.add(key);
+			this._themeImagesEventFired.add(key);
+			log(`[Preload] Theme atlas loaded: "${key}" (${this._themeImagesLoaded}/${this._themeImagesTotal})`, 'assets');
+			this._checkAssetsReady();
+		});
+
+		this.load.on('loaderror', (file) => {
+			if (this._themeImageKeys.has(file?.key)) {
+				warn(`[Preload] Theme asset load error: "${file.key}"`, 'assets');
+				this._themeImagesFailed.add(file.key);
+			}
+		});
+
+		await this.queueThemeAssetsFromRegistry();
 
 		this.load.on("progress", (progress) => {
 
@@ -130,32 +157,61 @@ export default class Preload extends Phaser.Scene {
 	}
 
 	/**
+	 * @param {string} key
+	 * @returns {boolean}
+	 */
+	_isThemeTextureReady(key) {
+		if (!this.textures.exists(key)) {
+			return false;
+		}
+		const texture = this.textures.get(key);
+		let w = 0;
+		let h = 0;
+		if (texture?.frames?.size > 0) {
+			const firstFrame = [...texture.frames.values()][0];
+			w = firstFrame?.width ?? 0;
+			h = firstFrame?.height ?? 0;
+		} else {
+			const source = texture?.source?.[0] || texture?.getSourceImage?.();
+			const img = source?.image || source;
+			w = img?.width ?? img?.naturalWidth ?? texture?.frame?.width ?? 0;
+			h = img?.height ?? img?.naturalHeight ?? texture?.frame?.height ?? 0;
+		}
+		return w > 0 && h > 0;
+	}
+
+	/**
 	 * Check if theme images exist in texture cache (fallback when filecomplete doesn't fire).
 	 */
 	_checkThemeImagesInCache() {
 		if (this._themeImagesTotal === 0) return;
 		for (const key of this._themeImageKeys) {
-			if (!this._themeImagesVerified.has(key) && this.textures.exists(key)) {
-				const texture = this.textures.get(key);
-				let w = 0;
-				let h = 0;
-				if (texture?.frames?.size > 0) {
-					const firstFrame = [...texture.frames.values()][0];
-					w = firstFrame.width;
-					h = firstFrame.height;
-				} else {
-					const source = texture?.source?.[0] || texture?.getSourceImage?.();
-					const img = source?.image || source;
-					w = img?.width ?? img?.naturalWidth ?? texture?.frame?.width;
-					h = img?.height ?? img?.naturalHeight ?? texture?.frame?.height;
-				}
-				if (w > 0 && h > 0) {
-					this._themeImagesLoaded++;
-					this._themeImagesVerified.add(key);
-					log(`[Preload] Theme texture in cache: "${key}" (${this._themeImagesLoaded}/${this._themeImagesTotal})`, 'assets');
-				}
+			if (this._themeImagesVerified.has(key) || this._themeImagesFailed.has(key)) {
+				continue;
+			}
+			if (this._isThemeTextureReady(key)) {
+				this._themeImagesLoaded++;
+				this._themeImagesVerified.add(key);
+				this._themeImagesEventFired.add(key);
+				log(`[Preload] Theme texture in cache: "${key}" (${this._themeImagesLoaded}/${this._themeImagesTotal})`, 'assets');
 			}
 		}
+	}
+
+	/**
+	 * @returns {boolean}
+	 */
+	_verifyRequiredTexturesReady() {
+		if (this._themeImagesTotal === 0) {
+			return true;
+		}
+		let readyCount = 0;
+		for (const key of this._themeImageKeys) {
+			if (this._themeImagesFailed.has(key) || this._isThemeTextureReady(key)) {
+				readyCount++;
+			}
+		}
+		return readyCount >= this._themeImagesTotal;
 	}
 
 	/**
@@ -168,13 +224,20 @@ export default class Preload extends Phaser.Scene {
 		// Fallback: check texture cache (filecomplete may not fire for pack/async loads)
 		this._checkThemeImagesInCache();
 
-		const allThemeImagesLoaded = this._themeImagesTotal === 0 || this._themeImagesLoaded >= this._themeImagesTotal;
-		// Do NOT wait for video - it blocks loader; transition when theme images are ready
+		const allThemeImagesLoaded =
+			this._themeImagesTotal === 0 || this._themeImagesLoaded >= this._themeImagesTotal;
+		const phaserComplete = !this.load.isLoading() && this.load.list.size === 0;
+		const requiredTexturesReady = this._verifyRequiredTexturesReady();
 
-		if (allThemeImagesLoaded && !this._hasTransitioned) {
+		if (allThemeImagesLoaded && phaserComplete && requiredTexturesReady && !this._hasTransitioned) {
 			this._hasTransitioned = true;
-			log(`[Preload] All assets ready: theme images=${this._themeImagesLoaded}/${this._themeImagesTotal}`, 'assets');
-			this.transitionToLevel();
+			log(
+				`[Preload] All assets ready: theme images=${this._themeImagesLoaded}/${this._themeImagesTotal}, phaserComplete=${phaserComplete}`,
+				'assets',
+			);
+			const isMobile = BrowserDetector.isMobile();
+			const settlingDelay = isMobile ? 75 : 50;
+			this.time.delayedCall(settlingDelay, () => this.transitionToLevel());
 		}
 	}
 
@@ -209,39 +272,34 @@ export default class Preload extends Phaser.Scene {
 		);
 	}
 
-	async loadTheme()
-	{
-		const cfg = this.registry.get('preloadGameConfig') || (typeof window !== 'undefined' && window.__selectedGameConfig) || {};
+	/**
+	 * Queue theme textures/audio from registry (JSON was fetched in Boot before this scene started).
+	 */
+	async queueThemeAssetsFromRegistry() {
+		const cfg =
+			this.registry.get('preloadGameConfig') ||
+			(typeof window !== 'undefined' && window.__selectedGameConfig) ||
+			{};
 		const selectedTheme = cfg.theme || 'default';
 
-		log(`[Preload] Loading theme bundle: ${selectedTheme}`, 'assets');
-
-		const cacheBuster = Date.now();
-		let defaultTheme = null;
-		let themeOverride = null;
+		let themeData = this.registry.get('preloadThemeData');
+		if (!themeData || typeof themeData !== 'object' || Object.keys(themeData).length === 0) {
+			warn('[Preload] preloadThemeData missing — fetching theme in Preload (Boot should have set this)', 'theme');
+			try {
+				const loaded = await loadThemeWithOverride(selectedTheme);
+				themeData = loaded.themeData;
+				this.registry.set('preloadThemeData', themeData);
+				this.registry.set('preloadThemeOverride', loaded.themeOverride);
+			} catch (error) {
+				logErr(`[Preload] Error loading themes: ${error?.message ?? error}`, 'assets', error);
+				themeData = {};
+				this.registry.set('preloadThemeData', themeData);
+			}
+		} else {
+			log(`[Preload] Theme JSON from Boot: ${selectedTheme}`, 'assets');
+		}
 
 		try {
-			const defaultResp = await fetch(`src/config/themes/default.json?t=${cacheBuster}`);
-			if (defaultResp.ok) {
-				defaultTheme = await defaultResp.json();
-				log('[Preload] default.json loaded', 'assets');
-			} else {
-				warn('[Preload] default.json missing — theme merge may be incomplete', 'theme');
-			}
-
-			const themeResp = await fetch(`src/config/themes/${selectedTheme}.json?t=${cacheBuster}`);
-			if (themeResp.ok) {
-				themeOverride = await themeResp.json();
-				log(`[Preload] src/config/themes/${selectedTheme}.json loaded`, 'assets');
-			} else if (selectedTheme !== 'default') {
-				warn(`[Preload] Theme "${selectedTheme}" not found (${themeResp.status})`, 'theme');
-			} else if (selectedTheme === 'default') {
-				themeOverride = defaultTheme;
-			}
-
-			const themeData = mergeThemeWithDefault(defaultTheme ?? {}, themeOverride ?? {});
-			this.registry.set('preloadThemeData', themeData);
-
 			await this._hydratePullTabIconsLayout(themeData);
 
 			this._themeImagesLoading = true;
@@ -256,16 +314,11 @@ export default class Preload extends Phaser.Scene {
 			if (this._themeImagesTotal > 0) {
 				log(`[Preload] Queued ${this._themeImagesTotal} theme asset(s)`, 'assets');
 				log(`[Preload] Theme texture keys: [${Array.from(this._themeImageKeys).join(', ')}]`, 'assets');
-
-				if (!this.load.isLoading() && this.load.list.size > 0) {
-					log('[Preload] Loader idle with theme files queued, starting loader...', 'assets');
-					this.load.start();
-				}
 			} else {
 				log('[Preload] No theme imageKeys to queue', 'assets');
 			}
 		} catch (error) {
-			logErr(`[Preload] Error loading themes: ${error?.message ?? error}`, 'assets', error);
+			logErr(`[Preload] Error queuing theme assets: ${error?.message ?? error}`, 'assets', error);
 			this.registry.set('pullTabIconsLayout', {});
 			this._themeImagesQueued = true;
 		}
@@ -404,53 +457,51 @@ export default class Preload extends Phaser.Scene {
 	}
 
 	create() {
+		const finalViewportWidth = ViewportHelper.getWidth();
+		const finalViewportHeight = ViewportHelper.getHeight();
+		if (this.scale.width !== finalViewportWidth || this.scale.height !== finalViewportHeight) {
+			this.scale.resize(finalViewportWidth, finalViewportHeight);
+			this.scale.refresh();
+		}
+
 		this._checkAssetsReadyEnabled = true;
 		this._hasTransitioned = false;
 
-		// If loader is idle but has files queued, start it (handles theme images queued after asset-pack)
 		if (!this.load.isLoading() && this.load.list.size > 0) {
 			log('[Preload] Loader idle with files queued, starting loader...', 'assets');
 			this.load.start();
 		}
 
-		// 50ms delay to handle async theme queuing race
-		this.time.delayedCall(50, () => {
-			const allThemeImagesLoaded = this._themeImagesTotal === 0 || this._themeImagesLoaded >= this._themeImagesTotal;
-			const phaserComplete = !this.load.isLoading() && this.load.list.size === 0;
+		const isMobile = BrowserDetector.isMobile();
+		const MAX_WAIT_TIME = isMobile ? 8000 : 10000;
+		const CHECK_INTERVAL = isMobile ? 50 : 100;
+		const waitStartTime = Date.now();
 
-			if (phaserComplete && allThemeImagesLoaded && this._themeImagesQueued) {
-				// No theme images or all loaded, transition immediately
-				this._checkAssetsReady();
+		const checkAndTransition = () => {
+			const elapsed = Date.now() - waitStartTime;
+			if (elapsed > MAX_WAIT_TIME) {
+				warn(
+					`[Preload] Timeout after ${elapsed}ms - forcing transition (${this._themeImagesLoaded}/${this._themeImagesTotal})`,
+					'assets',
+				);
+				if (!this._hasTransitioned) {
+					this._hasTransitioned = true;
+					this.transitionToLevel();
+				}
 				return;
 			}
+			this._checkAssetsReady();
+		};
 
-			const isMobile = BrowserDetector.isMobile();
-			const MAX_WAIT_TIME = isMobile ? 3000 : 10000;
-			const CHECK_INTERVAL = isMobile ? 50 : 100;
-			const waitStartTime = Date.now();
+		this.load.once('complete', () => checkAndTransition());
 
-			const checkAndTransition = () => {
-				const elapsed = Date.now() - waitStartTime;
-				if (elapsed > MAX_WAIT_TIME) {
-					warn(`[Preload] Timeout after ${elapsed}ms - forcing transition (${this._themeImagesLoaded}/${this._themeImagesTotal})`, 'assets');
-					if (!this._hasTransitioned) {
-						this._hasTransitioned = true;
-						this.transitionToLevel();
-					}
-					return;
-				}
-				this._checkAssetsReady();
-			};
-
-			this.load.once('complete', () => checkAndTransition());
-
-			// Safety polling in case complete event fires before we listen
-			this._safetyCheckTimer = this.time.addEvent({
-				delay: CHECK_INTERVAL,
-				callback: checkAndTransition,
-				repeat: -1
-			});
+		this._safetyCheckTimer = this.time.addEvent({
+			delay: CHECK_INTERVAL,
+			callback: checkAndTransition,
+			repeat: -1,
 		});
+
+		this.time.delayedCall(50, () => checkAndTransition());
 	}
 
 	/* END-USER-CODE */
