@@ -54,6 +54,8 @@ export default defineConfig({
     port: PORT_VITE,
     strictPort: false,
     host: true,
+    // Do not inject the Vite error overlay in the page; errors still log in terminal + DevTools console.
+    hmr: { overlay: false },
   },
   build: {
     outDir: 'dist',
