@@ -117,6 +117,43 @@ export function ensurePeelCardBackGameObject(scene, parent, cardBack, themeData)
 }
 
 /**
+ * Scale factor for peel rows on a flat theme `cardBack` so strips match the painted tab column
+ * (default peel art is 384×100; composite cardBack images are much larger).
+ *
+ * Optional theme `peelCard` fields: `flatPeelHeightFillPercent`, `flatPeelWidthFillPercent`, `flatPeelStripMaxScale`.
+ *
+ * @param {Record<string, unknown>|null|undefined} themeData
+ * @param {number} cardW
+ * @param {number} cardH
+ * @param {number} peelW
+ * @param {number} totalPeelStackH
+ * @param {number} inset
+ */
+export function resolveFlatPeelStripContainerScale(themeData, cardW, cardH, peelW, totalPeelStackH, inset) {
+	if (!(totalPeelStackH > 0) || !(peelW > 0) || !(cardW > 0) || !(cardH > 0)) {
+		return 1;
+	}
+	const pc =
+		themeData?.peelCard && typeof themeData.peelCard === 'object' && themeData.peelCard !== null
+			? /** @type {{ flatPeelHeightFillPercent?: unknown, flatPeelWidthFillPercent?: unknown, flatPeelStripMaxScale?: unknown }} */ (
+					themeData.peelCard
+				)
+			: {};
+	const heightFillRaw = Number(pc.flatPeelHeightFillPercent);
+	const widthFillRaw = Number(pc.flatPeelWidthFillPercent);
+	const maxScaleRaw = Number(pc.flatPeelStripMaxScale);
+	const heightFill = Number.isFinite(heightFillRaw) && heightFillRaw > 0 ? heightFillRaw : 0.88;
+	const widthFill = Number.isFinite(widthFillRaw) && widthFillRaw > 0 ? widthFillRaw : 0.4;
+	const cap = Number.isFinite(maxScaleRaw) && maxScaleRaw > 0 ? maxScaleRaw : 2.75;
+
+	const availableH = Math.max(1, cardH - 2 * inset);
+	const targetW = Math.max(1, cardW * widthFill);
+	const scaleH = (availableH * heightFill) / totalPeelStackH;
+	const scaleW = targetW / peelW;
+	return Math.min(scaleH, scaleW, cap);
+}
+
+/**
  * Overlay peel rows on a flat theme `cardBack` image (inset margins, stack vertically centered).
  *
  * @param {{
@@ -130,12 +167,14 @@ export function layoutPeelStripsOnFlatCardBackSubtree(params) {
 	if (!cardBack?.active || !peelContainer) {
 		return;
 	}
+	peelContainer.setScale(1, 1);
+
 	const list = peelContainer.list;
 	if (!Array.isArray(list) || list.length === 0) {
 		return;
 	}
 	const firstTab = list[0];
-	const { strip, peelLocalRight } = getPeelStripMetrics(firstTab);
+	const { strip, peelW, peelLocalRight } = getPeelStripMetrics(firstTab);
 	if (!firstTab?.active || !strip?.active) {
 		return;
 	}
@@ -149,17 +188,22 @@ export function layoutPeelStripsOnFlatCardBackSubtree(params) {
 	const cardTop = cardBack.y - oy * ch;
 	const cardRight = cardLeft + cw;
 
-	peelContainer.x = cardRight - inset - peelLocalRight;
-
 	let totalH = 0;
 	for (const tab of list) {
 		if (tab?.active) {
 			totalH += getPeelRowHeight(tab);
 		}
 	}
+
+	const fitScale = resolveFlatPeelStripContainerScale(themeData, cw, ch, peelW, totalH, inset);
+	peelContainer.setScale(fitScale, fitScale);
+
+	const scaledTotalH = totalH * fitScale;
+	const scaledPeelLocalRight = peelLocalRight * fitScale;
 	const availableH = Math.max(0, ch - 2 * inset);
-	const startY = cardTop + inset + Math.max(0, (availableH - totalH) / 2);
-	peelContainer.y = startY;
+
+	peelContainer.x = cardRight - inset - scaledPeelLocalRight;
+	peelContainer.y = cardTop + inset + Math.max(0, (availableH - scaledTotalH) / 2);
 }
 
 /**
@@ -420,6 +464,10 @@ export function layoutPeelCardHorizontalContentInset(peelCard, themeData) {
 		return;
 	}
 
+	if (peelCard.peelContainer) {
+		peelCard.peelContainer.setScale(1, 1);
+	}
+
 	const triple = peelCardUsesTripleHorizontalInsetGaps(themeData);
 
 	resizePeelCardBackTripleInsetWidths(
@@ -452,6 +500,9 @@ export function layoutPeelCardHorizontalContentInset(peelCard, themeData) {
 		}
 		if (enter.prizeContainer) {
 			enter.prizeContainer.setVisible(shouldShowPeelPrizeLabels(themeData));
+		}
+		if (enter.peelContainer) {
+			enter.peelContainer.setScale(1, 1);
 		}
 		resizePeelCardBackTripleInsetWidths(
 			{

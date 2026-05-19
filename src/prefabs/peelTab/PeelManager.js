@@ -155,11 +155,15 @@ export default class PeelManager extends Phaser.GameObjects.Container {
 			});					
 		}
 
-		if(this.autoMode)
-		{
-			this.autoRoundsLeft--
+		if (this.autoMode) {
+			this.autoRoundsLeft--;
 			log(`PeelManager auto rounds left=${this.autoRoundsLeft}`, 'game');
-			this.scene.time.delayedCall(3000 / this.speed, () => this.stateManager.setState("reset", "PeelManager -  Resetting Game"))
+			this.scene.time.delayedCall(5000 / this.speed, () => {
+				const s = this.stateManager?.state;
+				if (s === 'win' || s === 'lose') {
+					this.stateManager.setState('reset', 'PeelManager - autoplay reset after results');
+				}
+			});
 		}
 	}
 

@@ -19,6 +19,17 @@
     "iconRowY": 50,
     "crossY": 50
   },
+  "cardConfig": {
+    "lose": {
+      "animationStyle": "scale"
+    }
+  },
+  "win": {
+    "cardHeightPercent": 0.4
+  },
+  "lose": {
+    "cardHeightPercent": 0.58
+  },
   "peelCard": {
     "cardBackTint": "#f5f5dc",
     "horizontalContentInset": 30
@@ -74,6 +85,9 @@
       "stroke": {
         "color": "#f6f4eb",
         "lineWidth": 15
+      },
+      "position": {
+        "y": 117
       }
     }
   },

@@ -57,9 +57,10 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 		messageText.setDepth(50);
 		scene.pullTabBannerMessageText = messageText;
 
-		// prefab_Results
-		const prefab_Results = new Prefab_Results(scene, 0, -344);
+		// prefab_Results — centered on cardBack (scratch cardContainer pattern)
+		const prefab_Results = new Prefab_Results(scene, 0, 0);
 		gameContainer.add(prefab_Results);
+		this.prefab_Results = prefab_Results;
 
 		// peelCardEnterAnim
 		const peelCardEnterAnim = new PeelCardEnterAnim(scene, 0, 0);
@@ -227,22 +228,6 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 			this.dI_CardCover_Default.setTexture("card")
 		}
 
-		if (showCover && this.scene.cache.video.exists("win"))
-		{
-			const win_Video = this.scene.add.video(-80, -300, "win");
-			this.win_Video = win_Video;
-			win_Video.setOrigin(1, 0);
-			this.videoContainer.add(win_Video);
-		}
-
-		if (showCover && this.scene.cache.video.exists("lose"))
-		{
-			const lose_Video = this.scene.add.video(-80, -300, "lose");
-			this.lose_Video = lose_Video;
-			lose_Video.setOrigin(1, 0);
-			this.videoContainer.add(lose_Video);
-		}
-
 		this._applyPeelCardThemeVisuals();
 	}
 
@@ -318,13 +303,9 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 			this.peelAll();
 			break;
 			case "lose":
-			this.playLoseVideo();
-			break;
 			case "win":
-			this.playWinVideo();
 			break;
 			case "close":
-			//this.playLoseVideo();
 			break;
 		}
 	}
@@ -338,41 +319,6 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 		}
 	}
 
-	playWinVideo()
-	{
-		if(!this.scene.cache.video.exists("win")) return;
-
-		this.win_Video.alpha = 1;
-		this.win_Video.visible = true;
-		this.win_Video.setPlaybackRate(this.speed)
-
-		this.win_Video.play(false);
-		this.scene.tweens.add({
-			targets: this.win_Video,
-			alpha: 0,
-			delay: 2750 / this.speed,
-			duration: 250 / this.speed,
-			onComplete: ()=>{this.win_Video.visible = false;}
-		})
-	}
-
-	playLoseVideo()
-	{
-		if(!this.scene.cache.video.exists("lose")) return;
-
-		this.lose_Video.alpha = 1;
-		this.lose_Video.visible = true;
-		this.lose_Video.setPlaybackRate(this.speed)
-
-		this.lose_Video.play(false);
-		this.scene.tweens.add({
-			targets: this.lose_Video,
-			alpha: 0,
-			delay: 2750 / this.speed,
-			duration: 250 / this.speed,
-			onComplete: ()=>{this.lose_Video.visible = false;}
-		})
-	}
 	/* END-USER-CODE */
 }
 

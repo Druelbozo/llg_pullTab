@@ -494,6 +494,7 @@ function applyPeelCardLayout(scene, layoutPositions) {
         peelCardScreenFit.layoutManagedScale = true;
     }
     peel.setScale(s, s);
+    scene.events.emit('pulltab-peel-layout-changed');
 }
 
 /**
@@ -555,20 +556,9 @@ export function attachPullTabPlayButtonAndHudSync(scene) {
                 cm.setAutoButtonDisabled(true);
                 break;
             case 'win':
-                cm.setPlayButtonDisabled(true);
-                cm.setAutoButtonDisabled(false);
-                scene.time.delayedCall(3000 / speed, () => {
-                    cm.updatePlayButtonText('RESET');
-                    cm.setPlayButtonDisabled(false);
-                });
-                break;
             case 'lose':
                 cm.setPlayButtonDisabled(true);
                 cm.setAutoButtonDisabled(false);
-                scene.time.delayedCall(3000, () => {
-                    cm.updatePlayButtonText('RESET');
-                    cm.setPlayButtonDisabled(false);
-                });
                 break;
             default:
                 break;

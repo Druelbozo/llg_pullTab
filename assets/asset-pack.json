@@ -29,6 +29,11 @@
                 "key": "CardBack"
             },
             {
+                "url": "assets/images/common/Icon_SpinWheel_BonusLight.png",
+                "type": "image",
+                "key": "Icon_SpinWheel_BonusLight"
+            },
+            {
                 "url": "assets/images/theme/background/background-default.png",
                 "type": "image",
                 "key": "DI_Background_Default"

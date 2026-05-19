@@ -3,14 +3,14 @@
     "background": "background-lumberjack-legend",
     "cardBack": "cardBack-lumberjack-legend",
     "card": "card-lumberjack-legend",
-    "icons": "icons-lumberjack-legend"
+    "icons": "icons-lumberjack-legend",
+    "win": "win-lumberjack-legend",
+    "lose": "lose-lumberjack-legend"
   },
   "peelCard": {
-    "horizontalContentInset": 40
-  },
-  "videoKeys": {
-    "win": "win-lumberjack-legend",
-    "lose": ""
+    "horizontalContentInset": 40,
+    "flatPeelHeightFillPercent": 0.88,
+    "flatPeelWidthFillPercent": 0.42
   },
   "music": {
     "audioKey": "lumberjack-legend.ogg"
