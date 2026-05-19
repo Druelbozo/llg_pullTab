@@ -7,7 +7,9 @@
 import {
 	applyPeelCardBackTintFromTheme,
 	ensurePeelCardBackGameObject,
+	layoutPeelRowStack,
 	refreshPeelCardHorizontalLayoutSurface,
+	resolvePeelRowGap,
 	shouldShowPeelCardCover,
 	shouldShowPeelPrizeLabels,
 } from "../../utils/theme/PeelCardThemeUtils.js";
@@ -95,6 +97,12 @@ export default class PeelCardEnterAnim extends Phaser.GameObjects.Container {
 				)
 			)
 		);
+		if (showCover && this.scene.textures.exists("card")) {
+			this.cardCover.setTexture("card");
+		}
+
+		const rowGap = resolvePeelRowGap(td);
+		const stripImages = [];
 		for (let i = 0; i < peelRows; i++) {
 			const peel = this.scene.add.image(0, 0, "DI_Peel_Default");
 			if (this.scene.textures.exists("peel")) {
@@ -103,17 +111,14 @@ export default class PeelCardEnterAnim extends Phaser.GameObjects.Container {
 				peel.setTexture("DI_Peel_Default");
 			}
 
-			if (showCover && this.scene.textures.exists("card")) {
-				this.cardCover.setTexture("card");
-			}
-
 			peel.setOrigin(0, 0);
 			this.peelContainer.add(peel);
+			stripImages.push(peel);
+		}
+		layoutPeelRowStack(stripImages, rowGap);
 
-			peel.y = 100 * i;
-			peel.x = 0;
-
-			if (showPeelPrizeLabels) {
+		if (showPeelPrizeLabels) {
+			for (let i = 0; i < peelRows; i++) {
 				const prizeText = this.scene.add.text(0, 0, "", {});
 				prizeText.setOrigin(0.5, 0);
 				prizeText.text = config.prizes[i % (config.prizes.length || 1)];
@@ -125,7 +130,7 @@ export default class PeelCardEnterAnim extends Phaser.GameObjects.Container {
 					resolution: 2,
 				});
 				this.prizeContainer.add(prizeText);
-				prizeText.y = 100 * i + 10;
+				prizeText.y = stripImages[i].y + 10;
 			}
 		}
 

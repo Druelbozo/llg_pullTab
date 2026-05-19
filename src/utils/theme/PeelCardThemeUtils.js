@@ -74,6 +74,30 @@ export function resolvePeelRowGap(themeData) {
 }
 
 /**
+ * Stack peel rows top-to-bottom with `peelRowGap` between rows (PeelCard + enter anim).
+ *
+ * @param {readonly Phaser.GameObjects.GameObject[]} rows
+ * @param {number} rowGap
+ */
+export function layoutPeelRowStack(rows, rowGap) {
+	if (!Array.isArray(rows) || rows.length === 0) {
+		return;
+	}
+	let stackExtent = 0;
+	for (let i = 0; i < rows.length; i++) {
+		const row = rows[i];
+		if (!row?.active) {
+			continue;
+		}
+		row.y = stackExtent + rowGap * i;
+		if (typeof row.x === 'number') {
+			row.x = 0;
+		}
+		stackExtent += getPeelRowHeight(row);
+	}
+}
+
+/**
  * @param {readonly Phaser.GameObjects.GameObject[]} tabs
  * @param {number} rowGap
  * @returns {number}
