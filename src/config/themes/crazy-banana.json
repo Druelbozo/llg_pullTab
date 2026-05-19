@@ -5,6 +5,10 @@
     "icons": "icons-crazy-banana",
     "peel": "peel-crazy-banana"
   },
+  "videoKeys": {
+    "win": "win-crazy-banana",
+    "lose": "lose-crazy-banana"
+  },
   "text": {
     "palette": {
       "primaryColor": "#33b5d4",

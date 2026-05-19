@@ -14,10 +14,15 @@ import {
 	layoutPeelCardHorizontalContentInset,
 	shouldShowPeelCardCover,
 	shouldShowPeelPrizeLabels,
+	themeDefinesPeelVideoSlot,
+	PEEL_RESULT_VIDEO_PLAYBACK_MS_AT_SPEED_1,
 	layoutPeelRowStack,
 	resolvePeelRowGap,
 } from "../../utils/theme/PeelCardThemeUtils.js";
-import { syncPullTabPeelCardLayout } from "../../services/pulltab/PullTabControlBarBootstrap.js";
+import {
+	enablePullTabResultsResetButton,
+	syncPullTabPeelCardLayout,
+} from "../../services/pulltab/PullTabControlBarBootstrap.js";
 import { warn } from "../../utils/logger/LoggerUtils.js";
 /* END-USER-IMPORTS */
 
@@ -234,6 +239,8 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 			this.dI_CardCover_Default.setTexture("card")
 		}
 
+		this._ensurePeelResultVideos(td);
+
 		this._applyPeelCardThemeVisuals();
 		syncPullTabPeelCardLayout(this.scene);
 	}
@@ -310,7 +317,10 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 			this.peelAll();
 			break;
 			case "lose":
+			this.playLoseVideo();
+			break;
 			case "win":
+			this.playWinVideo();
 			break;
 			case "close":
 			break;
@@ -324,6 +334,65 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 		{
 			this.scene.stateManager.setState("gameOver", "PeelCard - All Tabs Peeled Ending Game")
 		}
+	}
+
+	_ensurePeelResultVideos(themeData) {
+		const flat = !shouldShowPeelCardCover(themeData);
+		const x = flat ? 0 : -80;
+		const y = flat ? 0 : -300;
+		const originX = flat ? 0.5 : 1;
+		const originY = flat ? 0.5 : 0;
+
+		if (themeDefinesPeelVideoSlot(themeData, 'win') && this.scene.cache.video.exists('win') && !this.win_Video) {
+			const win_Video = this.scene.add.video(x, y, 'win');
+			this.win_Video = win_Video;
+			win_Video.setOrigin(originX, originY);
+			win_Video.visible = false;
+			this.videoContainer.add(win_Video);
+		}
+		if (themeDefinesPeelVideoSlot(themeData, 'lose') && this.scene.cache.video.exists('lose') && !this.lose_Video) {
+			const lose_Video = this.scene.add.video(x, y, 'lose');
+			this.lose_Video = lose_Video;
+			lose_Video.setOrigin(originX, originY);
+			lose_Video.visible = false;
+			this.videoContainer.add(lose_Video);
+		}
+	}
+
+	_playPeelResultVideo(video, slot) {
+		const td = this.scene.themeData || this.scene.registry.get('preloadThemeData');
+		if (!video || !themeDefinesPeelVideoSlot(td, slot)) {
+			return;
+		}
+		if (!this.scene.cache.video.exists(slot)) {
+			return;
+		}
+
+		const fadeDelay = (PEEL_RESULT_VIDEO_PLAYBACK_MS_AT_SPEED_1 - 250) / this.speed;
+		const fadeDuration = 250 / this.speed;
+
+		video.alpha = 1;
+		video.visible = true;
+		video.setPlaybackRate(this.speed);
+		video.play(false);
+		this.scene.tweens.add({
+			targets: video,
+			alpha: 0,
+			delay: fadeDelay,
+			duration: fadeDuration,
+			onComplete: () => {
+				video.visible = false;
+				enablePullTabResultsResetButton(this.scene);
+			},
+		});
+	}
+
+	playWinVideo() {
+		this._playPeelResultVideo(this.win_Video, 'win');
+	}
+
+	playLoseVideo() {
+		this._playPeelResultVideo(this.lose_Video, 'lose');
 	}
 
 	/* END-USER-CODE */

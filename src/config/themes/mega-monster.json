@@ -6,8 +6,7 @@
     "peel": "peel-crazy-banana"
   },
   "videoKeys": {
-    "win": "win-mega-monster",
-    "lose": ""
+    "win": "win-mega-monster"
   },
   "text": {
     "palette": {

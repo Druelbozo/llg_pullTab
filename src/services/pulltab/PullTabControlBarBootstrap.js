@@ -514,6 +514,16 @@ function applyPeelCardLayout(scene, layoutPositions) {
 /**
  * Scratch-style play / auto labels from Peel game state (see legacy InteractButton).
  */
+/** Enable RESET after peel win/lose presentation (PNG or video). */
+export function enablePullTabResultsResetButton(scene) {
+    const mgr = scene?.peelManager;
+    if (mgr?.autoMode) {
+        return;
+    }
+    scene?.controlBarManager?.updatePlayButtonText('RESET');
+    scene?.controlBarManager?.setPlayButtonDisabled(false);
+}
+
 export function attachPullTabPlayButtonAndHudSync(scene) {
     scene.handlePlayButtonClick = () => {
         scene.peelManager?.interact();

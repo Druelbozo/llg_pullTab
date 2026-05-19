@@ -8,6 +8,9 @@
     "win": "win-lumberjack-legend",
     "lose": "lose-lumberjack-legend"
   },
+  "videoKeys": {
+    "win": "win-lumberjack-legend"
+  },
   "peelCard": {
     "horizontalContentInset": 50,
     "flatPeelHeightFillPercent": 0.88,

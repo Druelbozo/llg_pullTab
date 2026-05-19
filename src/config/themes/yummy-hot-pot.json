@@ -5,8 +5,7 @@
     "icons": "icons-yummy-hot-pot"
   },
   "videoKeys": {
-    "win": "win-yummy-hot-pot",
-    "lose": ""
+    "win": "win-yummy-hot-pot"
   },  
   "music": {
     "audioKey": "yummy-hot-pot.ogg"

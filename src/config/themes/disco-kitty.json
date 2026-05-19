@@ -6,10 +6,6 @@
     "peel": "peel-disco-kitty",
     "peelBack": "peelBack-disco-kitty"
   },
-  "videoKeys": {
-    "win": "win-disco-kitty",
-    "lose": ""
-  },
   "text": {
     "palette": {
       "primaryColor": "#bf45fe",

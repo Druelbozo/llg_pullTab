@@ -5,6 +5,8 @@
 
 /* START-USER-IMPORTS */
 import { resolvePrizeAmountTextStyle } from '../../utils/theme/ScratchLikeTextResolutionUtils.js';
+import { peelResultVideoOverridesImageAnimation } from '../../utils/theme/PeelCardThemeUtils.js';
+import { enablePullTabResultsResetButton } from '../../services/pulltab/PullTabControlBarBootstrap.js';
 import {
 	applyResultGraphicScale,
 	layoutResultsOnPeelCard,
@@ -138,12 +140,7 @@ export default class Prefab_Results extends Phaser.GameObjects.Container {
 	}
 
 	_enableResetButton() {
-		const mgr = this.scene.peelManager;
-		if (mgr?.autoMode) {
-			return;
-		}
-		this.scene.controlBarManager?.updatePlayButtonText('RESET');
-		this.scene.controlBarManager?.setPlayButtonDisabled(false);
+		enablePullTabResultsResetButton(this.scene);
 	}
 
 	init(theme) {
@@ -195,6 +192,11 @@ export default class Prefab_Results extends Phaser.GameObjects.Container {
 		}
 
 		if (state !== 'win' && state !== 'lose') {
+			return;
+		}
+
+		const td = this._getTheme();
+		if (peelResultVideoOverridesImageAnimation(this.scene, td, state)) {
 			return;
 		}
 

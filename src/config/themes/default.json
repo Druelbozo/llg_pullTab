@@ -10,8 +10,8 @@
     "lose": "lose-default"
   },
   "videoKeys": {
-    "win": "win-crazy-banana",
-    "lose": "lose-crazy-banana"
+    "win": null,
+    "lose": null
   },
   "pullTabIconsLayout": {
     "iconSpacing": 130,

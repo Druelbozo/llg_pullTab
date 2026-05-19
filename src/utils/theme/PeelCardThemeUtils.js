@@ -30,6 +30,90 @@ export function shouldShowPeelCardCover(themeData) {
 	return !themeUsesFlatCardBackImage(themeData);
 }
 
+/** Wall-time (speed 1) for peel result video fade-out; matches {@link PeelCard} video tweens. */
+export const PEEL_RESULT_VIDEO_PLAYBACK_MS_AT_SPEED_1 = 3000;
+
+/**
+ * @param {Record<string, unknown>|null|undefined} themeData
+ * @param {'win'|'lose'} slot
+ * @returns {string}
+ */
+export function resolveThemeVideoKeyStem(themeData, slot) {
+	const vk = themeData?.videoKeys;
+	if (!vk || typeof vk !== 'object') {
+		return '';
+	}
+	const stem = /** @type {Record<string, unknown>} */ (vk)[slot];
+	if (stem === undefined || stem === null) {
+		return '';
+	}
+	return typeof stem === 'string' ? stem.trim() : '';
+}
+
+/** Non-empty `videoKeys` slot → preload queues that clip (empty string skips). */
+export function themeDefinesPeelVideoSlot(themeData, slot) {
+	return resolveThemeVideoKeyStem(themeData, slot).length > 0;
+}
+
+/**
+ * When true, play the video clip instead of the `imageKeys` win/lose PNG animation.
+ *
+ * @param {Phaser.Scene} scene
+ * @param {Record<string, unknown>|null|undefined} themeData
+ * @param {'win'|'lose'} slot
+ */
+export function peelResultVideoOverridesImageAnimation(scene, themeData, slot) {
+	return themeDefinesPeelVideoSlot(themeData, slot) && Boolean(scene?.cache?.video?.exists?.(slot));
+}
+
+/**
+ * Position win/lose videos on the card (cover band or flat cardBack center).
+ *
+ * @param {{ cardBack?: Phaser.GameObjects.GameObject, dI_CardCover_Default?: Phaser.GameObjects.Image, win_Video?: Phaser.GameObjects.Video, lose_Video?: Phaser.GameObjects.Video }} peelCard
+ * @param {Record<string, unknown>|null|undefined} themeData
+ */
+export function layoutPeelResultVideosOnCard(peelCard, themeData) {
+	const cardBack = peelCard?.cardBack;
+	if (!cardBack?.active) {
+		return;
+	}
+
+	const flat = themeUsesFlatCardBackImage(themeData);
+	const cw =
+		typeof /** @type {{ displayWidth?: number, width?: number }} */ (cardBack).displayWidth === 'number'
+			? cardBack.displayWidth
+			: /** @type {{ width?: number }} */ (cardBack).width ?? 0;
+	const ch =
+		typeof /** @type {{ displayHeight?: number, height?: number }} */ (cardBack).displayHeight === 'number'
+			? cardBack.displayHeight
+			: /** @type {{ height?: number }} */ (cardBack).height ?? 0;
+	const ox = typeof cardBack.originX === 'number' ? cardBack.originX : 0;
+	const oy = typeof cardBack.originY === 'number' ? cardBack.originY : 0;
+	const centerX = cardBack.x - ox * cw + cw * 0.5;
+	const centerY = cardBack.y - oy * ch + ch * 0.5;
+	const cover = peelCard.dI_CardCover_Default;
+
+	/** @type {readonly ['win'|'lose', Phaser.GameObjects.Video|undefined][]} */
+	const slots = [
+		['win', peelCard.win_Video],
+		['lose', peelCard.lose_Video],
+	];
+
+	for (const [slot, video] of slots) {
+		if (!video || !themeDefinesPeelVideoSlot(themeData, slot)) {
+			continue;
+		}
+		if (flat) {
+			video.setOrigin(0.5, 0.5);
+			video.setPosition(centerX, centerY);
+		} else if (cover?.active) {
+			video.setOrigin(1, 0);
+			video.setPosition(cover.x, cover.y);
+		}
+		video.setVisible(false);
+	}
+}
+
 /** Flat cardBack mode always hides prize column labels. */
 export function shouldShowPeelPrizeLabels(themeData) {
 	if (themeUsesFlatCardBackImage(themeData)) {
@@ -501,21 +585,13 @@ export function layoutPeelCardHorizontalContentInset(peelCard, themeData) {
 	if (peelCard.prizeContainer) {
 		peelCard.prizeContainer.setVisible(shouldShowPeelPrizeLabels(themeData));
 	}
-	if (!showCover) {
-		if (peelCard.win_Video) {
-			peelCard.win_Video.setVisible(false);
-		}
-		if (peelCard.lose_Video) {
-			peelCard.lose_Video.setVisible(false);
-		}
-	}
-
 	if (themeUsesFlatCardBackImage(themeData)) {
 		layoutPeelStripsOnFlatCardBackSubtree({
 			themeData,
 			cardBack: peelCard.cardBack,
 			peelContainer: peelCard.peelContainer,
 		});
+		layoutPeelResultVideosOnCard(peelCard, themeData);
 
 		const enter = peelCard.peelCardEnterAnim;
 		if (enter?.cardBack && enter.peelContainer) {
@@ -557,6 +633,7 @@ export function layoutPeelCardHorizontalContentInset(peelCard, themeData) {
 		syncCoverXVideos: [peelCard.win_Video, peelCard.lose_Video],
 		threeEqualHorizontalGaps: triple,
 	});
+	layoutPeelResultVideosOnCard(peelCard, themeData);
 
 	const enter = peelCard.peelCardEnterAnim;
 	if (
