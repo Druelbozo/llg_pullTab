@@ -17,7 +17,7 @@ export default {
   },
   cardContainer: { areaPercent: 0.9, offsetYPercent: 0 },
   messageText: {
-    heightPercent: 0.1,
+    heightPercent: 0.13,
     percentY: -0.025,
     centerInLeftBand: true,
     insetPercent: { horizontal: 0.06 },

@@ -65,11 +65,11 @@
     },
     "message": {
       "font": {
-        "size": 65
+        "size": 80
       },
       "stroke": {
         "color": "#0",
-        "lineWidth": 15
+        "lineWidth": 8
       },
       "offset": {
         "x": 0,
