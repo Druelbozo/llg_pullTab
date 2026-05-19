@@ -1,6 +1,7 @@
 {
   "imageKeys": {
     "background": "background-default",
+    "cardBack": null,
     "card": "card-default",
     "icons": "icons-default",
     "peel": "peel-default",

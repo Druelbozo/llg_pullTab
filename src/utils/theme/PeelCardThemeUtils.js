@@ -9,6 +9,159 @@ import { debug } from '../logger/LoggerUtils.js';
 /** When `horizontalContentInset` is missing or invalid — matches the legacy PeelCard horizontal offset (80). */
 export const DEFAULT_PEEL_CARD_HORIZONTAL_CONTENT_INSET = 80;
 
+/** Phaser texture key for theme `imageKeys.cardBack` (Preload registers slot name as key). */
+export const THEME_FLAT_CARD_BACK_TEXTURE_KEY = 'cardBack';
+
+/** Built-in NineSlice backing when no theme flat `cardBack` image is configured. */
+export const LEGACY_CARD_BACK_TEXTURE_KEY = 'CardBack';
+
+/**
+ * Theme provides `imageKeys.cardBack` → use full card art instead of NineSlice + separate cover.
+ *
+ * @param {Record<string, unknown>|null|undefined} themeData
+ */
+export function themeUsesFlatCardBackImage(themeData) {
+	const raw = themeData?.imageKeys?.cardBack;
+	return typeof raw === 'string' && raw.trim().length > 0;
+}
+
+/** @param {Record<string, unknown>|null|undefined} themeData */
+export function shouldShowPeelCardCover(themeData) {
+	return !themeUsesFlatCardBackImage(themeData);
+}
+
+/** Flat cardBack mode always hides prize column labels. */
+export function shouldShowPeelPrizeLabels(themeData) {
+	if (themeUsesFlatCardBackImage(themeData)) {
+		return false;
+	}
+	return GameConfig.game.SHOW_PEEL_PRIZE_LABELS !== false;
+}
+
+/**
+ * @param {Phaser.GameObjects.GameObject|null|undefined} cardBack
+ */
+function isPeelCardBackNineSlice(cardBack) {
+	return Boolean(cardBack && typeof /** @type {{ resize?: unknown }} */ (cardBack).resize === 'function');
+}
+
+/**
+ * @param {Phaser.GameObjects.Container|null|undefined} tab
+ */
+function getPeelRowHeight(tab) {
+	if (!tab) {
+		return 0;
+	}
+	if (typeof /** @type {{ getSize?: () => { y: number } }} */ (tab).getSize === 'function') {
+		return /** @type {{ getSize: () => { y: number } }} */ (tab).getSize().y;
+	}
+	return tab.displayHeight ?? 0;
+}
+
+/**
+ * @param {Phaser.GameObjects.Container|Phaser.GameObjects.Image|null|undefined} firstTab
+ */
+function getPeelStripMetrics(firstTab) {
+	const strip =
+		firstTab && /** @type {{ back?: Phaser.GameObjects.Image }} */ (firstTab).back
+			? /** @type {{ back?: Phaser.GameObjects.Image }} */ (firstTab).back
+			: /** @type {Phaser.GameObjects.Image|null|undefined} */ (firstTab);
+	const peelW = strip?.displayWidth ?? 0;
+	const peelLocalRight = typeof firstTab?.x === 'number' ? firstTab.x + peelW : peelW;
+	return { strip, peelW, peelLocalRight };
+}
+
+/**
+ * Swap backing between programmatic NineSlice and theme flat `cardBack` image (natural texture size, centered).
+ *
+ * @param {Phaser.Scene} scene
+ * @param {Phaser.GameObjects.Container} parent
+ * @param {Phaser.GameObjects.NineSlice|Phaser.GameObjects.Image|null|undefined} cardBack
+ * @param {Record<string, unknown>|null|undefined} themeData
+ * @returns {Phaser.GameObjects.NineSlice|Phaser.GameObjects.Image}
+ */
+export function ensurePeelCardBackGameObject(scene, parent, cardBack, themeData) {
+	const wantFlat =
+		themeUsesFlatCardBackImage(themeData) && scene.textures.exists(THEME_FLAT_CARD_BACK_TEXTURE_KEY);
+	const insertIndex =
+		parent && cardBack?.active && typeof parent.getIndex === 'function' ? parent.getIndex(cardBack) : 0;
+	const at = Math.max(0, insertIndex);
+
+	if (wantFlat) {
+		if (
+			cardBack?.active &&
+			cardBack.type === 'Image' &&
+			cardBack.texture?.key === THEME_FLAT_CARD_BACK_TEXTURE_KEY
+		) {
+			cardBack.setOrigin(0.5, 0.5);
+			cardBack.setPosition(0, 0);
+			if (typeof cardBack.clearTint === 'function') {
+				cardBack.clearTint();
+			}
+			return cardBack;
+		}
+		cardBack?.destroy?.();
+		const img = scene.add.image(0, 0, THEME_FLAT_CARD_BACK_TEXTURE_KEY);
+		img.setOrigin(0.5, 0.5);
+		parent.addAt(img, at);
+		return img;
+	}
+
+	if (cardBack?.active && isPeelCardBackNineSlice(cardBack)) {
+		return cardBack;
+	}
+	cardBack?.destroy?.();
+	const ns = scene.add.nineslice(0, 0, LEGACY_CARD_BACK_TEXTURE_KEY, undefined, 1000, 650, 10, 10, 10, 10);
+	parent.addAt(ns, at);
+	return ns;
+}
+
+/**
+ * Overlay peel rows on a flat theme `cardBack` image (inset margins, stack vertically centered).
+ *
+ * @param {{
+ *   themeData: Record<string, unknown>|null|undefined,
+ *   cardBack: Phaser.GameObjects.GameObject,
+ *   peelContainer: Phaser.GameObjects.Container,
+ * }} params
+ */
+export function layoutPeelStripsOnFlatCardBackSubtree(params) {
+	const { themeData, cardBack, peelContainer } = params;
+	if (!cardBack?.active || !peelContainer) {
+		return;
+	}
+	const list = peelContainer.list;
+	if (!Array.isArray(list) || list.length === 0) {
+		return;
+	}
+	const firstTab = list[0];
+	const { strip, peelLocalRight } = getPeelStripMetrics(firstTab);
+	if (!firstTab?.active || !strip?.active) {
+		return;
+	}
+
+	const inset = resolvePeelCardHorizontalContentInset(themeData);
+	const cw = cardBack.displayWidth;
+	const ch = cardBack.displayHeight;
+	const ox = typeof cardBack.originX === 'number' ? cardBack.originX : 0.5;
+	const oy = typeof cardBack.originY === 'number' ? cardBack.originY : 0.5;
+	const cardLeft = cardBack.x - ox * cw;
+	const cardTop = cardBack.y - oy * ch;
+	const cardRight = cardLeft + cw;
+
+	peelContainer.x = cardRight - inset - peelLocalRight;
+
+	let totalH = 0;
+	for (const tab of list) {
+		if (tab?.active) {
+			totalH += getPeelRowHeight(tab);
+		}
+	}
+	const availableH = Math.max(0, ch - 2 * inset);
+	const startY = cardTop + inset + Math.max(0, (availableH - totalH) / 2);
+	peelContainer.y = startY;
+}
+
 /**
  * Single horizontal inset (px). With prize labels (**legacy**) it is equal distance from **`cardBack`**
  * left → cover left **and** from peel-strip right → `cardBack` right (inside may be wider).
@@ -33,7 +186,10 @@ export function resolvePeelCardHorizontalContentInset(themeData) {
 }
 
 /** `GameConfig.game.SHOW_PEEL_PRIZE_LABELS === false` → three equal inset-sized gaps (L, cover→peels, R) + dynamic card width. */
-export function peelCardUsesTripleHorizontalInsetGaps() {
+export function peelCardUsesTripleHorizontalInsetGaps(themeData) {
+	if (themeUsesFlatCardBackImage(themeData)) {
+		return false;
+	}
 	return GameConfig.game.SHOW_PEEL_PRIZE_LABELS === false;
 }
 
@@ -71,7 +227,7 @@ function resizePeelCardBackNineSlice(cardBack, width, height) {
  * @param {Record<string, unknown>|null|undefined} themeData
  */
 export function resizePeelCardBackTripleInsetWidths(props, themeData) {
-	if (!peelCardUsesTripleHorizontalInsetGaps()) {
+	if (themeUsesFlatCardBackImage(themeData) || !peelCardUsesTripleHorizontalInsetGaps(themeData)) {
 		return;
 	}
 	const cardBack = props.cardBack;
@@ -119,6 +275,19 @@ export function refreshPeelCardHorizontalLayoutSurface(surface, themeData) {
 		return;
 	}
 	const { cardBack, peelContainer, cardCoverImage, syncCoverXVideos } = surface;
+
+	if (themeUsesFlatCardBackImage(themeData)) {
+		if (cardCoverImage) {
+			cardCoverImage.setVisible(false);
+		}
+		layoutPeelStripsOnFlatCardBackSubtree({ themeData, cardBack, peelContainer });
+		return;
+	}
+
+	if (cardCoverImage) {
+		cardCoverImage.setVisible(true);
+	}
+
 	resizePeelCardBackTripleInsetWidths({ cardBack, peelContainer, cardCoverImage }, themeData);
 	layoutPeelCardHorizontalContentInsetSubtree({
 		themeData,
@@ -126,7 +295,7 @@ export function refreshPeelCardHorizontalLayoutSurface(surface, themeData) {
 		peelContainer,
 		cardCoverImage,
 		syncCoverXVideos,
-		threeEqualHorizontalGaps: peelCardUsesTripleHorizontalInsetGaps(),
+		threeEqualHorizontalGaps: peelCardUsesTripleHorizontalInsetGaps(themeData),
 	});
 }
 
@@ -209,7 +378,49 @@ export function layoutPeelCardHorizontalContentInset(peelCard, themeData) {
 	if (!peelCard) {
 		return;
 	}
-	const triple = peelCardUsesTripleHorizontalInsetGaps();
+
+	const showCover = shouldShowPeelCardCover(themeData);
+	const cover = peelCard.dI_CardCover_Default;
+	if (cover) {
+		cover.setVisible(showCover);
+	}
+	if (peelCard.prizeContainer) {
+		peelCard.prizeContainer.setVisible(shouldShowPeelPrizeLabels(themeData));
+	}
+	if (!showCover) {
+		if (peelCard.win_Video) {
+			peelCard.win_Video.setVisible(false);
+		}
+		if (peelCard.lose_Video) {
+			peelCard.lose_Video.setVisible(false);
+		}
+	}
+
+	if (themeUsesFlatCardBackImage(themeData)) {
+		layoutPeelStripsOnFlatCardBackSubtree({
+			themeData,
+			cardBack: peelCard.cardBack,
+			peelContainer: peelCard.peelContainer,
+		});
+
+		const enter = peelCard.peelCardEnterAnim;
+		if (enter?.cardBack && enter.peelContainer) {
+			if (enter.cardCover) {
+				enter.cardCover.setVisible(false);
+			}
+			if (enter.prizeContainer) {
+				enter.prizeContainer.setVisible(false);
+			}
+			layoutPeelStripsOnFlatCardBackSubtree({
+				themeData,
+				cardBack: enter.cardBack,
+				peelContainer: enter.peelContainer,
+			});
+		}
+		return;
+	}
+
+	const triple = peelCardUsesTripleHorizontalInsetGaps(themeData);
 
 	resizePeelCardBackTripleInsetWidths(
 		{
@@ -236,6 +447,12 @@ export function layoutPeelCardHorizontalContentInset(peelCard, themeData) {
 		/** @type {{ cardCover?: Phaser.GameObjects.Image }} */ (enter).cardCover
 	) {
 		const cardCover = /** @type {{ cardCover: Phaser.GameObjects.Image }} */ (enter).cardCover;
+		if (cardCover) {
+			cardCover.setVisible(true);
+		}
+		if (enter.prizeContainer) {
+			enter.prizeContainer.setVisible(shouldShowPeelPrizeLabels(themeData));
+		}
 		resizePeelCardBackTripleInsetWidths(
 			{
 				cardBack: enter.cardBack,
@@ -267,6 +484,13 @@ export function applyPeelCardBackTintFromTheme(obj, themeData) {
     if (!obj || typeof obj.setTint !== 'function') {
         return;
     }
+
+	if (themeUsesFlatCardBackImage(themeData)) {
+		if (typeof obj.clearTint === 'function') {
+			obj.clearTint();
+		}
+		return;
+	}
 
     const pc = themeData?.peelCard;
     const raw =

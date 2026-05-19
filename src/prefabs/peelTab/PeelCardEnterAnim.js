@@ -4,10 +4,12 @@
 /* START OF COMPILED CODE */
 
 /* START-USER-IMPORTS */
-import { GameConfig } from "../../config/Global.js";
 import {
 	applyPeelCardBackTintFromTheme,
+	ensurePeelCardBackGameObject,
 	refreshPeelCardHorizontalLayoutSurface,
+	shouldShowPeelCardCover,
+	shouldShowPeelPrizeLabels,
 } from "../../utils/theme/PeelCardThemeUtils.js";
 /* END-USER-IMPORTS */
 
@@ -81,6 +83,9 @@ export default class PeelCardEnterAnim extends Phaser.GameObjects.Container {
 	{
 		let config = this.scene.serverManager.gameConfig;
 		const preloadCfg = this.scene.registry.get('preloadGameConfig') || {};
+		const td = this.scene.themeData || this.scene.registry.get('preloadThemeData');
+		const showPeelPrizeLabels = shouldShowPeelPrizeLabels(td);
+		const showCover = shouldShowPeelCardCover(td);
 		const peelRows = Math.round(
 			Math.max(
 				3,
@@ -90,7 +95,6 @@ export default class PeelCardEnterAnim extends Phaser.GameObjects.Container {
 				)
 			)
 		);
-		const showPeelPrizeLabels = GameConfig.game.SHOW_PEEL_PRIZE_LABELS !== false;
 		for (let i = 0; i < peelRows; i++) {
 			const peel = this.scene.add.image(0, 0, "DI_Peel_Default");
 			if (this.scene.textures.exists("peel")) {
@@ -99,7 +103,7 @@ export default class PeelCardEnterAnim extends Phaser.GameObjects.Container {
 				peel.setTexture("DI_Peel_Default");
 			}
 
-			if (this.scene.textures.exists("card")) {
+			if (showCover && this.scene.textures.exists("card")) {
 				this.cardCover.setTexture("card");
 			}
 
@@ -125,7 +129,7 @@ export default class PeelCardEnterAnim extends Phaser.GameObjects.Container {
 			}
 		}
 
-		const td = this.scene.themeData || this.scene.registry.get('preloadThemeData');
+		this.cardBack = ensurePeelCardBackGameObject(this.scene, this, this.cardBack, td);
 
 		applyPeelCardBackTintFromTheme(this.cardBack, td);
 		refreshPeelCardHorizontalLayoutSurface(

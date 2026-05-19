@@ -44,6 +44,9 @@ export const GameConfig = {
          * In that mode the peel **`cardBack`** NineSlice width is sized from theme **`peelCard.horizontalContentInset`**
          * × 3 plus cover + peel strip widths so left margin, cover→peel gutter, and right margin all equal that inset.
          * `true` or omitted → legacy: prize labels shown, fixed 1000px wide `cardBack`, two edge insets only (extra space stays inside the slice).
+         *
+         * When a theme defines **`imageKeys.cardBack`**, flat card art replaces the NineSlice + cover path entirely
+         * (see {@link themeUsesFlatCardBackImage}): cover and prize labels are hidden regardless of this flag.
          */
         SHOW_PEEL_PRIZE_LABELS: false,
 

@@ -8,10 +8,12 @@ import Prefab_Results from "./Prefab_Results.js";
 import PeelCardEnterAnim from "./PeelCardEnterAnim.js";
 /* START-USER-IMPORTS */
 import Peel from "./Peel.js";
-import { GameConfig } from "../../config/Global.js";
 import {
 	applyPeelCardBackTintFromTheme,
+	ensurePeelCardBackGameObject,
 	layoutPeelCardHorizontalContentInset,
+	shouldShowPeelCardCover,
+	shouldShowPeelPrizeLabels,
 } from "../../utils/theme/PeelCardThemeUtils.js";
 import { syncPullTabPeelCardLayout } from "../../services/pulltab/PullTabControlBarBootstrap.js";
 import { warn } from "../../utils/logger/LoggerUtils.js";
@@ -126,6 +128,15 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 		const td =
 			this.scene.themeData ||
 			this.scene.registry.get('preloadThemeData');
+		this.cardBack = ensurePeelCardBackGameObject(this.scene, this.gameContainer, this.cardBack, td);
+		if (this.peelCardEnterAnim) {
+			this.peelCardEnterAnim.cardBack = ensurePeelCardBackGameObject(
+				this.scene,
+				this.peelCardEnterAnim,
+				this.peelCardEnterAnim.cardBack,
+				td
+			);
+		}
 		applyPeelCardBackTintFromTheme(this.cardBack, td);
 		applyPeelCardBackTintFromTheme(this.peelCardEnterAnim?.cardBack || null, td);
 		layoutPeelCardHorizontalContentInset(this, td);
@@ -150,6 +161,9 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 
 		let config = this.scene.serverManager.gameConfig
 		const preloadCfg = this.scene.registry.get('preloadGameConfig') || {};
+		const td = this.scene.themeData || this.scene.registry.get('preloadThemeData');
+		const showPeelPrizeLabels = shouldShowPeelPrizeLabels(td);
+		const showCover = shouldShowPeelCardCover(td);
 		const peelRows = Math.round(
 			Math.max(
 				3,
@@ -178,7 +192,6 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 
 		this.peelContainer.list.reverse();
 
-		const showPeelPrizeLabels = GameConfig.game.SHOW_PEEL_PRIZE_LABELS !== false;
 		if (showPeelPrizeLabels) {
 			for (let i = 0; i < peelRows; i++) {
 				const prizeText = this.scene.add.text(0, 0, "", {});
@@ -209,12 +222,12 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 			ease: "Back.out"			
 		})
 
-		this.scene.textures.exists("card")
+		if (showCover && this.scene.textures.exists("card"))
 		{
 			this.dI_CardCover_Default.setTexture("card")
 		}
 
-		if(this.scene.cache.video.exists("win"))
+		if (showCover && this.scene.cache.video.exists("win"))
 		{
 			const win_Video = this.scene.add.video(-80, -300, "win");
 			this.win_Video = win_Video;
@@ -222,7 +235,7 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 			this.videoContainer.add(win_Video);
 		}
 
-		if(this.scene.cache.video.exists("lose"))
+		if (showCover && this.scene.cache.video.exists("lose"))
 		{
 			const lose_Video = this.scene.add.video(-80, -300, "lose");
 			this.lose_Video = lose_Video;

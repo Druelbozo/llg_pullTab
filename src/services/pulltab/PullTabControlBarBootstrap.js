@@ -301,8 +301,10 @@ function getPullTabCardBackBaseDisplaySize(peelCard) {
     }
     const gcsx = Math.abs(gc?.scaleX ?? 1);
     const gcsy = Math.abs(gc?.scaleY ?? 1);
-    const bw = Math.abs((cb.width ?? 0) * (cb.scaleX ?? 1) * gcsx);
-    const bh = Math.abs((cb.height ?? 0) * (cb.scaleY ?? 1) * gcsy);
+    const baseW = cb.displayWidth ?? cb.width ?? 0;
+    const baseH = cb.displayHeight ?? cb.height ?? 0;
+    const bw = Math.abs(baseW * (cb.scaleX ?? 1) * gcsx);
+    const bh = Math.abs(baseH * (cb.scaleY ?? 1) * gcsy);
     return {
         width: Math.max(1, bw),
         height: Math.max(1, bh),

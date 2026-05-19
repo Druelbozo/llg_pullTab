@@ -1,8 +1,12 @@
 {
   "imageKeys": {
     "background": "background-lumberjack-legend",
+    "cardBack": "cardBack-lumberjack-legend",
     "card": "card-lumberjack-legend",
     "icons": "icons-lumberjack-legend"
+  },
+  "peelCard": {
+    "horizontalContentInset": 40
   },
   "videoKeys": {
     "win": "win-lumberjack-legend",
