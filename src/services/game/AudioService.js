@@ -210,30 +210,51 @@ export default class AudioService {
         }
     }
 
+    _onAudioUnlocked() {
+        if (this._audioUnlocked) {
+            return;
+        }
+        this._audioUnlocked = true;
+        log('Audio context unlocked', 'assets');
+
+        if (
+            this._themeMusicKey &&
+            !this.isThemeMusicPlaying() &&
+            this.effectiveMusicVolume() > 0
+        ) {
+            const musicKey = this._themeMusicKey;
+            this._themeMusicKey = null;
+            this.playThemeMusic(musicKey);
+        }
+    }
+
     unlockAudio() {
         if (this._audioUnlocked) {
             return false;
         }
 
-        if (this.scene && this.scene.sound) {
-            this.scene.sound.unlock();
-            this._audioUnlocked = true;
-            log('Audio context unlocked', 'assets');
-
-            if (
-                this._themeMusicKey &&
-                !this.isThemeMusicPlaying() &&
-                this.effectiveMusicVolume() > 0
-            ) {
-                const musicKey = this._themeMusicKey;
-                this._themeMusicKey = null;
-                this.playThemeMusic(musicKey);
-            }
-
-            return true;
+        if (!this.scene?.sound) {
+            return false;
         }
 
-        return false;
+        try {
+            const result = this.scene.sound.unlock();
+            if (result && typeof result.then === 'function') {
+                result
+                    .then(() => {
+                        this._onAudioUnlocked();
+                    })
+                    .catch((err) => {
+                        warn('Audio unlock rejected (often after tab background):', 'assets', err);
+                    });
+                return true;
+            }
+            this._onAudioUnlocked();
+            return true;
+        } catch (err) {
+            warn('Audio unlock failed:', 'assets', err);
+            return false;
+        }
     }
 
     isAudioUnlocked() {

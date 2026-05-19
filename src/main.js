@@ -1,3 +1,4 @@
+import { installRuntimeErrorHandlers } from "./bootstrap/runtimeErrorHandlers.js";
 import Level from "./scenes/Level.js";
 import Preload from "./scenes/Preload.js";
 import "./dom/debugOverlay/styles/debugOverlay.css";
@@ -15,6 +16,7 @@ import { initializeConsoleCapture } from "./utils/logger/ConsoleCapture.js";
 
 applyLoggingFromGameConfig(GameConfig);
 initializeConsoleCapture();
+installRuntimeErrorHandlers();
 
 const DEFAULT_UI_COPY = {
 	type: "Normal",

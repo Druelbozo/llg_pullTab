@@ -66,32 +66,12 @@
 	<!-- Phaser Game Container -->
 	<div id="game-container"></div>
 
-	<!-- Error overlay for mobile debugging (catches startup failures) -->
+	<!-- Fatal error overlay (production). Handlers in src/bootstrap/runtimeErrorHandlers.js — not Vite. -->
 	<div id="error-overlay" style="display:none;position:fixed;inset:0;background:#1a1a1a;color:#ff6b6b;padding:20px;font-family:monospace;font-size:14px;overflow:auto;z-index:99999;">
 		<h2 style="color:#ff6b6b;margin-bottom:16px;">Game failed to load</h2>
 		<pre id="error-message" style="white-space:pre-wrap;word-break:break-all;"></pre>
 		<p style="margin-top:16px;color:#888;">Check console for details. On mobile: use USB debugging or remote inspector.</p>
 	</div>
-
-	<script>
-		// Catch errors before game loads - helps debug white screen on mobile
-		window.addEventListener('error', function(e) {
-			var overlay = document.getElementById('error-overlay');
-			var msg = document.getElementById('error-message');
-			if (overlay && msg) {
-				msg.textContent = (e.message || 'Unknown error') + '\n\n' + (e.filename || '') + ':' + (e.lineno || '') + '\n\n' + (e.error ? e.error.stack : '');
-				overlay.style.display = 'block';
-			}
-		});
-		window.addEventListener('unhandledrejection', function(e) {
-			var overlay = document.getElementById('error-overlay');
-			var msg = document.getElementById('error-message');
-			if (overlay && msg) {
-				msg.textContent = 'Unhandled promise rejection:\n\n' + (e.reason && (e.reason.message || String(e.reason))) + (e.reason && e.reason.stack ? '\n\n' + e.reason.stack : '');
-				overlay.style.display = 'block';
-			}
-		});
-	</script>
 
 	<!-- JavaScript Files -->
 	<script type="module" src="./src/main.js"></script>
