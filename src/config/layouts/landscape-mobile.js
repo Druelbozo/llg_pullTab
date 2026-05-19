@@ -15,7 +15,7 @@ export default {
       ['autoButton', 'playButton']
     ]
   },
-  cardContainer: { areaPercent: 0.9, offsetYPercent: 0 },
+  cardContainer: { areaPercent: 0.95, offsetYPercent: 0 },
   messageText: {
     heightPercent: 0.13,
     percentY: -0.025,
