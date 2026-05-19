@@ -27,6 +27,7 @@ import {
 	calculateCoverScale,
 	getSpriteNaturalTextureSize,
 } from "../utils/ui/graphics/BackgroundScaler.js";
+import { queueThemeVideosBackground } from "../utils/theme/ThemePreloadUtils.js";
 /* END-USER-IMPORTS */
 
 export default class Level extends Phaser.Scene {
@@ -194,6 +195,12 @@ export default class Level extends Phaser.Scene {
 	}
 	create() {
 		this.editorCreate();
+
+		const preloadTheme =
+			this.registry.get('preloadThemeData') || this.themeData || null;
+		if (preloadTheme) {
+			queueThemeVideosBackground(this, preloadTheme);
+		}
 
 		this.audioService = new AudioService(this);
 		if (GameConfig.game.START_MUTED) {

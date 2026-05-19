@@ -7,6 +7,22 @@ import { fetchWithTimeout } from '../network/fetchWithTimeout.js';
 import { warn } from '../logger/LoggerUtils.js';
 
 /**
+ * @param {unknown} data
+ * @returns {data is Record<string, unknown>}
+ */
+function isPlausibleThemeJson(data) {
+	return (
+		!!data &&
+		typeof data === 'object' &&
+		!Array.isArray(data) &&
+		(/** @type {Record<string, unknown>} */ (data).imageKeys != null ||
+			/** @type {Record<string, unknown>} */ (data).videoKeys != null ||
+			/** @type {Record<string, unknown>} */ (data).text != null ||
+			/** @type {Record<string, unknown>} */ (data).controlBar != null)
+	);
+}
+
+/**
  * @param {Object|null} defaultTheme
  * @param {Object|null} themeOverride
  * @param {number} [depth]
@@ -74,7 +90,12 @@ export async function loadThemeWithOverride(themeName) {
 			8000,
 		);
 		if (defaultResponse.ok) {
-			defaultTheme = await defaultResponse.json();
+			const parsed = await defaultResponse.json();
+			if (isPlausibleThemeJson(parsed)) {
+				defaultTheme = parsed;
+			} else {
+				warn('[ThemeMerge] default.json response was not valid theme JSON', 'theme');
+			}
 		}
 	} catch (error) {
 		warn('Failed to load default.json:', 'theme', error);
@@ -88,7 +109,12 @@ export async function loadThemeWithOverride(themeName) {
 			8000,
 		);
 		if (themeResponse.ok) {
-			themeOverride = await themeResponse.json();
+			const parsed = await themeResponse.json();
+			if (isPlausibleThemeJson(parsed)) {
+				themeOverride = parsed;
+			} else {
+				warn(`[ThemeMerge] ${resolvedName}.json response was not valid theme JSON`, 'theme');
+			}
 		} else if (resolvedName === 'default' && defaultTheme) {
 			themeOverride = defaultTheme;
 		}

@@ -10,6 +10,7 @@ import ProviderAPIService from "./services/api/ProviderAPIService.js";
 import { GameConfig } from "./config/Global.js";
 import { applyLoggingFromGameConfig, warn, error as logErr } from "./utils/logger/LoggerUtils.js";
 import { loadThemeWithOverride } from "./utils/theme/ThemeMergeUtils.js";
+import { hydratePullTabIconsLayout } from "./utils/theme/ThemePreloadUtils.js";
 import { initializeConsoleCapture } from "./utils/logger/ConsoleCapture.js";
 
 applyLoggingFromGameConfig(GameConfig);
@@ -213,6 +214,7 @@ class Boot extends Phaser.Scene {
 			const { themeData, themeOverride } = await loadThemeWithOverride(themeName);
 			this.registry.set('preloadThemeData', themeData);
 			this.registry.set('preloadThemeOverride', themeOverride);
+			await hydratePullTabIconsLayout(this.registry, themeData);
 		} catch (err) {
 			logErr(`Boot: Failed to load theme: ${err?.message ?? err}`, 'theme', err);
 			this.registry.set('preloadThemeData', {});

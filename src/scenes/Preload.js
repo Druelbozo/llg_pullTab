@@ -7,11 +7,11 @@
 import WebFontFile from '../utils/ui/WebFontFile.js';
 import BrowserDetector from '../utils/ui/BrowserDetector.js';
 import ViewportHelper from '../utils/ui/ViewportHelper.js';
-import { loadThemeWithOverride } from '../utils/theme/ThemeMergeUtils.js';
+import { shouldPreloadPeelResultImageSlot } from '../utils/theme/ThemePreloadUtils.js';
 import { googleFamilySpecsFromThemeFonts } from '../utils/theme/ThemeFontResolutionUtils.js';
 import { GameConfig } from '../config/Global.js';
 import { setEffectiveSfx } from '../utils/audio/SfxConfigUtils.js';
-import { log, warn, error as logErr } from '../utils/logger/LoggerUtils.js';
+import { log, warn } from '../utils/logger/LoggerUtils.js';
 /* END-USER-IMPORTS */
 
 export default class Preload extends Phaser.Scene {
@@ -87,14 +87,9 @@ export default class Preload extends Phaser.Scene {
 	_themeImagesQueued = false; // Flag indicating if theme images have been queued
 	_themeImagesVerified = new Set(); // Track which theme images have been verified as ready
 
-	async preload() {
-
+	preload() {
 		this.editorCreate();
 		this.customEditorCreate();
-
-		this.editorPreload();
-
-		const width =  this.progressBar.width;
 
 		// Initialize theme image tracking
 		this._themeImageKeys.clear();
@@ -102,14 +97,10 @@ export default class Preload extends Phaser.Scene {
 		this._themeImagesTotal = 0;
 		this._themeImagesLoading = false;
 		this._themeImagesQueued = false;
-
-
 		this._themeImagesVerified = new Set();
 		this._themeImagesEventFired = new Set();
 		this._themeImagesFailed = new Set();
 		this._hasTransitioned = false;
-
-		this._LOADER_MAX_PROGRESS = 0.85;
 
 		// Set up filecomplete handlers to track theme image loading (prevents cold-start race)
 		this.load.on('filecomplete', (key, type) => {
@@ -144,16 +135,44 @@ export default class Preload extends Phaser.Scene {
 			if (this._themeImageKeys.has(file?.key)) {
 				warn(`[Preload] Theme asset load error: "${file.key}"`, 'assets');
 				this._themeImagesFailed.add(file.key);
+				this._checkAssetsReady();
 			}
 		});
 
-		await this.queueThemeAssetsFromRegistry();
-
-		this.load.on("progress", (progress) => {
-
-			const cappedProgress = Math.min(progress, this._LOADER_MAX_PROGRESS);
-			this.updateProgressBar(cappedProgress);
+		this.load.on('progress', (progress) => {
+			this.updateProgressBar(Math.max(0, Math.min(1, progress)));
 		});
+
+		this.editorPreload();
+
+		// CRITICAL: Theme JSON was fetched in Boot. Phaser starts the loader when preload() returns —
+		// queue all theme images here synchronously (do not await network I/O in preload).
+		const themeData = this.registry.get('preloadThemeData') || {};
+		if (!themeData || typeof themeData !== 'object' || Object.keys(themeData).length === 0) {
+			warn('[Preload] preloadThemeData missing — theme graphics may not load', 'theme');
+		} else {
+			const cfg = this.registry.get('preloadGameConfig') || {};
+			log(`[Preload] Queuing assets for theme: ${cfg.theme || 'default'}`, 'assets');
+		}
+
+		this._themeImagesLoading = true;
+		this.checkType(themeData);
+		this._themeImagesQueued = true;
+
+		const fontSpecs = googleFamilySpecsFromThemeFonts(themeData);
+		if (fontSpecs?.length) {
+			this.load.addFile(new WebFontFile(this.load, fontSpecs));
+		}
+
+		if (this._themeImagesTotal > 0) {
+			log(`[Preload] Queued ${this._themeImagesTotal} theme image(s)`, 'assets');
+			log(`[Preload] Theme texture keys: [${Array.from(this._themeImageKeys).join(', ')}]`, 'assets');
+		}
+
+		if (!this.load.isLoading() && this.load.list.size > 0) {
+			log('[Preload] Starting loader for queued assets', 'assets');
+			this.load.start();
+		}
 	}
 
 	/**
@@ -201,17 +220,27 @@ export default class Preload extends Phaser.Scene {
 	/**
 	 * @returns {boolean}
 	 */
+	_allThemeImageSlotsResolved() {
+		return this._themeImagesLoaded + this._themeImagesFailed.size >= this._themeImagesTotal;
+	}
+
 	_verifyRequiredTexturesReady() {
 		if (this._themeImagesTotal === 0) {
 			return true;
 		}
-		let readyCount = 0;
-		for (const key of this._themeImageKeys) {
-			if (this._themeImagesFailed.has(key) || this._isThemeTextureReady(key)) {
-				readyCount++;
+		if (!this._allThemeImageSlotsResolved()) {
+			return false;
+		}
+		const critical = ['background', 'card', 'icons'];
+		for (const key of critical) {
+			if (!this._themeImageKeys.has(key)) {
+				continue;
+			}
+			if (this._themeImagesFailed.has(key) || !this._isThemeTextureReady(key)) {
+				return false;
 			}
 		}
-		return readyCount >= this._themeImagesTotal;
+		return true;
 	}
 
 	/**
@@ -225,14 +254,14 @@ export default class Preload extends Phaser.Scene {
 		this._checkThemeImagesInCache();
 
 		const allThemeImagesLoaded =
-			this._themeImagesTotal === 0 || this._themeImagesLoaded >= this._themeImagesTotal;
-		const phaserComplete = !this.load.isLoading() && this.load.list.size === 0;
+			this._themeImagesTotal === 0 || this._allThemeImageSlotsResolved();
 		const requiredTexturesReady = this._verifyRequiredTexturesReady();
 
-		if (allThemeImagesLoaded && phaserComplete && requiredTexturesReady && !this._hasTransitioned) {
+		// Do not wait for theme videos / slow audio — those load in background after Level starts (scratch pattern).
+		if (allThemeImagesLoaded && requiredTexturesReady && !this._hasTransitioned) {
 			this._hasTransitioned = true;
 			log(
-				`[Preload] All assets ready: theme images=${this._themeImagesLoaded}/${this._themeImagesTotal}, phaserComplete=${phaserComplete}`,
+				`[Preload] Theme images ready: ${this._themeImagesLoaded}/${this._themeImagesTotal}`,
 				'assets',
 			);
 			const isMobile = BrowserDetector.isMobile();
@@ -272,83 +301,6 @@ export default class Preload extends Phaser.Scene {
 		);
 	}
 
-	/**
-	 * Queue theme textures/audio from registry (JSON was fetched in Boot before this scene started).
-	 */
-	async queueThemeAssetsFromRegistry() {
-		const cfg =
-			this.registry.get('preloadGameConfig') ||
-			(typeof window !== 'undefined' && window.__selectedGameConfig) ||
-			{};
-		const selectedTheme = cfg.theme || 'default';
-
-		let themeData = this.registry.get('preloadThemeData');
-		if (!themeData || typeof themeData !== 'object' || Object.keys(themeData).length === 0) {
-			warn('[Preload] preloadThemeData missing — fetching theme in Preload (Boot should have set this)', 'theme');
-			try {
-				const loaded = await loadThemeWithOverride(selectedTheme);
-				themeData = loaded.themeData;
-				this.registry.set('preloadThemeData', themeData);
-				this.registry.set('preloadThemeOverride', loaded.themeOverride);
-			} catch (error) {
-				logErr(`[Preload] Error loading themes: ${error?.message ?? error}`, 'assets', error);
-				themeData = {};
-				this.registry.set('preloadThemeData', themeData);
-			}
-		} else {
-			log(`[Preload] Theme JSON from Boot: ${selectedTheme}`, 'assets');
-		}
-
-		try {
-			await this._hydratePullTabIconsLayout(themeData);
-
-			this._themeImagesLoading = true;
-			this.checkType(themeData);
-			this._themeImagesQueued = true;
-
-			const fontSpecs = googleFamilySpecsFromThemeFonts(themeData);
-			if (fontSpecs?.length) {
-				this.load.addFile(new WebFontFile(this.load, fontSpecs));
-			}
-
-			if (this._themeImagesTotal > 0) {
-				log(`[Preload] Queued ${this._themeImagesTotal} theme asset(s)`, 'assets');
-				log(`[Preload] Theme texture keys: [${Array.from(this._themeImageKeys).join(', ')}]`, 'assets');
-			} else {
-				log('[Preload] No theme imageKeys to queue', 'assets');
-			}
-		} catch (error) {
-			logErr(`[Preload] Error queuing theme assets: ${error?.message ?? error}`, 'assets', error);
-			this.registry.set('pullTabIconsLayout', {});
-			this._themeImagesQueued = true;
-		}
-	}
-
-	async _hydratePullTabIconsLayout(themeData)
-	{
-		const mergedBase = themeData.pullTabIconsLayout || {};
-		const stem = themeData.imageKeys?.icons;
-		this.registry.set('pullTabIconsLayout', mergedBase);
-
-		if (!stem || typeof stem !== 'string' || stem.startsWith('http')) {
-			return;
-		}
-		try {
-			const cb = Date.now();
-			const r = await fetch(`assets/images/theme/icons/${stem}.json?t=${cb}`);
-			if (!r.ok) return;
-			const j = await r.json();
-			if (j.pullTabLayout && typeof j.pullTabLayout === 'object') {
-				this.registry.set('pullTabIconsLayout', {
-					...mergedBase,
-					...j.pullTabLayout,
-				});
-			}
-		} catch (err) {
-			warn(`[Preload] Icons layout fetch failed: ${err?.message ?? err}`, 'assets', err);
-		}
-	}
-
 	checkType(themeData)
 	{
 		const ik = themeData.imageKeys;
@@ -357,6 +309,9 @@ export default class Preload extends Phaser.Scene {
 		} else {
 			for (const [slotKey, stem] of Object.entries(ik)) {
 				if (stem === undefined || stem === null || stem === '') {
+					continue;
+				}
+				if (!shouldPreloadPeelResultImageSlot(themeData, slotKey)) {
 					continue;
 				}
 				const phaserKey = slotKey;
@@ -391,31 +346,6 @@ export default class Preload extends Phaser.Scene {
 
 		if (themeData.music && typeof themeData.music === 'object' && themeData.music.audioKey != null && themeData.music.audioKey !== '') {
 			this.queueThemeMusic(themeData.music);
-		}
-
-		const vk = themeData.videoKeys;
-		if (!vk || typeof vk !== 'object') {
-			return;
-		}
-
-		for (const [slotKey, stem] of Object.entries(vk)) {
-			if (stem === undefined || stem === null || stem === '') {
-				continue;
-			}
-			const cacheBuster = Date.now();
-
-			let path = '';
-			if (typeof stem === 'string' && stem.startsWith('http')) {
-				path = stem;
-			} else if (typeof stem !== 'string') {
-				warn('[Preload] Ignoring videoKeys slot:', 'assets', slotKey, stem);
-				continue;
-			} else {
-				path = `assets/videos/${slotKey}/${stem}.mp4?t=${cacheBuster}`;
-			}
-
-			log(`[Preload] Queued theme video key="${slotKey}" path="${path}"`, 'assets');
-			this.load.video(slotKey, path, 'loadeddata', true);
 		}
 	}
 
