@@ -14,6 +14,7 @@ import {
 	layoutPeelCardHorizontalContentInset,
 	shouldShowPeelCardCover,
 	shouldShowPeelPrizeLabels,
+	resolvePeelRowGap,
 } from "../../utils/theme/PeelCardThemeUtils.js";
 import { syncPullTabPeelCardLayout } from "../../services/pulltab/PullTabControlBarBootstrap.js";
 import { warn } from "../../utils/logger/LoggerUtils.js";
@@ -180,6 +181,8 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 
 		this.messageText.text = config.message;
 
+		this.padding = resolvePeelRowGap(td);
+
 		for (let i = 0; i < peelRows; i++)
 		{
 			let tab = this.group.get(0, 0);
@@ -193,6 +196,8 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 		}
 
 		this.peelContainer.list.reverse();
+
+		layoutPeelCardHorizontalContentInset(this, td);
 
 		if (showPeelPrizeLabels) {
 			for (let i = 0; i < peelRows; i++) {

@@ -8,9 +8,13 @@
     "lose": "lose-lumberjack-legend"
   },
   "peelCard": {
-    "horizontalContentInset": 40,
+    "horizontalContentInset": 50,
     "flatPeelHeightFillPercent": 0.88,
-    "flatPeelWidthFillPercent": 0.42
+    "flatPeelWidthFillPercent": 0.42,
+    "flatPeelStripScale": 1.1,
+    "flatPeelStripInsetRight": 50,
+    "flatPeelStripOffsetY": 0,
+    "peelRowGap": 10
   },
   "music": {
     "audioKey": "lumberjack-legend.ogg"

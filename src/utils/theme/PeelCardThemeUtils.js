@@ -59,6 +59,45 @@ function getPeelRowHeight(tab) {
 }
 
 /**
+ * Vertical gap between peel rows (px, card-local). Theme `peelCard.peelRowGap`.
+ *
+ * @param {Record<string, unknown>|null|undefined} themeData
+ * @returns {number}
+ */
+export function resolvePeelRowGap(themeData) {
+	const pc =
+		themeData?.peelCard && typeof themeData.peelCard === 'object' && themeData.peelCard !== null
+			? /** @type {{ peelRowGap?: unknown }} */ (themeData.peelCard)
+			: {};
+	const raw = Number(pc.peelRowGap);
+	return Number.isFinite(raw) && raw >= 0 ? raw : 0;
+}
+
+/**
+ * @param {readonly Phaser.GameObjects.GameObject[]} tabs
+ * @param {number} rowGap
+ * @returns {number}
+ */
+export function getPeelStackTotalHeight(tabs, rowGap) {
+	if (!Array.isArray(tabs) || tabs.length === 0) {
+		return 0;
+	}
+	let total = 0;
+	let count = 0;
+	for (const tab of tabs) {
+		if (!tab?.active) {
+			continue;
+		}
+		if (count > 0) {
+			total += rowGap;
+		}
+		total += getPeelRowHeight(tab);
+		count++;
+	}
+	return total;
+}
+
+/**
  * @param {Phaser.GameObjects.Container|Phaser.GameObjects.Image|null|undefined} firstTab
  */
 function getPeelStripMetrics(firstTab) {
@@ -120,7 +159,7 @@ export function ensurePeelCardBackGameObject(scene, parent, cardBack, themeData)
  * Scale factor for peel rows on a flat theme `cardBack` so strips match the painted tab column
  * (default peel art is 384×100; composite cardBack images are much larger).
  *
- * Optional theme `peelCard` fields: `flatPeelHeightFillPercent`, `flatPeelWidthFillPercent`, `flatPeelStripMaxScale`.
+ * Optional theme `peelCard` fields: `flatPeelHeightFillPercent`, `flatPeelWidthFillPercent`, `flatPeelStripMaxScale`, `flatPeelStripScale`.
  *
  * @param {Record<string, unknown>|null|undefined} themeData
  * @param {number} cardW
@@ -135,26 +174,30 @@ export function resolveFlatPeelStripContainerScale(themeData, cardW, cardH, peel
 	}
 	const pc =
 		themeData?.peelCard && typeof themeData.peelCard === 'object' && themeData.peelCard !== null
-			? /** @type {{ flatPeelHeightFillPercent?: unknown, flatPeelWidthFillPercent?: unknown, flatPeelStripMaxScale?: unknown }} */ (
+			? /** @type {{ flatPeelHeightFillPercent?: unknown, flatPeelWidthFillPercent?: unknown, flatPeelStripMaxScale?: unknown, flatPeelStripScale?: unknown }} */ (
 					themeData.peelCard
 				)
 			: {};
 	const heightFillRaw = Number(pc.flatPeelHeightFillPercent);
 	const widthFillRaw = Number(pc.flatPeelWidthFillPercent);
 	const maxScaleRaw = Number(pc.flatPeelStripMaxScale);
+	const stripScaleRaw = Number(pc.flatPeelStripScale);
 	const heightFill = Number.isFinite(heightFillRaw) && heightFillRaw > 0 ? heightFillRaw : 0.88;
 	const widthFill = Number.isFinite(widthFillRaw) && widthFillRaw > 0 ? widthFillRaw : 0.4;
 	const cap = Number.isFinite(maxScaleRaw) && maxScaleRaw > 0 ? maxScaleRaw : 2.75;
+	const stripMultiplier =
+		Number.isFinite(stripScaleRaw) && stripScaleRaw > 0 ? stripScaleRaw : 1;
 
 	const availableH = Math.max(1, cardH - 2 * inset);
 	const targetW = Math.max(1, cardW * widthFill);
 	const scaleH = (availableH * heightFill) / totalPeelStackH;
 	const scaleW = targetW / peelW;
-	return Math.min(scaleH, scaleW, cap);
+	return Math.min(scaleH, scaleW, cap) * stripMultiplier;
 }
 
 /**
  * Overlay peel rows on a flat theme `cardBack` image (inset margins, stack vertically centered).
+ * Optional `peelCard.flatPeelStripInsetRight` (px, moves strips left) and `flatPeelStripOffsetY` (px, moves strips down).
  *
  * @param {{
  *   themeData: Record<string, unknown>|null|undefined,
@@ -188,12 +231,8 @@ export function layoutPeelStripsOnFlatCardBackSubtree(params) {
 	const cardTop = cardBack.y - oy * ch;
 	const cardRight = cardLeft + cw;
 
-	let totalH = 0;
-	for (const tab of list) {
-		if (tab?.active) {
-			totalH += getPeelRowHeight(tab);
-		}
-	}
+	const rowGap = resolvePeelRowGap(themeData);
+	const totalH = getPeelStackTotalHeight(list, rowGap);
 
 	const fitScale = resolveFlatPeelStripContainerScale(themeData, cw, ch, peelW, totalH, inset);
 	peelContainer.setScale(fitScale, fitScale);
@@ -202,8 +241,18 @@ export function layoutPeelStripsOnFlatCardBackSubtree(params) {
 	const scaledPeelLocalRight = peelLocalRight * fitScale;
 	const availableH = Math.max(0, ch - 2 * inset);
 
-	peelContainer.x = cardRight - inset - scaledPeelLocalRight;
-	peelContainer.y = cardTop + inset + Math.max(0, (availableH - scaledTotalH) / 2);
+	const pc =
+		themeData?.peelCard && typeof themeData.peelCard === 'object' && themeData.peelCard !== null
+			? /** @type {{ flatPeelStripInsetRight?: unknown, flatPeelStripOffsetY?: unknown }} */ (themeData.peelCard)
+			: {};
+	const insetRightRaw = Number(pc.flatPeelStripInsetRight);
+	const offsetYRaw = Number(pc.flatPeelStripOffsetY);
+	const extraInsetRight = Number.isFinite(insetRightRaw) ? insetRightRaw : 0;
+	const stripOffsetY = Number.isFinite(offsetYRaw) ? offsetYRaw : 0;
+
+	peelContainer.x = cardRight - inset - scaledPeelLocalRight - extraInsetRight;
+	peelContainer.y =
+		cardTop + inset + Math.max(0, (availableH - scaledTotalH) / 2) + stripOffsetY;
 }
 
 /**
