@@ -54,7 +54,8 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 		const messageText = new PeelMessageText(scene, 0, 0);
 		messageText.setStyle({});
 		scene.add.existing(messageText);
-		messageText.setDepth(50);
+		// Below peel card depth so cardBack occludes the banner where they overlap (scratch messageText=1, cardContainer=10).
+		messageText.setDepth(1);
 		scene.pullTabBannerMessageText = messageText;
 
 		// prefab_Results — centered on cardBack (scratch cardContainer pattern)

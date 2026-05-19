@@ -65,9 +65,10 @@ export default class Level extends Phaser.Scene {
 		screenAnchor_2.scale = false;
 		screenAnchor_2.position = false;
 
-		// peelCard
+		// peelCard — depth above scene-level banner text (scratch cardContainer=10 vs messageText=1)
 		const peelCard = new PeelCard(this, 540, 910);
 		this.add.existing(peelCard);
+		peelCard.setDepth(10);
 
 		// screenAnchor_1
 		const screenAnchor_1 = new ScreenAnchor(peelCard);
