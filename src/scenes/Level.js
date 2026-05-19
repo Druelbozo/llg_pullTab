@@ -75,6 +75,7 @@ export default class Level extends Phaser.Scene {
 
 		// screenFit
 		const screenFit = new ScreenFit(peelCard);
+		screenFit.layoutManagedScale = true;
 
 		// peelManager
 		const peelManager = new PeelManager(this, 1745, 1079);

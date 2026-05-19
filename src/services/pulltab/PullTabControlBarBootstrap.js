@@ -299,12 +299,26 @@ function getPullTabCardBackBaseDisplaySize(peelCard) {
     if (!cb) {
         return { width: 1, height: 1 };
     }
+    const peelSx = Math.abs(peelCard.scaleX ?? 1);
+    const peelSy = Math.abs(peelCard.scaleY ?? 1);
     const gcsx = Math.abs(gc?.scaleX ?? 1);
     const gcsy = Math.abs(gc?.scaleY ?? 1);
-    const baseW = cb.displayWidth ?? cb.width ?? 0;
-    const baseH = cb.displayHeight ?? cb.height ?? 0;
-    const bw = Math.abs(baseW * (cb.scaleX ?? 1) * gcsx);
-    const bh = Math.abs(baseH * (cb.scaleY ?? 1) * gcsy);
+    const cbSx = Math.abs(cb.scaleX ?? 1);
+    const cbSy = Math.abs(cb.scaleY ?? 1);
+
+    // Local layout size at peelCard scale 1 (exclude peelCard scale — it is what we solve for).
+    let w = typeof cb.width === 'number' && cb.width > 0 ? cb.width : 0;
+    let h = typeof cb.height === 'number' && cb.height > 0 ? cb.height : 0;
+    if (!(w > 0) || !(h > 0)) {
+        const dw = cb.displayWidth ?? 0;
+        const dh = cb.displayHeight ?? 0;
+        const denomX = Math.max(peelSx * gcsx * cbSx, 1e-6);
+        const denomY = Math.max(peelSy * gcsy * cbSy, 1e-6);
+        if (!(w > 0)) w = dw / denomX;
+        if (!(h > 0)) h = dh / denomY;
+    }
+    const bw = Math.abs(w * cbSx * gcsx);
+    const bh = Math.abs(h * cbSy * gcsy);
     return {
         width: Math.max(1, bw),
         height: Math.max(1, bh),

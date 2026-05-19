@@ -7,5 +7,5 @@ export default {
 	theme: 'disco-kitty',
 	paytableId: 'prize_poker_6288k_v0001',
 	creditValueMinor: 25,
-	rowCount: 7,
+	rowCount: 6,
 };

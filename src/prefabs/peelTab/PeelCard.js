@@ -144,6 +144,9 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 		applyPeelCardBackTintFromTheme(this.cardBack, td);
 		applyPeelCardBackTintFromTheme(this.peelCardEnterAnim?.cardBack || null, td);
 		layoutPeelCardHorizontalContentInset(this, td);
+		if (this.peelContainer?.list?.length > 0) {
+			syncPullTabPeelCardLayout(this.scene);
+		}
 	}
 
 	awake()
@@ -232,6 +235,7 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 		}
 
 		this._applyPeelCardThemeVisuals();
+		syncPullTabPeelCardLayout(this.scene);
 	}
 
 	ready()
