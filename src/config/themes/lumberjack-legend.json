@@ -3,6 +3,7 @@
     "background": "background-lumberjack-legend",
     "cardBack": "cardBack-lumberjack-legend",
     "card": "card-lumberjack-legend",
+    "peel": "peel-lumberjack-legend",
     "icons": "icons-lumberjack-legend",
     "win": "win-lumberjack-legend",
     "lose": "lose-lumberjack-legend"
@@ -11,10 +12,26 @@
     "horizontalContentInset": 50,
     "flatPeelHeightFillPercent": 0.88,
     "flatPeelWidthFillPercent": 0.42,
-    "flatPeelStripScale": 1.1,
-    "flatPeelStripInsetRight": 50,
+    "flatPeelStripScale": 1.2,
+    "flatPeelStripInsetRight": 15,
     "flatPeelStripY": 150,
     "peelRowGap": 10
+  },
+  "controlBar": {
+    "palette": {
+      "primaryColor": "#c80101",
+      "secondaryColor": "#ffffff"
+    }
+  },
+  "text": {
+    "palette": {
+      "primaryColor": "#fdb50f"
+    },
+    "message": {
+      "stroke": {
+        "color": "#6e3101"
+      }
+    }
   },
   "music": {
     "audioKey": "lumberjack-legend.ogg"
