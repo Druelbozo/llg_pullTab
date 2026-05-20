@@ -14,6 +14,10 @@ import {
     isGoldCoinsCurrency,
 } from '../../../utils/formatting/FormattingUtils.js';
 import { debug, warn } from '../../../utils/logger/LoggerUtils.js';
+import {
+    fetchIconsAtlasJson,
+    resolvePaytableIconSpriteCss,
+} from '../../../utils/ui/PaytableIconsSpriteUtils.js';
 
 /** @typedef {Phaser.Scene|null} SceneRef */
 
@@ -76,56 +80,6 @@ function formatRtpForDisplay(rtp) {
 }
 
 /**
- * @param {object} atlasJson
- * @param {number} atlasFrameIndex — `0.png` maps to symbol `symbol_01` via {@link tierSymbolToFrameIndex}
- * @param {number} displayPx
- * @returns {{ styleAttr: string, boxW: number, boxH: number } | null}
- */
-function buildIconsAtlasSpriteCss(atlasJson, atlasFrameIndex, displayPx = 36) {
-    const tex = atlasJson?.textures?.[0];
-    const frames = tex?.frames;
-    if (!Array.isArray(frames) || frames.length === 0) {
-        return null;
-    }
-
-    const filename = `${Math.max(0, Math.floor(Number(atlasFrameIndex)))}.png`;
-    const hit = frames.find((f) => f.filename === filename);
-    if (!hit?.frame) {
-        return null;
-    }
-
-    const fx = Number(hit.frame.x) || 0;
-    const fy = Number(hit.frame.y) || 0;
-    const fw = Number(hit.frame.w) || 32;
-    const fh = Number(hit.frame.h) || 32;
-    const sheetW = Number(tex.size?.w) || 512;
-    const sheetH = Number(tex.size?.h) || 512;
-
-    const scaleFactor = displayPx / Math.max(fw, 1);
-    const bgW = Math.round(sheetW * scaleFactor);
-    const bgH = Math.round(sheetH * scaleFactor);
-    const posX = -Math.round(fx * scaleFactor);
-    const posY = -Math.round(fy * scaleFactor);
-    const boxW = Math.round(fw * scaleFactor);
-    const boxH = Math.round(fh * scaleFactor);
-
-    const imgRel = tex.image ?? '';
-    if (!imgRel || typeof imgRel !== 'string') {
-        return null;
-    }
-
-    const url = encodeURI(`assets/Images/theme/icons/${imgRel}`);
-
-    const styleAttr =
-        `width:${boxW}px;height:${boxH}px;` +
-        `background-image:url('${url}');` +
-        `background-repeat:no-repeat;background-size:${bgW}px ${bgH}px;` +
-        `background-position:${posX}px ${posY}px;`;
-
-    return { styleAttr, boxW, boxH };
-}
-
-/**
  * @param {SceneRef} scene
  * @returns {{ paytableId: string, creditValueMinor: number, theme: string }}
  */
@@ -155,40 +109,6 @@ function resolvePullTabCatalogContext(scene) {
     return { paytableId, creditValueMinor, theme };
 }
 
-/** @returns {Promise<object|null>} */
-async function fetchIconsAtlasJson(themeName) {
-    const t = String(themeName || 'mega-monster').trim() || 'mega-monster';
-    const cacheBuster = Date.now();
-
-    let iconsKey = 'icons-default';
-    try {
-        const themeRes = await fetch(`src/config/themes/${encodeURIComponent(t)}.json?t=${cacheBuster}`, {
-            cache: 'no-store',
-        });
-        if (themeRes.ok) {
-            const themeJson = await themeRes.json();
-            const ik = themeJson?.imageKeys?.icons;
-            if (typeof ik === 'string' && ik.trim()) {
-                iconsKey = ik.trim();
-            }
-        }
-    } catch (e) {
-        warn('[pullTabGameInfoContent] theme json fetch failed', 'ui', e);
-    }
-
-    const atlasUrl = `assets/Images/theme/icons/${encodeURIComponent(iconsKey)}.json?t=${cacheBuster}`;
-    try {
-        const atlasRes = await fetch(atlasUrl, { cache: 'no-store' });
-        if (!atlasRes.ok) {
-            return null;
-        }
-        return await atlasRes.json();
-    } catch (e2) {
-        warn('[pullTabGameInfoContent] icons atlas fetch failed', 'ui', e2);
-        return null;
-    }
-}
-
 /**
  * @param {SceneRef} scene
  * @returns {Promise<string>}
@@ -197,10 +117,14 @@ export async function pullTabGameInfoContent(scene) {
     const currency = getActiveCurrencyCode();
     const { paytableId, creditValueMinor, theme } = resolvePullTabCatalogContext(scene);
 
+    /** @type {object|null} */
     let atlasJson = await fetchIconsAtlasJson(theme);
     if (!atlasJson) {
         atlasJson = await fetchIconsAtlasJson('default');
         debug('[pullTabGameInfoContent] fell back to default icons atlas', 'ui', {});
+    }
+    if (!atlasJson) {
+        warn('[pullTabGameInfoContent] icons atlas unavailable for paytable sprites', 'ui', { theme });
     }
 
     /** @type {object|null} */
@@ -250,7 +174,7 @@ export async function pullTabGameInfoContent(scene) {
         for (const tier of tiers) {
             const sym = String(tier.symbol ?? '').trim() || '—';
             const frameIdx = tierSymbolToFrameIndex(sym);
-            const sprite = atlasJson ? buildIconsAtlasSpriteCss(atlasJson, frameIdx, 36) : null;
+            const sprite = resolvePaytableIconSpriteCss(scene, atlasJson, frameIdx, 36);
 
             let iconMarkup =
                 sprite != null
@@ -296,12 +220,6 @@ export async function pullTabGameInfoContent(scene) {
 
     return (
         `<h2>Pull-tab Game Info</h2>` +
-        `<h3>How to play</h3>` +
-        `<ul>` +
-        `<li>Each ticket has several horizontal tabs. Peel or reveal each tab to uncover the symbols underneath.</li>` +
-        `<li>This paytable pays when an entire winning row matches the same prize symbol (<strong>three of a kind on that row</strong>).</li>` +
-        `<li>To play another ticket, peel again after the outcome is settled (ticket cost applies each round).</li>` +
-        `</ul>` +
         `<h3>Paytable</h3>` +
         `<p>Payout amounts are for one ticket priced at <strong>${esc(ticketPricePhrase)}</strong>.</p>` +
         `<table class="pulltab-paytable">` +
@@ -312,6 +230,12 @@ export async function pullTabGameInfoContent(scene) {
         `<tbody>${tableRowsHtml.join('')}</tbody>` +
         `</table>` +
         rtpLine +
+        `<h3>How to play</h3>` +
+        `<ul>` +
+        `<li>Each ticket has several horizontal tabs. Peel or reveal each tab to uncover the symbols underneath.</li>` +
+        `<li>This paytable pays when an entire winning row matches the same prize symbol (<strong>three of a kind on that row</strong>).</li>` +
+        `<li>To play another ticket, peel again after the outcome is settled (ticket cost applies each round).</li>` +
+        `</ul>` +
         `<h3>General</h3>` +
         `<p>Malfunctions void all pays and plays. Outcomes come from certified server-side RNG. Play responsibly and comply with applicable rules from your gaming operator.</p>`
     );
