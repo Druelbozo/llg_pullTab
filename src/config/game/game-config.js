@@ -20,6 +20,7 @@ export const CONFIG_REGISTRY = [
     'lumberjack-legend',
     'mega-monster',
     'yummy-hot-pot',
+    'royal-beach-vibes'
 ];
 
 const configModules = (typeof import.meta.glob === 'function')

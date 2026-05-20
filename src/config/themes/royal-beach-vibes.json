@@ -1,0 +1,37 @@
+{
+  "imageKeys": {
+    "background": "background-royal-beach-vibes",
+    "cardBack": "cardBack-royal-beach-vibes",
+    "peel": "peel-royal-beach-vibes",
+    "icons": "icons-royal-beach-vibes"
+  },
+  
+  "peelCard": {
+    "horizontalContentInset": 50,
+    "flatPeelHeightFillPercent": 0.88,
+    "flatPeelWidthFillPercent": 0.42,
+    "flatPeelStripScale": 1.2,
+    "flatPeelStripInsetRight": 15,
+    "flatPeelStripY": 150,
+    "peelRowGap": 10
+  },
+  "controlBar": {
+    "palette": {
+      "primaryColor": "#c80101",
+      "secondaryColor": "#ffffff"
+    }
+  },
+  "text": {
+    "palette": {
+      "primaryColor": "#fdb50f"
+    },
+    "message": {
+      "stroke": {
+        "color": "#6e3101"
+      }
+    }
+  },
+  "music": {
+    "audioKey": "lumberjack-legend.ogg"
+  }
+}
