@@ -11,23 +11,26 @@
     "flatPeelHeightFillPercent": 0.88,
     "flatPeelWidthFillPercent": 0.42,
     "flatPeelStripScale": 1.2,
-    "flatPeelStripInsetRight": 15,
-    "flatPeelStripY": 150,
-    "peelRowGap": 10
+    "flatPeelStripInsetRight": -25,
+    "flatPeelStripY": 280,
+    "peelRowGap": 8
   },
   "controlBar": {
     "palette": {
-      "primaryColor": "#c80101",
+      "primaryColor": "#1974d0",
       "secondaryColor": "#ffffff"
+    },
+    "header": {
+      "color": "#1974d0"
     }
   },
   "text": {
     "palette": {
-      "primaryColor": "#fdb50f"
+      "primaryColor": "#ffd50f"
     },
     "message": {
       "stroke": {
-        "color": "#6e3101"
+        "color": "#be7308"
       }
     }
   },
