@@ -5,15 +5,8 @@
     "peel": "peel-royal-beach-vibes",
     "icons": "icons-royal-beach-vibes"
   },
-  
   "pullTabIconsLayout": {
-    "iconLayout": "even",
-    "iconStripInsetPercent": 0.08,
-    "iconRowY": 50,
-    "crossY": 50,
-    "iconMaxHeightPercent": 0.96,
-    "iconMaxWidthPercent": 0.88,
-    "iconScale": 1.15
+    "iconScale": 0.8
   },
   "peelCard": {
     "horizontalContentInset": 50,

@@ -156,6 +156,7 @@ export default class PeelIcons extends Phaser.GameObjects.Container {
 
 	_applyIconDisplaySize(icon)
 	{
+		this.scene.tweens.killTweensOf(icon);
 		const layout = {
 			...this._defaultPullTabIconsLayout(),
 			...(this.scene.registry.get('pullTabIconsLayout') || {}),

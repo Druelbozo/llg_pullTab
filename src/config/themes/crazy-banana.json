@@ -9,6 +9,9 @@
     "win": "win-crazy-banana",
     "lose": "lose-crazy-banana"
   },
+  "pullTabIconsLayout": {
+    "iconScale": 0.95
+  },
   "text": {
     "palette": {
       "primaryColor": "#70c8f0",

@@ -7,6 +7,9 @@
   "videoKeys": {
     "win": "win-yummy-hot-pot"
   },
+  "pullTabIconsLayout": {
+    "iconScale": 1.1
+  },
   "peelCard": {
     "cardBackTint": "#fef9df"
   },

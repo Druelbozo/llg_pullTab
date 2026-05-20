@@ -110,11 +110,28 @@ export function getPullTabIconsFrameNames(scene) {
 }
 
 /**
+ * Peel strip row height in the icon's coordinate space (from `Peel.back`, not the icon sprite).
+ *
  * @param {Phaser.Scene} scene
- * @param {Record<string, unknown>|null|undefined} layout
- * @param {Phaser.GameObjects.Sprite|null|undefined} sampleSprite — optional row sprite for row height
- * @returns {{ maxW: number, maxH: number }}
+ * @param {Phaser.GameObjects.Sprite|null|undefined} [sampleSprite]
+ * @returns {number}
  */
+export function resolvePeelRowHeightForIconSizing(scene, sampleSprite) {
+	/** @type {{ back?: Phaser.GameObjects.Image }} */
+	const peelFromIcon = sampleSprite?.parent?.parent?.parent;
+	const backs = [peelFromIcon?.back, scene?.peelCard?.peelContainer?.list?.[0]?.back];
+	for (const back of backs) {
+		if (!back?.frame) {
+			continue;
+		}
+		const fh = back.frame.cutHeight || back.frame.height || 0;
+		if (fh > 0) {
+			return fh * (Math.abs(back.scaleY) || 1);
+		}
+	}
+	return 0;
+}
+
 /**
  * Per-theme icon sizing in `pullTabIconsLayout` (theme JSON or atlas `pullTabLayout`):
  * - `iconMaxWidth` / `iconMaxHeight` — absolute px caps (optional)
@@ -142,14 +159,8 @@ export function resolvePullTabIconMaxDisplaySize(scene, layout, sampleSprite) {
 			  ? spacing * (Number.isFinite(wPct) && wPct > 0 ? wPct : 0.88)
 			  : 88;
 
-	let peelRowH = 0;
-	if (sampleSprite?.frame) {
-		peelRowH = sampleSprite.displayHeight ?? sampleSprite.height ?? 0;
-	}
-	if (!(peelRowH > 0) && scene?.peelCard?.peelContainer?.list?.length) {
-		const tab = scene.peelCard.peelContainer.list[0];
-		peelRowH = tab?.displayHeight ?? tab?.height ?? 0;
-	}
+	// Peel strip `back` height only — never the icon's displayHeight (already includes prior iconScale).
+	const peelRowH = resolvePeelRowHeightForIconSizing(scene, sampleSprite);
 
 	let maxH =
 		Number.isFinite(maxHRaw) && maxHRaw > 0
@@ -178,8 +189,9 @@ export function fitPullTabIconSpriteToMaxSize(sprite, maxW, maxH, scaleMultiplie
 	if (!sprite?.frame) {
 		return;
 	}
-	const fw = sprite.frame.cutWidth || sprite.frame.width || sprite.width || 1;
-	const fh = sprite.frame.cutHeight || sprite.frame.height || sprite.height || 1;
+	sprite.setScale(1);
+	const fw = sprite.frame.cutWidth || sprite.frame.width || 1;
+	const fh = sprite.frame.cutHeight || sprite.frame.height || 1;
 	const mul = Number(scaleMultiplier);
 	const extra = Number.isFinite(mul) && mul > 0 ? mul : 1;
 	const scale = Math.min(maxW / fw, maxH / fh) * extra;
