@@ -3,7 +3,8 @@
     "background": "background-mega-monster",
     "card": "card-mega-monster",
     "icons": "icons-mega-monster",
-    "peel": "peel-crazy-banana"
+    "peel": "peel-crazy-banana",
+    "lose": "lose-mega-monster"
   },
   "videoKeys": {
     "win": "win-mega-monster"
@@ -20,6 +21,9 @@
     "palette": {
       "primaryColor": "#1ca744"
     }
+  },
+  "lose": {
+    "cardHeightPercent": 0.7
   },
   "music": {
     "audioKey": "mega-monster3.ogg"

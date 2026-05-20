@@ -4,7 +4,8 @@
     "card": "card-disco-kitty",
     "icons": "icons-disco-kitty",
     "peel": "peel-disco-kitty",
-    "peelBack": "peelBack-disco-kitty"
+    "peelBack": "peelBack-disco-kitty",
+    "lose": "lose-disco-kitty"
   },
   "peelCard": {
     "cardBackTint": "#ffc3f8"
@@ -23,6 +24,9 @@
     "palette": {
       "primaryColor": "#c209dd"
     }
+  },
+  "lose": {
+    "cardHeightPercent": 0.375
   },
   "music": {
     "audioKey": "disco-kitty.ogg"

@@ -2,7 +2,8 @@
   "imageKeys": {
     "background": "background-yummy-hot-pot",
     "card": "card-yummy-hot-pot",
-    "icons": "icons-yummy-hot-pot"
+    "icons": "icons-yummy-hot-pot",
+    "lose": "lose-yummy-hot-pot"
   },
   "videoKeys": {
     "win": "win-yummy-hot-pot"
@@ -22,6 +23,9 @@
     "palette": {
       "primaryColor": "#ff0000"
     }
+  },
+  "lose": {
+    "cardHeightPercent": 0.625
   },
   "music": {
     "audioKey": "yummy-hot-pot.ogg"
