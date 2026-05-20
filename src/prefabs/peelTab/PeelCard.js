@@ -26,6 +26,11 @@ import {
 	syncPullTabPeelCardLayout,
 } from "../../services/pulltab/PullTabControlBarBootstrap.js";
 import { warn } from "../../utils/logger/LoggerUtils.js";
+import { GameConfig } from "../../config/Global.js";
+import {
+	getPullTabGameSpeed,
+	msAtSpeed1ToGameSpeed,
+} from "../../utils/game/PullTabGameSpeedUtils.js";
 /* END-USER-IMPORTS */
 
 export default class PeelCard extends Phaser.GameObjects.Container {
@@ -91,7 +96,9 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 			classType: Peel
 		});
 
-		this.scene.events.on("onGameSpeedChanged", (value) => {this.speed = value;}, this)
+		this.scene.events.on("onGameSpeedChanged", (value) => {
+			this.speed = value;
+		}, this);
 		this.scene.events.on("pulltab-banner-update", (/** @type {string} */ text) => {
 			if (typeof text === 'string' && text.trim().length > 0 && this.messageText) {
 				this.messageText.text = text.trim();
@@ -297,12 +304,17 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 
 	peelAll()
 	{
+		this.speed = getPullTabGameSpeed(this.scene);
 		const list = this.peelContainer.list;
 		const n = list.length;
+		const rowDelayRaw = Number(GameConfig.game.AUTO_PEEL_ROW_DELAY_MS);
+		const rowDelayAtSpeed1 =
+			Number.isFinite(rowDelayRaw) && rowDelayRaw >= 0 ? rowDelayRaw : 200;
 		// list[0] is bottom row after init reverse — peel top-to-bottom (high index first).
 		for (let step = 0; step < n; step++) {
 			const tab = list[n - 1 - step];
-			this.scene.time.delayedCall((100 * step) / this.speed, () => tab.autoPeel(), this);
+			const delayMs = msAtSpeed1ToGameSpeed(this.scene, rowDelayAtSpeed1 * step);
+			this.scene.time.delayedCall(delayMs, () => tab.autoPeel(), this);
 		}
 	}
 

@@ -33,6 +33,16 @@ export const GameConfig = {
         DISPLAY_CURRENCY_CODE: null,
 
         START_SPEED: 1,
+        /**
+         * Wall-time delay (ms) between each strip when OPEN / auto-peel clears the board, at speed x1.
+         * Higher = slower top-to-bottom cascade. Scaled by the speed button (x2/x3 → half / third the delay).
+         */
+        AUTO_PEEL_ROW_DELAY_MS: 150,
+        /**
+         * Wall-time duration (ms) of each strip's peel-off tween during OPEN / auto-peel, at speed x1.
+         * Higher = slower peel animation. Scaled by the speed button (x2/x3 → faster peel tweens).
+         */
+        AUTO_PEEL_ANIMATION_MS: 500,
         AUTOPLAY_ENABLED: false,
         AUTOPLAY_AMOUNT: 20,
         AUTOPLAY_AMOUNTS: [10, 25, 50, 75, 100, 500],

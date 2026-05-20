@@ -4,6 +4,8 @@
 
 import PeelIcons from "./PeelIcons.js";
 /* START-USER-IMPORTS */
+import { GameConfig } from '../../config/Global.js';
+import { msAtSpeed1ToGameSpeed } from '../../utils/game/PullTabGameSpeedUtils.js';
 import { tweenInPullTabInstructionsBuyHint } from '../../services/pulltab/PullTabInstructionsText.js';
 /* END-USER-IMPORTS */
 
@@ -263,55 +265,68 @@ export default class Peel extends Phaser.GameObjects.Container {
 		this.peeling = true;
 	}
 
-	endPeel()
-	{
-		if(!this.peeling) return;
-		if(this.peeled) {this.reset(); return};
+	/** @returns {number} ms */
+	_getAutoPeelAnimationDurationMs() {
+		const raw = Number(GameConfig.game.AUTO_PEEL_ANIMATION_MS);
+		const base = Number.isFinite(raw) && raw > 0 ? raw : 500;
+		return msAtSpeed1ToGameSpeed(this.scene, base);
+	}
 
-		this.peeling = false
+	/**
+	 * Play peel strip pull-off tweens (manual pointer release or auto-peel).
+	 *
+	 * @param {number} durationMs
+	 */
+	_completePeelWithTween(durationMs) {
+		this.peeling = false;
 		this.peeled = true;
-
-
 
 		this.cursorPos.x = 950;
 		this.cursorPos.y = 200;
-		this.pullPos.x = (this.cursorPos.x + this.front.x) * 0.5
-		this.pullPos.y = (this.cursorPos.y  + this.front.y) * 0.5
+		this.pullPos.x = (this.cursorPos.x + this.front.x) * 0.5;
+		this.pullPos.y = (this.cursorPos.y + this.front.y) * 0.5;
 
-		let dur = 500;
+		const dur = Math.max(0, durationMs);
 
-		this.scene.add.tween
-		({
+		this.scene.add.tween({
 			targets: this.peel,
 			x: this.cursorPos.x,
 			y: this.cursorPos.y,
 			alpha: 0,
 			duration: dur,
-			ease: "Sine.Out",
-			onUpdate: () => 
-			{
-				let theta = Math.atan2(this.peel.y, this.peel.x) * 180 / Math.PI;
-				let deg = -(90 - theta) * 2
+			ease: 'Sine.Out',
+			onUpdate: () => {
+				const theta = (Math.atan2(this.peel.y, this.peel.x) * 180) / Math.PI;
+				const deg = -(90 - theta) * 2;
 				this.peel.angle = deg - 180;
 				this.pullpoint.angle = deg * 0.5;
-			}
-		})
+			},
+		});
 
-		this.scene.add.tween
-		({
-			targets: [this.pullpoint,this.shade],
+		this.scene.add.tween({
+			targets: [this.pullpoint, this.shade],
 			x: this.pullPos.x,
 			y: this.pullPos.y,
 			alpha: 0,
 			duration: dur,
-			ease: "Sine.Out"
-		})
+			ease: 'Sine.Out',
+		});
 
 		this.peel.visible = true;
+		this.shade.visible = true;
 		this.enabled = false;
-		this.emit("peeled");
+		this.emit('peeled');
 		this.peelIcons.showWin();
+	}
 
+	endPeel()
+	{
+		if (!this.peeling) return;
+		if (this.peeled) {
+			this.reset();
+			return;
+		}
+		this._completePeelWithTween(500);
 	}
 
 	reset()
@@ -342,16 +357,19 @@ export default class Peel extends Phaser.GameObjects.Container {
 
 	autoPeel()
 	{
-		if(this.peeled) return;
+		if (this.peeled) return;
 		this.scene.audioService?.playSfx('pageTurn');
-		this.peel.setPosition(100,50);
+		this.peel.setPosition(100, 50);
 		this.peel.angle = 50;
+		this.peel.alpha = 1;
+		this.peel.visible = true;
 
-		this.pullpoint.setPosition(50,50);
+		this.pullpoint.setPosition(50, 50);
 		this.pullpoint.angle = -50;
+		this.shade.alpha = 0.25;
+		this.shade.visible = true;
 
-		this.startPeel();
-		this.scene.time.delayedCall(0, ()=> this.endPeel(),this);
+		this._completePeelWithTween(this._getAutoPeelAnimationDurationMs());
 	}
 
 	getSize()
