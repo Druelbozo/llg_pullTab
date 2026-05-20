@@ -35,6 +35,11 @@ import {
     resolveMessageTextWordWrapWidth,
 } from '../../utils/layout/MessageTextPositioningUtils.js';
 import { applyMessageTextTheme } from '../../utils/ui/theme/ThemeApplicationUtils.js';
+import {
+	ensurePullTabInstructionsText,
+	layoutPullTabInstructionsText,
+	setupPullTabInstructionsTextRoundEvents,
+} from './PullTabInstructionsText.js';
 
 /**
  * Pull-tab bounds for background sizing (includes speed row).
@@ -198,6 +203,7 @@ function calculateAndApplyPullTabLayout(scene, layoutPositions, uiConfig, baseUI
 
     applyPeelCardLayout(scene, layoutPositions);
     layoutPullTabPeelMessageText(scene, layoutPositions, uiConfig, baseUIConfig);
+    layoutPullTabInstructionsText(scene, layoutPositions, uiConfig, baseUIConfig);
 
     return true;
 }
@@ -441,6 +447,7 @@ export function syncPullTabPeelCardLayout(scene) {
     const layoutPositions = scene.layoutManager.getLayoutPositions();
     applyPeelCardLayout(scene, layoutPositions);
     layoutPullTabPeelMessageText(scene, layoutPositions, uiConfig, baseUIConfig);
+    layoutPullTabInstructionsText(scene, layoutPositions, uiConfig, baseUIConfig);
 }
 
 function applyPeelCardLayout(scene, layoutPositions) {
@@ -644,6 +651,9 @@ export function bootstrapPullTabControlBar(scene) {
     scene.controlBarManager = new ControlBarManager(scene, scene.buttonManager);
     scene.layoutManager = new LayoutManager(scene);
     scene.controlBarBackgroundService = new ControlBarBackgroundService(scene);
+
+    ensurePullTabInstructionsText(scene);
+    setupPullTabInstructionsTextRoundEvents(scene);
 
     scene.events.on('onThemeInitalized', () => {
         scene.time.delayedCall(0, () => {

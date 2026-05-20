@@ -4,6 +4,7 @@
 
 import PeelIcons from "./PeelIcons.js";
 /* START-USER-IMPORTS */
+import { tweenInPullTabInstructionsBuyHint } from '../../services/pulltab/PullTabInstructionsText.js';
 /* END-USER-IMPORTS */
 
 export default class Peel extends Phaser.GameObjects.Container {
@@ -254,7 +255,10 @@ export default class Peel extends Phaser.GameObjects.Container {
 
 	startPeel()
 	{
-		if(!this.enabled) return;
+		if (!this.enabled) {
+			tweenInPullTabInstructionsBuyHint(this.scene);
+			return;
+		}
 		if(this.peeled) return;
 		this.peeling = true;
 	}

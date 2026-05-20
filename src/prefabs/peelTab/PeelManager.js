@@ -103,6 +103,7 @@ export default class PeelManager extends Phaser.GameObjects.Container {
 		if(success)
 		{
 			this.stateManager.setState("playing", "PeelManager -  Player has enough currency, starting game");
+			this.scene.events.emit("onCardBuy");
 			log(`PeelManager buy ok autoMode=${this.autoMode}`, 'game');
 
 			if(this.autoMode)
