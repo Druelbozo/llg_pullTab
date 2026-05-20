@@ -297,9 +297,12 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 
 	peelAll()
 	{
-	 	for (let i = 0; i < this.peelContainer.list.length; i++)
-		{
-			this.scene.time.delayedCall((100 * i)/this.speed, ()=> this.peelContainer.list[i].autoPeel(), this) ;
+		const list = this.peelContainer.list;
+		const n = list.length;
+		// list[0] is bottom row after init reverse — peel top-to-bottom (high index first).
+		for (let step = 0; step < n; step++) {
+			const tab = list[n - 1 - step];
+			this.scene.time.delayedCall((100 * step) / this.speed, () => tab.autoPeel(), this);
 		}
 	}
 
