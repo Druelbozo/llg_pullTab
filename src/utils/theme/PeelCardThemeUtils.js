@@ -56,6 +56,20 @@ export function themeDefinesPeelVideoSlot(themeData, slot) {
 }
 
 /**
+ * Flat `imageKeys.cardBack` themes always use win/lose PNG animations on the card — never result videos.
+ *
+ * @param {Phaser.Scene} scene
+ * @param {Record<string, unknown>|null|undefined} themeData
+ * @param {'win'|'lose'} slot
+ */
+export function shouldUsePeelResultVideo(scene, themeData, slot) {
+	if (themeUsesFlatCardBackImage(themeData)) {
+		return false;
+	}
+	return themeDefinesPeelVideoSlot(themeData, slot) && Boolean(scene?.cache?.video?.exists?.(slot));
+}
+
+/**
  * When true, play the video clip instead of the `imageKeys` win/lose PNG animation.
  *
  * @param {Phaser.Scene} scene
@@ -63,7 +77,7 @@ export function themeDefinesPeelVideoSlot(themeData, slot) {
  * @param {'win'|'lose'} slot
  */
 export function peelResultVideoOverridesImageAnimation(scene, themeData, slot) {
-	return themeDefinesPeelVideoSlot(themeData, slot) && Boolean(scene?.cache?.video?.exists?.(slot));
+	return shouldUsePeelResultVideo(scene, themeData, slot);
 }
 
 /**

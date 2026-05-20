@@ -14,10 +14,15 @@
     "lose": null
   },
   "pullTabIconsLayout": {
+    "iconLayout": "even",
+    "iconStripInsetPercent": 0.06,
     "iconSpacing": 130,
     "iconOffsetX": 60,
     "iconRowY": 50,
-    "crossY": 50
+    "crossY": 50,
+    "iconMaxWidthPercent": 0.88,
+    "iconMaxHeightPercent": 0.95,
+    "iconScale": 1.1
   },
   "cardConfig": {
     "lose": {

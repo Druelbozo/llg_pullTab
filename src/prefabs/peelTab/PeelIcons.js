@@ -4,6 +4,13 @@
 /* START OF COMPILED CODE */
 
 /* START-USER-IMPORTS */
+import {
+	extractOrderedIconsFrameNamesFromTexture,
+	fitPullTabIconSpriteToMaxSize,
+	getPullTabIconsFrameNames,
+	resolvePullTabIconMaxDisplaySize,
+	tierIndexToIconsFrameName,
+} from '../../utils/theme/PullTabIconsAtlasUtils.js';
 /* END-USER-IMPORTS */
 
 export default class PeelIcons extends Phaser.GameObjects.Container {
@@ -44,7 +51,72 @@ export default class PeelIcons extends Phaser.GameObjects.Container {
 
 	_defaultPullTabIconsLayout()
 	{
-		return { iconSpacing: 130, iconOffsetX: 60, iconRowY: 50, crossY: 50 };
+		return {
+			iconLayout: 'even',
+			iconSpacing: 130,
+			iconOffsetX: 60,
+			iconRowY: 50,
+			crossY: 50,
+			iconStripInsetPercent: 0.06,
+		};
+	}
+
+	/**
+	 * Peel row `back` image width (parent {@link Peel}).
+	 * @returns {number}
+	 */
+	_getPeelStripWidth() {
+		const peel = /** @type {{ back?: Phaser.GameObjects.Image }} */ (this.parent);
+		const w = peel?.back?.displayWidth ?? 0;
+		return Number.isFinite(w) && w > 0 ? w : 0;
+	}
+
+	/**
+	 * Place row icons: `even` spreads across strip width; `fixed` uses iconSpacing/iconOffsetX.
+	 *
+	 * @param {Phaser.GameObjects.Sprite[]} icons
+	 */
+	_layoutIconPositions(icons) {
+		const layout = {
+			...this._defaultPullTabIconsLayout(),
+			...(this.scene.registry.get('pullTabIconsLayout') || {}),
+		};
+		const mode = String(layout.iconLayout ?? 'even').toLowerCase();
+		const n = icons?.length ?? 0;
+		if (n === 0) {
+			return;
+		}
+
+		const stripW = this._getPeelStripWidth();
+		const useEven = mode !== 'fixed' && stripW > 0;
+
+		if (useEven) {
+			const insetPctRaw = Number(layout.iconStripInsetPercent);
+			const insetPxRaw = Number(layout.iconStripInsetPx);
+			const inset =
+				Number.isFinite(insetPxRaw) && insetPxRaw >= 0
+					? insetPxRaw
+					: stripW *
+						(Number.isFinite(insetPctRaw) && insetPctRaw >= 0 ? insetPctRaw : 0.06);
+			const usable = Math.max(0, stripW - inset * 2);
+			const step = n > 1 ? usable / (n - 1) : 0;
+			for (let i = 0; i < n; i++) {
+				icons[i].x = inset + i * step;
+				icons[i].y = this.iconRowY;
+			}
+			if (this.cross) {
+				this.cross.width = stripW;
+			}
+			return;
+		}
+
+		for (let i = 0; i < n; i++) {
+			icons[i].x = i * this.padding + this.offset;
+			icons[i].y = this.iconRowY;
+		}
+		if (this.cross && stripW > 0) {
+			this.cross.width = stripW;
+		}
 	}
 
 	syncPullTabIconsLayoutFromRegistry()
@@ -70,9 +142,36 @@ export default class PeelIcons extends Phaser.GameObjects.Container {
 
 	_iconFrameName(raw)
 	{
-		if (typeof raw === 'number' && Number.isFinite(raw)) return `${raw}.png`;
+		const names = getPullTabIconsFrameNames(this.scene);
+		const slot =
+			typeof raw === 'number' && Number.isFinite(raw)
+				? Math.max(0, Math.floor(raw))
+				: parseInt(String(raw), 10);
+		if (Number.isFinite(slot)) {
+			return tierIndexToIconsFrameName(names, slot);
+		}
 		const s = String(raw);
-		return /^\d+$/.test(s) ? `${s}.png` : s;
+		return /^\d+\.png$/i.test(s) ? s : `${s}.png`;
+	}
+
+	_applyIconDisplaySize(icon)
+	{
+		const layout = {
+			...this._defaultPullTabIconsLayout(),
+			...(this.scene.registry.get('pullTabIconsLayout') || {}),
+		};
+		const stripW = this._getPeelStripWidth();
+		const iconCount = Math.max(1, this.iconContainer?.list?.length ?? 3);
+		let sizingLayout = layout;
+		if (String(layout.iconLayout ?? 'even').toLowerCase() !== 'fixed' && stripW > 0) {
+			sizingLayout = { ...layout, iconSpacing: stripW / iconCount };
+		}
+		const { maxW, maxH, scaleMultiplier } = resolvePullTabIconMaxDisplaySize(
+			this.scene,
+			sizingLayout,
+			icon,
+		);
+		fitPullTabIconSpriteToMaxSize(icon, maxW, maxH, scaleMultiplier);
 	}
 
 	_primaryIconsTextureKey()
@@ -98,11 +197,10 @@ export default class PeelIcons extends Phaser.GameObjects.Container {
 				icon.setOrigin(0.5, 0.5);
 				this.iconContainer.add(icon);
 
-				icon.x = i * this.padding + this.offset;
-				icon.y = this.iconRowY;
-
 				icon.setTexture(texKey, this._iconFrameName(icons[i]));
+				this._applyIconDisplaySize(icon);
 			}
+			this._layoutIconPositions(this.iconContainer.list);
 		}
 		else
 		{
@@ -110,7 +208,15 @@ export default class PeelIcons extends Phaser.GameObjects.Container {
 			{
 				const icon = this.iconContainer.list[i];
 				icon.setTexture(texKey, this._iconFrameName(icons[i]));
-			}			
+				this._applyIconDisplaySize(icon);
+			}
+			this._layoutIconPositions(this.iconContainer.list);
+		}
+
+		const tex = this.scene.textures.get(texKey);
+		const ordered = extractOrderedIconsFrameNamesFromTexture(tex);
+		if (ordered.length > 0) {
+			this.scene.registry.set('pullTabIconsFrameNames', ordered);
 		}
 
 		this.isWin = this.iconContainer.list.every(i => i.frame.name === this.iconContainer.list[0].frame.name);
@@ -120,10 +226,11 @@ export default class PeelIcons extends Phaser.GameObjects.Container {
 	showWin()
 	{
 		if(!this.isWin) return;
+		const crossW = this._getPeelStripWidth() || this.cross?.width || 384;
 		this.scene.tweens.add
 		({
 			targets: this.cross,
-			width: 384,
+			width: crossW,
 			delay: 500,
 			duration: 500,
 			ease: "Sine.Out",

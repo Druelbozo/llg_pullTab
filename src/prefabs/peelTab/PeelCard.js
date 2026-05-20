@@ -14,7 +14,9 @@ import {
 	layoutPeelCardHorizontalContentInset,
 	shouldShowPeelCardCover,
 	shouldShowPeelPrizeLabels,
+	shouldUsePeelResultVideo,
 	themeDefinesPeelVideoSlot,
+	themeUsesFlatCardBackImage,
 	PEEL_RESULT_VIDEO_PLAYBACK_MS_AT_SPEED_1,
 	layoutPeelRowStack,
 	resolvePeelRowGap,
@@ -337,6 +339,9 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 	}
 
 	_ensurePeelResultVideos(themeData) {
+		if (themeUsesFlatCardBackImage(themeData)) {
+			return;
+		}
 		const flat = !shouldShowPeelCardCover(themeData);
 		const x = flat ? 0 : -80;
 		const y = flat ? 0 : -300;
@@ -361,10 +366,7 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 
 	_playPeelResultVideo(video, slot) {
 		const td = this.scene.themeData || this.scene.registry.get('preloadThemeData');
-		if (!video || !themeDefinesPeelVideoSlot(td, slot)) {
-			return;
-		}
-		if (!this.scene.cache.video.exists(slot)) {
+		if (!video || !shouldUsePeelResultVideo(this.scene, td, slot)) {
 			return;
 		}
 

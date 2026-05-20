@@ -1,7 +1,12 @@
 /**
- * Maps pull-tabs `/buy` API rows onto peel-tab atlas frame indices ({@link PeelIcons.init} accepts 0→"0.png").
- * Win tiers use `symbol_01`…→ frames 0,1,… sequentially. Lose rows substitute three distinct themed icons (ignore `__junk__` tokens).
+ * Maps pull-tabs `/buy` API rows onto peel-tab atlas frame indices (positions in ordered frame list).
+ * Win tiers use `symbol_01`…→ index 0,1,… (lowest prize = first atlas frame). Lose rows use distinct indices.
  */
+
+import {
+	extractOrderedIconsFrameNamesFromTexture,
+	getPullTabIconsFrameNames,
+} from '../theme/PullTabIconsAtlasUtils.js';
 
 const SYMBOL_RE = /^symbol_(\d+)$/i;
 
@@ -59,29 +64,24 @@ export function tierSymbolToFrameIndex(symbol) {
 }
 
 /**
+ * Ordered atlas slot indices 0…n-1 (matches {@link getPullTabIconsFrameNames} order).
+ *
+ * @param {Phaser.Scene} scene
  * @returns {number[]}
  */
-function sortedNumericAtlasFrameIndices(tex) {
-    if (!tex) return [];
-
-    /** @type {string[]} */
-    let names = [];
-    if (typeof tex.getFrameNames === 'function') {
-        names = tex.getFrameNames();
-    } else if (tex.frames && typeof tex.frames.keys === 'function') {
-        names = [...tex.frames.keys()];
-    } else if (tex.frames && typeof tex.frames === 'object') {
-        names = Object.keys(tex.frames);
-    }
-
-    names = names.filter((n) => typeof n === 'string' && /^\d+\.png$/i.test(n));
-    names.sort((a, b) => (parseInt(a, 10) || 0) - (parseInt(b, 10) || 0));
-    const out = [];
-    for (const n of names) {
-        const idx = parseInt(n, 10);
-        if (Number.isFinite(idx)) out.push(idx);
-    }
-    return out;
+function sortedPullTabIconSlotIndices(scene) {
+	const names = getPullTabIconsFrameNames(scene);
+	if (names.length > 0) {
+		const out = [];
+		for (let i = 0; i < names.length; i++) {
+			out.push(i);
+		}
+		return out;
+	}
+	const key = peelTabIconsAtlasKey(scene);
+	const tex = scene?.textures?.get?.(key);
+	const fallbackNames = extractOrderedIconsFrameNamesFromTexture(tex);
+	return fallbackNames.map((_, i) => i);
 }
 
 /** @returns {string} Phaser atlas key — must match PeelIcons */
@@ -98,12 +98,12 @@ export function peelTabIconsAtlasKey(scene) {
  * @returns {[number, number, number]}
  */
 export function loserRowDisplayTriple(scene, rowIndex, rowEntropy = 0) {
-    const key = peelTabIconsAtlasKey(scene);
-    const tex = scene?.textures?.get?.(key);
-    const nums = sortedNumericAtlasFrameIndices(tex);
+    const nums = sortedPullTabIconSlotIndices(scene);
     let pool = nums.length >= 3 ? [...nums] : null;
 
     if (!pool?.length) {
+        const key = peelTabIconsAtlasKey(scene);
+        const tex = scene?.textures?.get?.(key);
         const count = tex?.frameTotal ?? 24;
         pool = [];
         for (let i = 0; i < Math.max(9, Math.min(count, 60)); i++) {

@@ -2,6 +2,12 @@
  * CSS sprite helpers for DOM paytable icons (same atlas paths as Preload / ThemePreloadUtils).
  */
 
+import {
+	extractOrderedIconsFrameNamesFromAtlasJson,
+	getPullTabIconsFrameNames,
+	tierIndexToIconsFrameName,
+} from '../theme/PullTabIconsAtlasUtils.js';
+
 /** @type {string} */
 export const THEME_ICONS_ATLAS_BASE = 'assets/images/theme/icons';
 
@@ -18,7 +24,8 @@ export function buildIconsAtlasSpriteCss(atlasJson, atlasFrameIndex, displayPx =
 		return null;
 	}
 
-	const filename = `${Math.max(0, Math.floor(Number(atlasFrameIndex)))}.png`;
+	const orderedNames = extractOrderedIconsFrameNamesFromAtlasJson(atlasJson);
+	const filename = tierIndexToIconsFrameName(orderedNames, atlasFrameIndex);
 	const hit = frames.find((f) => f.filename === filename);
 	if (!hit?.frame) {
 		return null;
@@ -70,7 +77,8 @@ export function buildIconsAtlasSpriteCssFromScene(scene, atlasFrameIndex, displa
 	}
 
 	const texture = scene.textures.get(textureKey);
-	const frameName = `${Math.max(0, Math.floor(Number(atlasFrameIndex)))}.png`;
+	const orderedNames = getPullTabIconsFrameNames(scene);
+	const frameName = tierIndexToIconsFrameName(orderedNames, atlasFrameIndex);
 	if (!texture.has(frameName)) {
 		return null;
 	}

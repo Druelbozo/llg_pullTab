@@ -3,7 +3,8 @@
  */
 
 import { warn } from '../logger/LoggerUtils.js';
-import { themeDefinesPeelVideoSlot } from './PeelCardThemeUtils.js';
+import { themeDefinesPeelVideoSlot, themeUsesFlatCardBackImage } from './PeelCardThemeUtils.js';
+import { extractOrderedIconsFrameNamesFromAtlasJson } from './PullTabIconsAtlasUtils.js';
 
 /**
  * @param {Record<string, unknown>|null|undefined} themeData
@@ -12,6 +13,9 @@ import { themeDefinesPeelVideoSlot } from './PeelCardThemeUtils.js';
  */
 export function shouldPreloadPeelResultImageSlot(themeData, slotKey) {
 	if (slotKey === 'win' || slotKey === 'lose') {
+		if (themeUsesFlatCardBackImage(themeData)) {
+			return true;
+		}
 		return !themeDefinesPeelVideoSlot(themeData, slotKey);
 	}
 	return true;
@@ -41,6 +45,10 @@ export async function hydratePullTabIconsLayout(registry, themeData) {
 			return;
 		}
 		const j = await r.json();
+		const orderedNames = extractOrderedIconsFrameNamesFromAtlasJson(j);
+		if (orderedNames.length > 0) {
+			registry.set('pullTabIconsFrameNames', orderedNames);
+		}
 		if (j.pullTabLayout && typeof j.pullTabLayout === 'object') {
 			registry.set('pullTabIconsLayout', {
 				...mergedBase,
@@ -59,6 +67,9 @@ export async function hydratePullTabIconsLayout(registry, themeData) {
  * @param {Record<string, unknown>|null|undefined} themeData
  */
 export function queueThemeVideosBackground(scene, themeData) {
+	if (themeUsesFlatCardBackImage(themeData)) {
+		return;
+	}
 	const vk = themeData?.videoKeys;
 	if (!vk || typeof vk !== 'object' || !scene?.load) {
 		return;
