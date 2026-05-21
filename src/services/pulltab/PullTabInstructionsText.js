@@ -1,5 +1,5 @@
 /**
- * "Peel tabs to play" hint — mirrors scratch {@link Level} instructionsText (scale in/out, layout bands).
+ * "Open tabs to reveal" hint — mirrors scratch {@link Level} instructionsText (scale in/out, layout bands).
  */
 
 import {
@@ -15,10 +15,10 @@ import {
 import { applyInstructionsTextTheme } from '../../utils/ui/theme/ThemeApplicationUtils.js';
 
 /** @type {string} */
-export const PULL_TAB_INSTRUCTIONS_COPY = 'Peel tabs to play';
+export const PULL_TAB_INSTRUCTIONS_COPY = 'Open tabs to reveal';
 
 /** @type {string} */
-export const PULL_TAB_INSTRUCTIONS_BUY_COPY = 'Press Buy to play';
+export const PULL_TAB_INSTRUCTIONS_BUY_COPY = 'Press buy to play';
 
 /** @typedef {'hidden'|'buy'|'play'} PullTabInstructionsMode */
 
