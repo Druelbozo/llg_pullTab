@@ -7,6 +7,11 @@
 import { GameConfig } from '../../config/Global.js';
 import HapticUtils from '../../utils/device/HapticUtils.js';
 import { log, warn } from '../../utils/logger/LoggerUtils.js';
+import {
+	showInsufficientFundsModal,
+	showPurchaseFailedModal,
+} from '../../dom/modal/utils/ErrorModalUtils.js';
+import { resolvePullTabBuyWalletDebitMinor } from '../../utils/game/pullTabBuyDisplay.js';
 /* END-USER-IMPORTS */
 
 export default class PeelManager extends Phaser.GameObjects.Container {
@@ -98,7 +103,18 @@ export default class PeelManager extends Phaser.GameObjects.Container {
 
 	async checkBalanace()
 	{
-		let success = await this.scene.serverManager.buy();
+		const walletDebitMinor = resolvePullTabBuyWalletDebitMinor(this.scene);
+		const balancePennies =
+			Math.round(Number(this.scene.balancePennies)) ||
+			Math.round(Number(this.scene.serverManager?.balance ?? 0) * 100);
+
+		if (balancePennies < walletDebitMinor) {
+			showInsufficientFundsModal(this.scene);
+			this.stateManager?.setState("ready", "PeelManager: insufficient balance");
+			return;
+		}
+
+		const success = await this.scene.serverManager.buy();
 
 		if(success)
 		{
@@ -113,7 +129,15 @@ export default class PeelManager extends Phaser.GameObjects.Container {
 		}
 		else
 		{
-			// ServerManager.buy() returns false for insufficient balance *and* API/network failures — avoid implying funds only.
+			const walletDebitMinorAfter = resolvePullTabBuyWalletDebitMinor(this.scene);
+			const balanceAfter =
+				Math.round(Number(this.scene.balancePennies)) ||
+				Math.round(Number(this.scene.serverManager?.balance ?? 0) * 100);
+			if (balanceAfter < walletDebitMinorAfter) {
+				showInsufficientFundsModal(this.scene);
+			} else {
+				showPurchaseFailedModal(this.scene);
+			}
 			warn('[PeelManager] Buy did not start (insufficient balance, validation error, or API failure — see ServerManager logs)', 'game');
 			this.stateManager?.setState("ready", "PeelManager: buy did not complete");
 		}

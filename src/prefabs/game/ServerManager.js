@@ -6,12 +6,9 @@
 /* START-USER-IMPORTS */
 import PullTabsService from '../../services/api/PullTabsService.js';
 import { GameConfig } from '../../config/Global.js';
-import { normalizePullTabsBuy } from '../../utils/game/pullTabBuyDisplay.js';
+import { normalizePullTabsBuy, resolvePullTabBuyWalletDebitMinor } from '../../utils/game/pullTabBuyDisplay.js';
 import { maxPayoutMinorFromAwardTiers } from '../../utils/game/pullTabAwardTierUtils.js';
-import {
-	formatPullTabBannerMessage,
-	economyMinorToWalletMinors,
-} from '../../utils/formatting/FormattingUtils.js';
+import { formatPullTabBannerMessage } from '../../utils/formatting/FormattingUtils.js';
 import { warn, error as logErr } from '../../utils/logger/LoggerUtils.js';
 /* END-USER-IMPORTS */
 
@@ -96,7 +93,6 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 	async buy()
 	{
 		const stateMgr = this.scene?.stateManager;
-		stateMgr?.setState("wait", "ServerManager: awaiting pull-tabs buy");
 
 		const gc = typeof window !== "undefined" ? window.__selectedGameConfig || {} : {};
 		const sid = typeof window !== "undefined" && window.__sessionId ? String(window.__sessionId).trim() : "";
@@ -112,7 +108,7 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 		);
 		const priceMinor = Number.isFinite(creditMinor) && creditMinor > 0 ? creditMinor : 100;
 
-		const walletDebitMinor = economyMinorToWalletMinors(priceMinor);
+		const walletDebitMinor = resolvePullTabBuyWalletDebitMinor(this.scene);
 
 		if (!isSession && paytableId.length === 0) {
 			logErr('[ServerManager] Non-session pull-tabs buy requires paytableId in game config.', 'api');
@@ -125,6 +121,8 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 			stateMgr?.setState("ready", "ServerManager: insufficient balance");
 			return false;
 		}
+
+		stateMgr?.setState("wait", "ServerManager: awaiting pull-tabs buy");
 
 		if (!this.pullTabsApi) {
 			this.pullTabsApi = new PullTabsService();

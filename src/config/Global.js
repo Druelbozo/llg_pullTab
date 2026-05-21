@@ -21,7 +21,7 @@ export const GameConfig = {
         BASE_URL_LOCAL: `http://localhost:${typeof __CORS_PROXY_PORT__ !== 'undefined' ? __CORS_PROXY_PORT__ : '3005'}`
     },
     game: {
-        TEST_BALANCE_MINOR: 300000,
+        TEST_BALANCE_MINOR: 1000000,
         SESSION_DEMO_BALANCE_MINOR: 10000,
 
         TEST_BALANCE: 300000,

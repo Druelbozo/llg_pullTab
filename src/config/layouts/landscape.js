@@ -3,7 +3,7 @@ export default {
     contentHeight: { pixels: null, percent: 0.075 },
     spacingPercent: { items: 0.01, rows: 0.2 },
     paddingPercent: { top: 0.01, bottom: 0.01 },
-    insetPercent: { horizontal: 0.01 },
+    insetPercent: { horizontal: 0.31 },
     header: {
       items: ['winText', 'balanceText'],
       fontSize: 21,

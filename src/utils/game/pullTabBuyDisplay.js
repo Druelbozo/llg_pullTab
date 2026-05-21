@@ -7,6 +7,7 @@ import {
 	extractOrderedIconsFrameNamesFromTexture,
 	getPullTabIconsFrameNames,
 } from '../theme/PullTabIconsAtlasUtils.js';
+import { economyMinorToWalletMinors } from '../formatting/FormattingUtils.js';
 
 const SYMBOL_RE = /^symbol_(\d+)$/i;
 
@@ -87,6 +88,22 @@ function sortedPullTabIconSlotIndices(scene) {
 /** @returns {string} Phaser atlas key — must match PeelIcons */
 export function peelTabIconsAtlasKey(scene) {
     return scene?.textures?.exists?.('icons') ? 'icons' : 'DI_Icons_Default';
+}
+
+/**
+ * Wallet minors required for one pull-tab buy (economy creditValueMinor → wallet scale).
+ *
+ * @param {Phaser.Scene|null|undefined} scene
+ * @returns {number}
+ */
+export function resolvePullTabBuyWalletDebitMinor(scene) {
+	const sm = scene?.serverManager;
+	const gc = typeof window !== 'undefined' ? window.__selectedGameConfig || {} : {};
+	const creditMinor = Math.round(
+		Number(gc.creditValueMinor ?? sm?.gameConfig?.creditValueMinor ?? 100),
+	);
+	const priceMinor = Number.isFinite(creditMinor) && creditMinor > 0 ? creditMinor : 100;
+	return economyMinorToWalletMinors(priceMinor);
 }
 
 /**
