@@ -5,7 +5,7 @@
 
 export default {
 	theme: 'royal-beach-vibes',
-	paytableId: 'prize_poker_6288k_v0001',
+	paytableId: 'prize_poker_5row_94_v0001',
 	creditValueMinor: 25,
 	rowCount: 5,
 };
