@@ -12,7 +12,7 @@
     "iconScale": 0.95
   },
   "win": {
-    "cardHeightPercent": 0.55
+    "cardHeightPercent": 0.45
   },
   "lose": {
     "cardHeightPercent": 0.55
@@ -28,22 +28,30 @@
   },
   "controlBar": {
     "palette": {
-      "primaryColor": "#c80101",
+      "primaryColor": "#3c9410",
       "secondaryColor": "#ffffff"
     }
   },
   "text": {
     "palette": {
-      "primaryColor": "#fdb50f"
+      "primaryColor": "#502003"
     },
     "message": {
       "stroke": {
-        "color": "#6e3101"
+        "lineWidth": 6,
+        "color": "#fad20d"
       }
     },
     "score": {
+      "font": {
+        "size": 190,
+        "color": "#502003"
+      },
+      "stroke": {
+        "color": "#fad20d"
+      },
       "position": {
-        "y": 270
+        "y": 360
       }
     }
   },
