@@ -1,0 +1,53 @@
+{
+  "imageKeys": {
+    "background": "background-beverly-hillbilly",
+    "cardBack": "cardBack-beverly-hillbilly",
+    "peel": "peel-beverly-hillbilly",
+    "peelBack": "peelBack-default",
+    "icons": "icons-beverly-hillbilly",
+    "win": "win-beverly-hillbilly",
+    "lose": "lose-beverly-hillbilly"
+  },
+  "pullTabIconsLayout": {
+    "iconScale": 0.95
+  },
+  "win": {
+    "cardHeightPercent": 0.55
+  },
+  "lose": {
+    "cardHeightPercent": 0.55
+  },
+  "peelCard": {
+    "horizontalContentInset": 50,
+    "flatPeelHeightFillPercent": 0.88,
+    "flatPeelWidthFillPercent": 0.42,
+    "flatPeelStripScale": 1.2,
+    "flatPeelStripAlign": "center",
+    "flatPeelStripY": 260,
+    "peelRowGap": 10
+  },
+  "controlBar": {
+    "palette": {
+      "primaryColor": "#c80101",
+      "secondaryColor": "#ffffff"
+    }
+  },
+  "text": {
+    "palette": {
+      "primaryColor": "#fdb50f"
+    },
+    "message": {
+      "stroke": {
+        "color": "#6e3101"
+      }
+    },
+    "score": {
+      "position": {
+        "y": 270
+      }
+    }
+  },
+  "music": {
+    "audioKey": "beverly-hillbilly.ogg"
+  }
+}
