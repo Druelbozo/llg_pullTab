@@ -228,6 +228,7 @@ export default class PeelIcons extends Phaser.GameObjects.Container {
 	{
 		if(!this.isWin) return;
 		const crossW = this._getPeelStripWidth() || this.cross?.width || 384;
+		this.scene.tweens.killTweensOf(this.cross);
 		this.scene.tweens.add
 		({
 			targets: this.cross,
@@ -236,17 +237,34 @@ export default class PeelIcons extends Phaser.GameObjects.Container {
 			duration: 500,
 			ease: "Sine.Out",
 		})
+		const pulse = 1.12;
 		for (let i = 0; i < 3; i++) 
 		{
+			const icon = this.iconContainer.list[i];
+			if (!icon) {
+				continue;
+			}
+			this.scene.tweens.killTweensOf(icon);
+			const stored = icon.getData('pullTabIconBaseScale');
+			const baseScale =
+				typeof stored === 'number' && stored > 0 ? stored : icon.scaleX;
+			icon.setScale(baseScale);
+			const peakScale = baseScale * pulse;
 			this.scene.tweens.add
 				({
-					targets: this.iconContainer.list[i],
-					scaleX: 1.2,
-					scaleY: 1.2,
+					targets: icon,
+					scaleX: peakScale,
+					scaleY: peakScale,
 					delay: 500 + i * 100,
 					duration: 250,
 					ease: "Sine.Out",
 					yoyo: true,
+					onStop: () => {
+						icon.setScale(baseScale);
+					},
+					onComplete: () => {
+						icon.setScale(baseScale);
+					},
 				})
 		}
 

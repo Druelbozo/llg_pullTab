@@ -196,4 +196,5 @@ export function fitPullTabIconSpriteToMaxSize(sprite, maxW, maxH, scaleMultiplie
 	const extra = Number.isFinite(mul) && mul > 0 ? mul : 1;
 	const scale = Math.min(maxW / fw, maxH / fh) * extra;
 	sprite.setScale(scale);
+	sprite.setData('pullTabIconBaseScale', scale);
 }

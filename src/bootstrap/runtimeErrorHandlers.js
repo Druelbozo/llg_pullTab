@@ -1,6 +1,6 @@
 /**
  * Global error hooks for production (index.html overlay). Not Vite — hmr.overlay only applies in dev.
- * Suppresses benign browser/audio failures (e.g. tab away/back) and logs them instead of blocking play.
+ * In dev, errors log to console only (no overlay) so the game canvas stays visible while debugging.
  */
 
 /**
@@ -49,6 +49,10 @@ export function isBenignRuntimeError(reason) {
 }
 
 function showFatalOverlay(title, detail) {
+	// Dev: console only — Vite hmr.overlay is off; avoid blocking the canvas with index.html overlay.
+	if (import.meta.env?.DEV) {
+		return;
+	}
 	const overlay = document.getElementById('error-overlay');
 	const msg = document.getElementById('error-message');
 	if (!overlay || !msg) {

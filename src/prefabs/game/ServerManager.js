@@ -8,7 +8,7 @@ import PullTabsService from '../../services/api/PullTabsService.js';
 import { GameConfig } from '../../config/Global.js';
 import { normalizePullTabsBuy, resolvePullTabBuyWalletDebitMinor } from '../../utils/game/pullTabBuyDisplay.js';
 import { maxPayoutMinorFromAwardTiers } from '../../utils/game/pullTabAwardTierUtils.js';
-import { formatPullTabBannerMessage } from '../../utils/formatting/FormattingUtils.js';
+import { formatPullTabBannerMessage, economyMinorToWalletMinors } from '../../utils/formatting/FormattingUtils.js';
 import { warn, error as logErr } from '../../utils/logger/LoggerUtils.js';
 /* END-USER-IMPORTS */
 

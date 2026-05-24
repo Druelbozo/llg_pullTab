@@ -346,10 +346,16 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 
 	onTabPeeled()
 	{
+		if (this.activeTabs <= 0) {
+			return;
+		}
 		this.activeTabs--;
-		if(this.activeTabs == 0)
-		{
-			this.scene.stateManager.setState("gameOver", "PeelCard - All Tabs Peeled Ending Game")
+		if (this.activeTabs <= 0) {
+			this.activeTabs = 0;
+			const sm = this.scene.stateManager;
+			if (sm && sm.state !== 'gameOver' && sm.state !== 'win' && sm.state !== 'lose') {
+				sm.setState("gameOver", "PeelCard - All Tabs Peeled Ending Game");
+			}
 		}
 	}
 

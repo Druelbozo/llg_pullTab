@@ -319,7 +319,7 @@ export function resolveFlatPeelStripContainerScale(themeData, cardW, cardH, peel
 
 /**
  * Overlay peel rows on a flat theme `cardBack` image.
- * Optional `peelCard.flatPeelStripInsetRight` (px, moves strips left) and `flatPeelStripY` (px from cardBack top edge to stack top; 0 = top-aligned).
+ * Optional `peelCard.flatPeelStripAlign` (`"right"` default, or `"center"`), `flatPeelStripInsetRight` (px, nudges strips left), and `flatPeelStripY` (px from cardBack top edge to stack top; 0 = top-aligned).
  *
  * @param {{
  *   themeData: Record<string, unknown>|null|undefined,
@@ -363,14 +363,22 @@ export function layoutPeelStripsOnFlatCardBackSubtree(params) {
 
 	const pc =
 		themeData?.peelCard && typeof themeData.peelCard === 'object' && themeData.peelCard !== null
-			? /** @type {{ flatPeelStripInsetRight?: unknown, flatPeelStripY?: unknown }} */ (themeData.peelCard)
+			? /** @type {{ flatPeelStripAlign?: unknown, flatPeelStripInsetRight?: unknown, flatPeelStripY?: unknown }} */ (themeData.peelCard)
 			: {};
+	const stripAlign =
+		typeof pc.flatPeelStripAlign === 'string' && pc.flatPeelStripAlign.toLowerCase() === 'center'
+			? 'center'
+			: 'right';
 	const insetRightRaw = Number(pc.flatPeelStripInsetRight);
 	const stripYRaw = Number(pc.flatPeelStripY);
 	const extraInsetRight = Number.isFinite(insetRightRaw) ? insetRightRaw : 0;
 	const stripY = Number.isFinite(stripYRaw) ? stripYRaw : 0;
 
-	peelContainer.x = cardRight - inset - scaledPeelLocalRight - extraInsetRight;
+	if (stripAlign === 'center') {
+		peelContainer.x = cardBack.x - scaledPeelLocalRight / 2 - extraInsetRight;
+	} else {
+		peelContainer.x = cardRight - inset - scaledPeelLocalRight - extraInsetRight;
+	}
 	peelContainer.y = cardTop + stripY;
 }
 

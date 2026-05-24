@@ -12,7 +12,13 @@ import {
 	showPurchaseFailedModal,
 } from '../../dom/modal/utils/ErrorModalUtils.js';
 import { resolvePullTabBuyWalletDebitMinor } from '../../utils/game/pullTabBuyDisplay.js';
+import { enablePullTabResultsResetButton } from '../../services/pulltab/PullTabControlBarBootstrap.js';
+import { getPullTabGameSpeed } from '../../utils/game/PullTabGameSpeedUtils.js';
 /* END-USER-IMPORTS */
+
+/** Wall-time after win/lose state before RESET must be enabled (matches Prefab_Results). */
+const WIN_RESULTS_PRESENTATION_MS = 500 + 800;
+const LOSE_RESULTS_PRESENTATION_MS = 350;
 
 export default class PeelManager extends Phaser.GameObjects.Container {
 
@@ -154,9 +160,21 @@ export default class PeelManager extends Phaser.GameObjects.Container {
 		this.scene.events.emit("pulltab-win-minor-changed", winMinor);
 
 		const won = payoutMinor > 0;
+		const speed = getPullTabGameSpeed(this.scene);
+		const resultsPresentationMs = (won ? WIN_RESULTS_PRESENTATION_MS : LOSE_RESULTS_PRESENTATION_MS) / speed;
+
+		const scheduleResetFallback = () => {
+			this.scene.time.delayedCall(1000 / speed + resultsPresentationMs, () => {
+				const s = this.stateManager?.state;
+				if (s === 'win' || s === 'lose' || s === 'gameOver') {
+					enablePullTabResultsResetButton(this.scene);
+				}
+			});
+		};
 
 		if (won)
 		{
+			scheduleResetFallback();
 			this.scene.time.delayedCall(1000 / this.speed, () => {
 				this.scene.audioService?.playSfx('win');
 				const credited = this.scene.serverManager?.creditEconomyMinor(payoutMinor);
@@ -171,6 +189,7 @@ export default class PeelManager extends Phaser.GameObjects.Container {
 		}
 		else
 		{
+			scheduleResetFallback();
 			this.scene.time.delayedCall(1000 / this.speed, () => {
 				this.scene.audioService?.playSfx('lose');
 				if (GameConfig?.ui?.enableHapticFeedback !== false) {

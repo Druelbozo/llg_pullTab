@@ -586,11 +586,12 @@ export function attachPullTabPlayButtonAndHudSync(scene) {
                 cm.setPlayButtonDisabled(true);
                 cm.setAutoButtonDisabled(true);
                 break;
-            case 'win':
-            case 'lose':
-                cm.setPlayButtonDisabled(true);
-                cm.setAutoButtonDisabled(false);
-                break;
+			case 'win':
+			case 'lose':
+				cm.updatePlayButtonText('RESET');
+				cm.setPlayButtonDisabled(true);
+				cm.setAutoButtonDisabled(false);
+				break;
             default:
                 break;
         }
