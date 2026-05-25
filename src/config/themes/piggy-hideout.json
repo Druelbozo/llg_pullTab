@@ -1,0 +1,60 @@
+{
+  "imageKeys": {
+    "background": "background-piggy-hideout",
+    "cardBack": "cardBack-piggy-hideout",
+    "peel": "peel-piggy-hideout",
+    "peelBack": "peelBack-default",
+    "icons": "icons-piggy-hideout",
+    "win": "win-piggy-hideout",
+    "lose": "lose-piggy-hideout"
+  },
+  "pullTabIconsLayout": {
+    "iconScale": 0.95
+  },
+  "win": {
+    "cardHeightPercent": 0.45
+  },
+  "lose": {
+    "cardHeightPercent": 0.55
+  },
+  "peelCard": {
+    "horizontalContentInset": 50,
+    "flatPeelHeightFillPercent": 0.88,
+    "flatPeelWidthFillPercent": 0.42,
+    "flatPeelStripScale": 1.2,
+    "flatPeelStripAlign": "center",
+    "flatPeelStripY": 260,
+    "peelRowGap": 10
+  },
+  "controlBar": {
+    "palette": {
+      "primaryColor": "#c80101",
+      "secondaryColor": "#ffffff"
+    }
+  },
+  "text": {
+    "palette": {
+      "primaryColor": "#fdb50f"
+    },
+    "message": {
+      "stroke": {
+        "color": "#a11801"
+      }
+    },
+    "score": {
+      "font": {
+        "size": 155,
+        "color": "#fdb50f"
+      },
+      "stroke": {
+        "color": "#a11801"
+      },
+      "position": {
+        "y": 280
+      }
+    }
+  },
+  "music": {
+    "audioKey": "piggy-hideout.ogg"
+  }
+}

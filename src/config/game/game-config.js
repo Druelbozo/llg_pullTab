@@ -22,7 +22,8 @@ export const CONFIG_REGISTRY = [
     'yummy-hot-pot',
     'royal-beach-vibes',
     'triple-play',
-    'beverly-hillbilly'
+    'beverly-hillbilly',
+    'piggy-hideout'
 ];
 
 const configModules = (typeof import.meta.glob === 'function')
