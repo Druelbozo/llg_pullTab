@@ -1,0 +1,62 @@
+{
+  "imageKeys": {
+    "background": "background-crazy-fruit-salad",
+    "cardBack": "cardBack-crazy-fruit-salad",
+    "peel": "peel-crazy-fruit-salad",
+    "peelBack": "peelBack-default",
+    "icons": "icons-crazy-fruit-salad",
+    "win": "win-crazy-fruit-salad",
+    "lose": "lose-crazy-fruit-salad"
+  },
+  "pullTabIconsLayout": {
+    "iconScale": 0.95
+  },
+  "win": {
+    "cardHeightPercent": 0.45
+  },
+  "lose": {
+    "cardHeightPercent": 0.5
+  },
+  "peelCard": {
+    "horizontalContentInset": 50,
+    "flatPeelHeightFillPercent": 0.88,
+    "flatPeelWidthFillPercent": 0.42,
+    "flatPeelStripScale": 1.2,
+    "flatPeelStripAlign": "right",
+    "flatPeelStripInsetRight": 60,
+    "flatPeelStripY": 310,
+    "peelRowGap": 5
+  },
+  "controlBar": {
+    "palette": {
+      "primaryColor": "#ed320a",
+      "secondaryColor": "#ffffff"
+    }
+  },
+  "text": {
+    "palette": {
+      "primaryColor": "#b90f00"
+    },
+    "message": {
+      "stroke": {
+        "lineWidth": 6,
+        "color": "#fad20d"
+      }
+    },
+    "score": {
+      "font": {
+        "size": 190,
+        "color": "#fcc929"
+      },
+      "stroke": {
+        "color": "#632b01"
+      },
+      "position": {
+        "y": 300
+      }
+    }
+  },
+  "music": {
+    "audioKey": "crazy-fruit-salad.ogg"
+  }
+}

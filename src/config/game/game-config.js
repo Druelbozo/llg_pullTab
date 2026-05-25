@@ -24,7 +24,8 @@ export const CONFIG_REGISTRY = [
     'triple-play',
     'beverly-hillbilly',
     'piggy-hideout',
-    'potion-shop'
+    'potion-shop',
+    'crazy-fruit-salad'
 ];
 
 const configModules = (typeof import.meta.glob === 'function')
