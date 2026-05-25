@@ -34,7 +34,7 @@
   },
   "text": {
     "palette": {
-      "primaryColor": "#502003"
+      "primaryColor": "#700b18"
     },
     "message": {
       "stroke": {
@@ -45,17 +45,17 @@
     "score": {
       "font": {
         "size": 190,
-        "color": "#502003"
+        "color": "#fcc929"
       },
       "stroke": {
-        "color": "#fad20d"
+        "color": "#632b01"
       },
       "position": {
-        "y": 360
+        "y": 300
       }
     }
   },
   "music": {
-    "audioKey": "beverly-hillbilly.ogg"
+    "audioKey": "potion-shop.ogg"
   }
 }
