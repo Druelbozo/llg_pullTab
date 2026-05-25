@@ -23,7 +23,7 @@
     "flatPeelWidthFillPercent": 0.42,
     "flatPeelStripScale": 1.2,
     "flatPeelStripAlign": "center",
-    "flatPeelStripY": 260,
+    "flatPeelStripY": 230,
     "peelRowGap": 10
   },
   "controlBar": {

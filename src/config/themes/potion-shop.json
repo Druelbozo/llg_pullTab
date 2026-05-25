@@ -28,13 +28,13 @@
   },
   "controlBar": {
     "palette": {
-      "primaryColor": "#3c9410",
+      "primaryColor": "#660077",
       "secondaryColor": "#ffffff"
     }
   },
   "text": {
     "palette": {
-      "primaryColor": "#700b18"
+      "primaryColor": "#960e20"
     },
     "message": {
       "stroke": {
