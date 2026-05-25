@@ -23,7 +23,8 @@ export const CONFIG_REGISTRY = [
     'royal-beach-vibes',
     'triple-play',
     'beverly-hillbilly',
-    'piggy-hideout'
+    'piggy-hideout',
+    'potion-shop'
 ];
 
 const configModules = (typeof import.meta.glob === 'function')

@@ -1,0 +1,61 @@
+{
+  "imageKeys": {
+    "background": "background-potion-shop",
+    "cardBack": "cardBack-potion-shop",
+    "peel": "peel-potion-shop",
+    "peelBack": "peelBack-default",
+    "icons": "icons-potion-shop",
+    "win": "win-potion-shop",
+    "lose": "lose-potion-shop"
+  },
+  "pullTabIconsLayout": {
+    "iconScale": 0.95
+  },
+  "win": {
+    "cardHeightPercent": 0.45
+  },
+  "lose": {
+    "cardHeightPercent": 0.5
+  },
+  "peelCard": {
+    "horizontalContentInset": 50,
+    "flatPeelHeightFillPercent": 0.88,
+    "flatPeelWidthFillPercent": 0.42,
+    "flatPeelStripScale": 1.2,
+    "flatPeelStripAlign": "center",
+    "flatPeelStripY": 260,
+    "peelRowGap": 10
+  },
+  "controlBar": {
+    "palette": {
+      "primaryColor": "#3c9410",
+      "secondaryColor": "#ffffff"
+    }
+  },
+  "text": {
+    "palette": {
+      "primaryColor": "#502003"
+    },
+    "message": {
+      "stroke": {
+        "lineWidth": 6,
+        "color": "#fad20d"
+      }
+    },
+    "score": {
+      "font": {
+        "size": 190,
+        "color": "#502003"
+      },
+      "stroke": {
+        "color": "#fad20d"
+      },
+      "position": {
+        "y": 360
+      }
+    }
+  },
+  "music": {
+    "audioKey": "beverly-hillbilly.ogg"
+  }
+}
