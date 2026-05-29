@@ -9,6 +9,12 @@ import ResizeHandler from "./utils/game/ResizeHandler.js";
 import ViewportHelper from "./utils/ui/ViewportHelper.js";
 import ProviderAPIService from "./services/api/ProviderAPIService.js";
 import { GameConfig } from "./config/Global.js";
+import {
+	normalizeBalance,
+	migrateLegacyEconomyMinorToPennyNative,
+	normalizeCreditValueMinor,
+	getDefaultCreditValueMinor,
+} from "./utils/formatting/FormattingUtils.js";
 import { applyLoggingFromGameConfig, warn, error as logErr } from "./utils/logger/LoggerUtils.js";
 import { loadThemeWithOverride } from "./utils/theme/ThemeMergeUtils.js";
 import { hydratePullTabIconsLayout } from "./utils/theme/ThemePreloadUtils.js";
@@ -24,15 +30,18 @@ const DEFAULT_UI_COPY = {
 	message: "OPEN THE TABS FOR WINS UP TO $250"
 };
 
-function mergePullTabConfig(base = {}, meta = {}) {
+function mergePullTabConfig(base = {}, meta = {}, currencyCode) {
+	const creditRaw = meta.creditValueMinor ?? base.creditValueMinor ?? getDefaultCreditValueMinor(currencyCode);
 	return {
 		theme: meta.theme ?? base.theme ?? "default",
 		type: meta.type ?? base.type ?? DEFAULT_UI_COPY.type,
 		prizes: Array.isArray(meta.prizes) ? meta.prizes : (base.prizes ?? DEFAULT_UI_COPY.prizes),
 		message: meta.message ?? base.message ?? DEFAULT_UI_COPY.message,
 		paytableId: meta.paytableId ?? base.paytableId,
-		creditValueMinor:
-			meta.creditValueMinor ?? base.creditValueMinor ?? 100,
+		creditValueMinor: normalizeCreditValueMinor(
+			migrateLegacyEconomyMinorToPennyNative(creditRaw),
+			currencyCode
+		),
 		rowCount: Number.isFinite(Number(meta.rowCount)) && Number(meta.rowCount) > 0
 			? Math.round(Number(meta.rowCount))
 			: (Number.isFinite(Number(base.rowCount)) && Number(base.rowCount) > 0
@@ -178,7 +187,12 @@ class Boot extends Phaser.Scene {
 			try {
 				const sessionInfo = await providerAPI.getSessionInfo();
 				const meta = sessionInfo.gameMetadata || {};
-				config = mergePullTabConfig({}, meta);
+				const balanceCurrency =
+					sessionInfo.currency || sessionInfo.operatorCurrency || GameConfig.game.CURRENCY_CODE;
+				if (balanceCurrency != null && String(balanceCurrency).trim() !== '') {
+					GameConfig.game.DISPLAY_CURRENCY_CODE = String(balanceCurrency).trim();
+				}
+				config = mergePullTabConfig({}, meta, balanceCurrency);
 				window.__selectedGameConfig = config;
 
 				const mode = sessionInfo.mode || providerAPI.mode || 'demo';
@@ -187,9 +201,15 @@ class Boot extends Phaser.Scene {
 				this.registry.set('preloadSessionMode', mode);
 				this.registry.set('preloadUseSessionConfig', true);
 				if (mode === 'real' && operatorBalance != null) {
-					this.registry.set('preloadOperatorBalance', operatorBalance);
+					this.registry.set(
+						'preloadOperatorBalance',
+						normalizeBalance(operatorBalance, balanceCurrency)
+					);
 				} else {
-					this.registry.set('preloadOperatorBalance', GameConfig.game.SESSION_DEMO_BALANCE_MINOR);
+					this.registry.set(
+						'preloadOperatorBalance',
+						normalizeBalance(GameConfig.game.SESSION_DEMO_BALANCE_MINOR, balanceCurrency)
+					);
 				}
 			} catch (err) {
 				logErr(`Boot: Failed to fetch session: ${err?.message ?? err}`, 'api', err);

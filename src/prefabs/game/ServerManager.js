@@ -8,7 +8,7 @@ import PullTabsService from '../../services/api/PullTabsService.js';
 import { GameConfig } from '../../config/Global.js';
 import { normalizePullTabsBuy, resolvePullTabBuyWalletDebitMinor } from '../../utils/game/pullTabBuyDisplay.js';
 import { maxPayoutMinorFromAwardTiers } from '../../utils/game/pullTabAwardTierUtils.js';
-import { formatPullTabBannerMessage, economyMinorToWalletMinors } from '../../utils/formatting/FormattingUtils.js';
+import { formatPullTabBannerMessage, economyMinorToWalletMinors, getDefaultCreditValueMinor } from '../../utils/formatting/FormattingUtils.js';
 import { warn, error as logErr } from '../../utils/logger/LoggerUtils.js';
 /* END-USER-IMPORTS */
 
@@ -26,7 +26,18 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 	/* START-USER-CODE */
 	gameSession;
 	gameConfig;
-	balance = 1000;
+	/** Wallet minors (pennies) — canonical balance store. */
+	balanceWalletMinors = 100000;
+
+	/** @deprecated Use balanceWalletMinors. Kept for legacy callers. */
+	get balance() {
+		return this.balanceWalletMinors / 100;
+	}
+
+	set balance(value) {
+		const n = Number(value);
+		this.balanceWalletMinors = Number.isFinite(n) ? Math.round(n * 100) : 0;
+	}
 
 	/** @type {PullTabsService|null} */
 	pullTabsApi = null;
@@ -61,9 +72,9 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 		const minor = this.scene.registry.get('preloadOperatorBalance');
 		if (useSession && minor != null) {
 			const m = Number(minor);
-			this.balance = Number.isFinite(m) ? m / 100 : GameConfig.game.TEST_BALANCE_MINOR / 100;
+			this.balanceWalletMinors = Number.isFinite(m) ? Math.round(m) : GameConfig.game.TEST_BALANCE_MINOR;
 		} else {
-			this.balance = GameConfig.game.TEST_BALANCE_MINOR / 100;
+			this.balanceWalletMinors = GameConfig.game.TEST_BALANCE_MINOR;
 		}
 
 		//Remove Time Delay once logic is in
@@ -80,8 +91,7 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 	 * @param {{ stopLoopingOnBalanceTweenComplete?: boolean }} [opts]
 	 */
 	_emitBalanceMinorUpdate(animate = false, startingMinor = null, opts = {}) {
-		const penn = Math.round(this.balance * 100);
-		this.scene.balancePennies = penn;
+		this.scene.balancePennies = this.balanceWalletMinors;
 		this.scene.events.emit(
 			"pulltab-balance-pennies-changed",
 			animate,
@@ -103,10 +113,10 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 			Number(
 				gc.creditValueMinor ??
 					this.gameConfig.creditValueMinor ??
-					100
+					getDefaultCreditValueMinor()
 			)
 		);
-		const priceMinor = Number.isFinite(creditMinor) && creditMinor > 0 ? creditMinor : 100;
+		const priceMinor = Number.isFinite(creditMinor) && creditMinor > 0 ? creditMinor : getDefaultCreditValueMinor();
 
 		const walletDebitMinor = resolvePullTabBuyWalletDebitMinor(this.scene);
 
@@ -116,8 +126,7 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 			return false;
 		}
 
-		const balancePennies = Math.round(this.balance * 100);
-		if (balancePennies < walletDebitMinor) {
+		if (this.balanceWalletMinors < walletDebitMinor) {
 			stateMgr?.setState("ready", "ServerManager: insufficient balance");
 			return false;
 		}
@@ -146,13 +155,13 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 				bobRaw !== "" &&
 				Number.isFinite(Number(bobRaw));
 
-			const prevMinor = Math.round(this.balance * 100);
+			const prevMinor = this.balanceWalletMinors;
 
 			if (isSession && hasBob) {
-				this.balance = Math.round(Number(bobRaw)) / 100;
+				this.balanceWalletMinors = Math.round(Number(bobRaw));
 				this._emitBalanceMinorUpdate(true, prevMinor);
 			} else if (!isFreePlay) {
-				this.balance -= walletDebitMinor / 100;
+				this.balanceWalletMinors -= walletDebitMinor;
 				this._emitBalanceMinorUpdate(true, prevMinor);
 			}
 
@@ -195,8 +204,8 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 			return false;
 		}
 		const walletCreditMinor = economyMinorToWalletMinors(payout);
-		const startMinor = Math.round(this.balance * 100);
-		this.balance += walletCreditMinor / 100;
+		const startMinor = this.balanceWalletMinors;
+		this.balanceWalletMinors += walletCreditMinor;
 		this._emitBalanceMinorUpdate(true, startMinor, {
 			stopLoopingOnBalanceTweenComplete: true,
 		});
@@ -219,10 +228,10 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 			Number(
 				gc.creditValueMinor ??
 					this.gameConfig?.creditValueMinor ??
-					100
+					getDefaultCreditValueMinor()
 			)
 		);
-		const credit = Number.isFinite(creditMinor) && creditMinor > 0 ? creditMinor : 100;
+		const credit = Number.isFinite(creditMinor) && creditMinor > 0 ? creditMinor : getDefaultCreditValueMinor();
 
 		if (!this.pullTabsApi) {
 			this.pullTabsApi = new PullTabsService();

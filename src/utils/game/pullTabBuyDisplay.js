@@ -7,7 +7,7 @@ import {
 	extractOrderedIconsFrameNamesFromTexture,
 	getPullTabIconsFrameNames,
 } from '../theme/PullTabIconsAtlasUtils.js';
-import { economyMinorToWalletMinors } from '../formatting/FormattingUtils.js';
+import { economyMinorToWalletMinors, getDefaultCreditValueMinor } from '../formatting/FormattingUtils.js';
 
 const SYMBOL_RE = /^symbol_(\d+)$/i;
 
@@ -100,9 +100,9 @@ export function resolvePullTabBuyWalletDebitMinor(scene) {
 	const sm = scene?.serverManager;
 	const gc = typeof window !== 'undefined' ? window.__selectedGameConfig || {} : {};
 	const creditMinor = Math.round(
-		Number(gc.creditValueMinor ?? sm?.gameConfig?.creditValueMinor ?? 100),
+		Number(gc.creditValueMinor ?? sm?.gameConfig?.creditValueMinor ?? getDefaultCreditValueMinor()),
 	);
-	const priceMinor = Number.isFinite(creditMinor) && creditMinor > 0 ? creditMinor : 100;
+	const priceMinor = Number.isFinite(creditMinor) && creditMinor > 0 ? creditMinor : getDefaultCreditValueMinor();
 	return economyMinorToWalletMinors(priceMinor);
 }
 

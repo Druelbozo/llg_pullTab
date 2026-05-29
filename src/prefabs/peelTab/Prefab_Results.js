@@ -12,6 +12,10 @@ import {
 	applyResultGraphicScale,
 	layoutResultsOnPeelCard,
 } from '../../utils/results/ResultsLayoutUtils.js';
+import {
+	formatBalanceMinorForDisplayWithSymbol,
+	economyMinorToWalletMinors,
+} from '../../utils/formatting/FormattingUtils.js';
 /* END-USER-IMPORTS */
 
 /** Scratch-aligned count-up duration before enabling RESET (ms, wall time at speed 1). */
@@ -256,18 +260,21 @@ export default class Prefab_Results extends Phaser.GameObjects.Container {
 	_countUpWinnings() {
 		const session = this.scene.serverManager?.gameSession;
 		const payoutMinor = session?.payoutMinor ?? session?.apiRound?.payoutMinor;
-		const payoutDollars = Number.isFinite(Number(payoutMinor)) ? Number(payoutMinor) / 100 : Number(session?.prize) || 0;
+		const walletCredit = economyMinorToWalletMinors(Math.floor(Number(payoutMinor)));
+		const targetMinor = Number.isFinite(walletCredit) && walletCredit > 0
+			? walletCredit
+			: Math.round(Number(session?.prize) * 100) || 0;
 
 		const val = { value: 0 };
 		this.winningsText.visible = true;
 		this._trackTween(
 			this.scene.tweens.add({
 				targets: val,
-				value: payoutDollars,
+				value: targetMinor,
 				duration: WIN_COUNT_UP_MS / this._effectiveSpeed(),
 				ease: 'Linear',
 				onUpdate: () => {
-					this.winningsText.text = `$${val.value.toFixed(2)}`;
+					this.winningsText.text = formatBalanceMinorForDisplayWithSymbol(Math.floor(val.value));
 				},
 				onComplete: () => {
 					this.scene.audioService?.stopLoopingSfx?.();

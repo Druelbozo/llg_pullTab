@@ -8,6 +8,7 @@ import ControlBarManager from '../ui/controlBar/ControlBarManager.js';
 import ButtonManager from '../ui/ButtonManager.js';
 import AutoPlayOptions from '../../dom/AutoPlayOptions.js';
 import { GameConfig } from '../../config/Global.js';
+import { getDefaultCreditValueMinor } from '../../utils/formatting/FormattingUtils.js';
 import ViewportHelper from '../../utils/viewport/ViewportHelper.js';
 import { openSoundOptionsModal } from '../../dom/soundOptions/soundOptionsModal.js';
 import { openPullTabGameInfoModal } from '../../dom/modal/content/pullTabGameInfoContent.js';
@@ -625,7 +626,7 @@ export function bootstrapPullTabControlBar(scene) {
             const cfg = typeof window !== 'undefined' ? window.__selectedGameConfig?.creditValueMinor : null;
             const n = Number(cfg);
             if (Number.isFinite(n) && n > 0) return Math.round(n);
-            return 100;
+            return getDefaultCreditValueMinor();
         },
         updateBalanceText() {},
     };
@@ -665,7 +666,7 @@ export function bootstrapPullTabControlBar(scene) {
     scene.events.once('server-awake', () => {
         scene.time.delayedCall(0, () => {
             if (scene.controlBarManager && scene.serverManager) {
-                scene.balancePennies = Math.round(scene.serverManager.balance * 100);
+                scene.balancePennies = Math.round(scene.serverManager.balanceWalletMinors);
                 scene.controlBarManager.updateHeaderBalanceText(scene.balancePennies, false);
                 scene.controlBarManager.updateHeaderBetText();
             }

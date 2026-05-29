@@ -12,6 +12,7 @@ import {
     minorsToDisplayDollarStringWithSymbol,
     getActiveCurrencyCode,
     isGoldCoinsCurrency,
+    getDefaultCreditValueMinor,
 } from '../../../utils/formatting/FormattingUtils.js';
 import { debug, warn } from '../../../utils/logger/LoggerUtils.js';
 import {
@@ -51,7 +52,7 @@ function esc(s) {
  */
 function formatTicketPriceSentenceFragment(creditValueMinor, currencyCode) {
     const raw = Math.round(Number(creditValueMinor));
-    const minor = Number.isFinite(raw) && raw > 0 ? raw : 100;
+    const minor = Number.isFinite(raw) && raw > 0 ? raw : getDefaultCreditValueMinor(currencyCode);
     if (isGoldCoinsCurrency(currencyCode)) {
         return `${formatGcMinorAmount(minor)} coins`;
     }
@@ -94,11 +95,11 @@ function resolvePullTabCatalogContext(scene) {
 
     const paytableId = String(gc.paytableId ?? smCfg?.paytableId ?? '').trim();
 
-    const creditRaw = gc.creditValueMinor ?? smCfg?.creditValueMinor ?? 100;
+    const creditRaw = gc.creditValueMinor ?? smCfg?.creditValueMinor ?? getDefaultCreditValueMinor();
     const creditValueMinor =
         Number.isFinite(Math.round(Number(creditRaw))) && Math.round(Number(creditRaw)) > 0
             ? Math.round(Number(creditRaw))
-            : 100;
+            : getDefaultCreditValueMinor();
 
     const themeRaw = gc.theme ?? smCfg?.theme ?? 'mega-monster';
     const theme = String(themeRaw ?? '')
