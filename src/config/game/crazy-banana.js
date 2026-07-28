@@ -5,7 +5,7 @@
 
 export default {
 	theme: 'crazy-banana',
-	paytableId: 'prize_poker_6row_94_v0001',
+	paytableId: 'pull_tab_6row_94_v0001',
 	creditValueMinor: 250,
 	rowCount: 6,
 };

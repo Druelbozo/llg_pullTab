@@ -8,8 +8,31 @@ import {
 	getPullTabIconsFrameNames,
 } from '../theme/PullTabIconsAtlasUtils.js';
 import { economyMinorToWalletMinors, getDefaultCreditValueMinor } from '../formatting/FormattingUtils.js';
+import { tierSymbolToFrameIndex } from './pullTabSymbolUtils.js';
+import { warn } from '../logger/LoggerUtils.js';
 
-const SYMBOL_RE = /^symbol_(\d+)$/i;
+export { tierSymbolToFrameIndex } from './pullTabSymbolUtils.js';
+
+/**
+ * Peel tab row count: prefer API-resolved count after buy, else game config.
+ *
+ * @param {Phaser.Scene} scene
+ * @param {object} [config]
+ * @param {object} [preloadCfg]
+ * @returns {number}
+ */
+export function resolvePullTabPeelRowCount(scene, config = {}, preloadCfg = {}) {
+    const fromRegistry = Number(scene?.registry?.get?.('pullTabResolvedRowCount'));
+    if (Number.isFinite(fromRegistry) && fromRegistry > 0) {
+        return Math.round(Math.max(3, Math.min(20, fromRegistry)));
+    }
+    const fromConfig = Number(config?.rowCount ?? preloadCfg?.rowCount);
+    if (Number.isFinite(fromConfig) && fromConfig > 0) {
+        return Math.round(Math.max(3, Math.min(20, fromConfig)));
+    }
+    return 6;
+}
+
 
 function hashString(s) {
     const str = String(s ?? '');
@@ -52,16 +75,6 @@ function junkSymbolsFingerprint(symbols) {
         h = mixU32(h, hashString(arr[i]));
     }
     return h >>> 0;
-}
-
-/**
- * @param {string} symbol
- * @returns {number}
- */
-export function tierSymbolToFrameIndex(symbol) {
-    const m = SYMBOL_RE.exec(String(symbol ?? '').trim());
-    if (!m) return 0;
-    return Math.max(0, parseInt(m[1], 10) - 1);
 }
 
 /**
@@ -172,12 +185,14 @@ export function normalizePullTabsBuy(scene, buyJson) {
     const payoutMinor = Math.round(Number(buyJson?.payoutMinor ?? 0));
     const rowsIn = Array.isArray(buyJson?.rows) ? buyJson.rows : [];
     const declared = Number(buyJson?.rowCount);
-    const rowCount =
-        Number.isFinite(declared) && declared > 0
-            ? declared
-            : rowsIn.length > 0
-              ? rowsIn.length
-              : 7;
+    let rowCount = declared;
+    if (!Number.isFinite(rowCount) || rowCount <= 0) {
+        rowCount = rowsIn.length > 0 ? rowsIn.length : 0;
+    }
+    if (!Number.isFinite(rowCount) || rowCount <= 0) {
+        warn('[pullTabBuyDisplay] buy response missing rowCount and rows', 'game', buyJson);
+        rowCount = 6;
+    }
 
     const roundSeed = buyRoundEntropySeed(buyJson);
 

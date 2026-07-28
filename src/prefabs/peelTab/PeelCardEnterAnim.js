@@ -13,6 +13,7 @@ import {
 	shouldShowPeelCardCover,
 	shouldShowPeelPrizeLabels,
 } from "../../utils/theme/PeelCardThemeUtils.js";
+import { resolvePullTabPeelRowCount } from "../../utils/game/pullTabBuyDisplay.js";
 /* END-USER-IMPORTS */
 
 export default class PeelCardEnterAnim extends Phaser.GameObjects.Container {
@@ -88,15 +89,7 @@ export default class PeelCardEnterAnim extends Phaser.GameObjects.Container {
 		const td = this.scene.themeData || this.scene.registry.get('preloadThemeData');
 		const showPeelPrizeLabels = shouldShowPeelPrizeLabels(td);
 		const showCover = shouldShowPeelCardCover(td);
-		const peelRows = Math.round(
-			Math.max(
-				3,
-				Math.min(
-					20,
-					Number(config.rowCount) || Number(preloadCfg.rowCount) || 7
-				)
-			)
-		);
+		const peelRows = resolvePullTabPeelRowCount(this.scene, config, preloadCfg);
 		if (showCover && this.scene.textures.exists("card")) {
 			this.cardCover.setTexture("card");
 		}

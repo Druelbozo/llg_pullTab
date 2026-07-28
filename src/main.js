@@ -16,6 +16,7 @@ import {
 	getDefaultCreditValueMinor,
 } from "./utils/formatting/FormattingUtils.js";
 import { applyLoggingFromGameConfig, warn, error as logErr } from "./utils/logger/LoggerUtils.js";
+import { showConfigErrorModal } from "./dom/modal/utils/ErrorModalUtils.js";
 import { loadThemeWithOverride } from "./utils/theme/ThemeMergeUtils.js";
 import { hydratePullTabIconsLayout } from "./utils/theme/ThemePreloadUtils.js";
 import { initializeConsoleCapture } from "./utils/logger/ConsoleCapture.js";
@@ -50,6 +51,20 @@ function mergePullTabConfig(base = {}, meta = {}, currencyCode) {
 	};
 }
 
+function assertDemoPaytableConfig(config, contextLabel) {
+	if (window.__sessionId) {
+		return;
+	}
+	const paytableId = String(config?.paytableId ?? '').trim();
+	if (!paytableId) {
+		const theme = config?.theme ?? 'unknown';
+		showConfigErrorModal(
+			null,
+			`Game config "${theme}" is missing paytableId (${contextLabel}). Demo buys cannot run. Use ?config=beverly-hillbilly or reload after a fresh build.`
+		);
+	}
+}
+
 function getSessionIdFromUrl() {
 	const read = (win) => {
 		try {
@@ -79,9 +94,11 @@ window.addEventListener('load', async function () {
 				config = mergePullTabConfig(config, {});
 			}
 			window.__selectedGameConfig = config;
+			assertDemoPaytableConfig(config, 'after theme load');
 		} catch (err) {
 			logErr(`Failed to load game config: ${err?.message ?? err}`, 'game', err);
 			window.__selectedGameConfig = mergePullTabConfig({ theme: 'mega-monster' }, {});
+			assertDemoPaytableConfig(window.__selectedGameConfig, 'fallback theme');
 		}
 	}
 
@@ -230,6 +247,7 @@ class Boot extends Phaser.Scene {
 		}
 
 		this.registry.set('preloadGameConfig', config);
+		assertDemoPaytableConfig(config, 'Boot create');
 
 		const themeName = config.theme || 'default';
 		try {

@@ -1,11 +1,9 @@
 /**
- * Simple CORS proxy (same pattern as LL_ScratchGame/scripts/local-testing/cors-proxy.js).
+ * CORS proxy for local pull-tab / scratch-style API testing.
  *
  * Run with: node cors-proxy.js [PORT]
- * Override upstream with env API_BASE_URL (must match API Gateway stage URL, no trailing slash).
- *
- * Forwards every path to staging so `/pull-tabs/test/buy`, `/scratch-cards/test/buy`,
- * `/provider/session`, etc. work without an `/api` prefix (unlike the old Express proxy).
+ * Override upstream with env API_BASE_URL (no trailing slash).
+ * Optional: WHITELIST_CLIENT_IP sets X-Forwarded-For / X-Real-IP on upstream requests.
  */
 
 const http = require('http');
@@ -18,18 +16,65 @@ const PORT = process.argv[2]
 		? parseInt(process.env.PORT, 10)
 		: 3005;
 
-// Align with src/config/Global.js GameConfig.api.BASE_URL_LIVE when unset
 const API_BASE_URL =
 	process.env.API_BASE_URL ||
 	'https://kmz1ixsmv6.execute-api.us-east-1.amazonaws.com/staging';
 
 const TARGET_API_BASE_URL = API_BASE_URL.replace(/\/+$/, '');
+const WHITELIST_CLIENT_IP = (process.env.WHITELIST_CLIENT_IP || '').trim();
 
-console.log('📋 Pull-tab CORS proxy (scratch-style)');
+const FORWARD_HEADER_NAMES = [
+	'content-type',
+	'authorization',
+	'x-brand-id',
+	'x-secret-key',
+	'x-requested-with',
+];
+
+console.log('📋 Pull-tab CORS proxy');
 console.log('📋 API Base URL: ' + TARGET_API_BASE_URL);
-console.log('💡 Override: set API_BASE_URL in .env or environment\n');
+if (WHITELIST_CLIENT_IP) {
+	console.log('📋 WHITELIST_CLIENT_IP: ' + WHITELIST_CLIENT_IP);
+}
+console.log('💡 Override: API_BASE_URL, WHITELIST_CLIENT_IP in environment\n');
 
-const server = http.createServer((req, res) => {
+function readRequestBody(req) {
+	return new Promise((resolve, reject) => {
+		const chunks = [];
+		req.on('data', (chunk) => chunks.push(chunk));
+		req.on('end', () => resolve(Buffer.concat(chunks)));
+		req.on('error', reject);
+	});
+}
+
+function buildUpstreamHeaders(req, bodyLength) {
+	const headers = {
+		'Content-Length': String(bodyLength),
+		Accept: req.headers.accept || 'application/json',
+	};
+
+	const lower = {};
+	for (const [key, value] of Object.entries(req.headers || {})) {
+		if (value != null && value !== '') {
+			lower[key.toLowerCase()] = value;
+		}
+	}
+
+	for (const name of FORWARD_HEADER_NAMES) {
+		if (lower[name]) {
+			headers[name] = lower[name];
+		}
+	}
+
+	if (WHITELIST_CLIENT_IP) {
+		headers['X-Forwarded-For'] = WHITELIST_CLIENT_IP;
+		headers['X-Real-IP'] = WHITELIST_CLIENT_IP;
+	}
+
+	return headers;
+}
+
+const server = http.createServer(async (req, res) => {
 	res.setHeader('Access-Control-Allow-Origin', '*');
 	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
 	res.setHeader(
@@ -44,38 +89,45 @@ const server = http.createServer((req, res) => {
 	}
 
 	let targetPath = req.url.startsWith('/') ? req.url.slice(1) : req.url;
-	const originalPath = targetPath;
-
 	if (targetPath.startsWith('api/')) {
 		targetPath = targetPath.slice(4);
 	}
 
 	const targetUrl = `${TARGET_API_BASE_URL}/${targetPath}`;
-
-	if (originalPath !== targetPath) {
-		console.log(`[CORS Proxy] Path transformed: ${originalPath} -> ${targetPath}`);
-	}
-
 	console.log(`[CORS Proxy] ${req.method} ${req.url} -> ${targetUrl}`);
 
-	const url = new URL(targetUrl);
-	const options = {
-		hostname: url.hostname,
-		port: url.port || (url.protocol === 'https:' ? 443 : 80),
-		path: url.pathname + url.search,
-		method: req.method,
-		headers: {
-			...req.headers,
-			host: url.hostname,
-		},
-	};
+	let body = Buffer.alloc(0);
+	if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH') {
+		try {
+			body = await readRequestBody(req);
+		} catch (error) {
+			console.error('[CORS Proxy] Failed to read request body:', error);
+			res.writeHead(400, { 'Content-Type': 'application/json' });
+			res.end(JSON.stringify({ error: 'Failed to read request body' }));
+			return;
+		}
+	}
 
+	const url = new URL(targetUrl);
+	const headers = buildUpstreamHeaders(req, body.length);
 	const httpModule = url.protocol === 'https:' ? https : http;
 
-	const proxyReq = httpModule.request(options, (proxyRes) => {
-		res.writeHead(proxyRes.statusCode, proxyRes.headers);
-		proxyRes.pipe(res);
-	});
+	const proxyReq = httpModule.request(
+		{
+			hostname: url.hostname,
+			port: url.port || (url.protocol === 'https:' ? 443 : 80),
+			path: url.pathname + url.search,
+			method: req.method,
+			headers,
+		},
+		(proxyRes) => {
+			console.log(
+				`[CORS Proxy] <- ${proxyRes.statusCode} ${req.method} ${targetPath || req.url}`
+			);
+			res.writeHead(proxyRes.statusCode, proxyRes.headers);
+			proxyRes.pipe(res);
+		}
+	);
 
 	proxyReq.on('error', (error) => {
 		console.error('[CORS Proxy Error]', error);
@@ -83,11 +135,10 @@ const server = http.createServer((req, res) => {
 		res.end(JSON.stringify({ error: 'Proxy error: ' + error.message }));
 	});
 
-	if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH') {
-		req.pipe(proxyReq);
-	} else {
-		proxyReq.end();
+	if (body.length > 0) {
+		proxyReq.write(body);
 	}
+	proxyReq.end();
 });
 
 const HOST = '0.0.0.0';

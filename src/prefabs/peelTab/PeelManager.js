@@ -10,8 +10,10 @@ import { log, warn } from '../../utils/logger/LoggerUtils.js';
 import {
 	showInsufficientFundsModal,
 	showPurchaseFailedModal,
+	showConfigErrorModal,
 } from '../../dom/modal/utils/ErrorModalUtils.js';
 import { resolvePullTabBuyWalletDebitMinor } from '../../utils/game/pullTabBuyDisplay.js';
+import { formatPullTabBuyErrorDetail } from '../../utils/game/pullTabLastBuyDebug.js';
 import { enablePullTabResultsResetButton } from '../../services/pulltab/PullTabControlBarBootstrap.js';
 import { getPullTabGameSpeed } from '../../utils/game/PullTabGameSpeedUtils.js';
 /* END-USER-IMPORTS */
@@ -89,6 +91,9 @@ export default class PeelManager extends Phaser.GameObjects.Container {
 		switch(this.state)
 		{
 			case "ready":
+				if (this.stateManager?.state === 'wait') {
+					return;
+				}
 				this.checkBalanace();
 			break;
 			case "playing":
@@ -109,6 +114,21 @@ export default class PeelManager extends Phaser.GameObjects.Container {
 
 	async checkBalanace()
 	{
+		if (this.state === 'wait' || this.stateManager?.state === 'wait') {
+			return;
+		}
+
+		const sid = typeof window !== 'undefined' && window.__sessionId ? String(window.__sessionId).trim() : '';
+		const gc = typeof window !== 'undefined' ? window.__selectedGameConfig || {} : {};
+		if (!sid && !String(gc.paytableId ?? '').trim()) {
+			showConfigErrorModal(
+				this.scene,
+				'Demo mode requires paytableId in the loaded game config. Reload with ?config=beverly-hillbilly (or another theme) and hard-refresh.'
+			);
+			this.stateManager?.setState('ready', 'PeelManager: missing paytableId');
+			return;
+		}
+
 		const walletDebitMinor = resolvePullTabBuyWalletDebitMinor(this.scene);
 		const balancePennies =
 			Math.round(Number(this.scene.balancePennies)) ||
@@ -135,6 +155,9 @@ export default class PeelManager extends Phaser.GameObjects.Container {
 		}
 		else
 		{
+			if (this.scene.serverManager?.lastBuySkippedInFlight) {
+				return;
+			}
 			const walletDebitMinorAfter = resolvePullTabBuyWalletDebitMinor(this.scene);
 			const balanceAfter =
 				Math.round(Number(this.scene.balancePennies)) ||
@@ -142,7 +165,10 @@ export default class PeelManager extends Phaser.GameObjects.Container {
 			if (balanceAfter < walletDebitMinorAfter) {
 				showInsufficientFundsModal(this.scene);
 			} else {
-				showPurchaseFailedModal(this.scene);
+				showPurchaseFailedModal(
+					this.scene,
+					formatPullTabBuyErrorDetail(this.scene.serverManager?.lastBuyError),
+				);
 			}
 			warn('[PeelManager] Buy did not start (insufficient balance, validation error, or API failure — see ServerManager logs)', 'game');
 			this.stateManager?.setState("ready", "PeelManager: buy did not complete");

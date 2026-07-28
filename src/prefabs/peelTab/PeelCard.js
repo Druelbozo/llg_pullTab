@@ -31,6 +31,7 @@ import {
 	getPullTabGameSpeed,
 	msAtSpeed1ToGameSpeed,
 } from "../../utils/game/PullTabGameSpeedUtils.js";
+import { resolvePullTabPeelRowCount } from "../../utils/game/pullTabBuyDisplay.js";
 /* END-USER-IMPORTS */
 
 export default class PeelCard extends Phaser.GameObjects.Container {
@@ -183,17 +184,7 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 		const td = this.scene.themeData || this.scene.registry.get('preloadThemeData');
 		const showPeelPrizeLabels = shouldShowPeelPrizeLabels(td);
 		const showCover = shouldShowPeelCardCover(td);
-		const peelRows = Math.round(
-			Math.max(
-				3,
-				Math.min(
-					20,
-					Number(config.rowCount) ||
-						Number(preloadCfg.rowCount) ||
-						7
-				)
-			)
-		);
+		const peelRows = resolvePullTabPeelRowCount(this.scene, config, preloadCfg);
 
 		this.messageText.text = config.message;
 
@@ -281,6 +272,14 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 	{
 		let session = this.scene.serverManager.gameSession;
 		const tabs = Array.isArray(session?.tabs) ? session.tabs : [];
+		const desiredRows = Number(session?.rowCount) > 0
+			? Math.round(Number(session.rowCount))
+			: resolvePullTabPeelRowCount(
+				this.scene,
+				this.scene.serverManager?.gameConfig,
+				this.scene.registry.get('preloadGameConfig') || {},
+			);
+		this._ensurePeelTabRows(desiredRows);
 
 		this.activeTabs = this.peelContainer.list.length;
 	 	for (let i = 0; i < this.peelContainer.list.length; i++)
@@ -295,6 +294,33 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 			tab.enabled = true;
 			tab.once("peeled", () => this.onTabPeeled(), this);
 		}		
+	}		
+
+	_ensurePeelTabRows(desiredRows) {
+		const td = this.scene.themeData || this.scene.registry.get('preloadThemeData');
+		const rowGap = resolvePeelRowGap(td);
+		const target = Math.round(Math.max(3, Math.min(20, Number(desiredRows) || 6)));
+
+		while (this.peelContainer.list.length > target) {
+			const tab = this.peelContainer.list[this.peelContainer.list.length - 1];
+			this.peelContainer.remove(tab);
+			if (typeof tab.reset === 'function') {
+				tab.reset();
+			}
+			this.group.add(tab);
+		}
+		while (this.peelContainer.list.length < target) {
+			const tab = this.group.get(0, 0);
+			this.peelContainer.add(tab);
+			if (typeof tab.prepareIdleAppearance === 'function') {
+				tab.prepareIdleAppearance();
+			}
+		}
+
+		if (this.peelContainer.list.length > 0) {
+			layoutPeelRowStack(this.peelContainer.list, rowGap);
+			this.peelContainer.list.reverse();
+		}
 	}
 
 	reset()

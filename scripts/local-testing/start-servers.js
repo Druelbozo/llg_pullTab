@@ -167,11 +167,19 @@ process.on('SIGINT', cleanup);
 process.on('SIGTERM', cleanup);
 
 function startServers() {
+    const corsEnv = { ...process.env };
+    if (!corsEnv.WHITELIST_CLIENT_IP) {
+        corsEnv.WHITELIST_CLIENT_IP = '65.128.127.37';
+        console.log(`📋 WHITELIST_CLIENT_IP not set — using default ${corsEnv.WHITELIST_CLIENT_IP} for demo /pull-tabs/test/buy`);
+        console.log('   Override: set WHITELIST_CLIENT_IP before npm run local-test\n');
+    }
+
     console.log(`📡 Starting CORS proxy server on port ${PORT_CORS_PROXY}...`);
     corsProxy = spawn('node', [path.join(__dirname, 'cors-proxy.js'), PORT_CORS_PROXY.toString()], {
         stdio: 'pipe',
         shell: true,
-        cwd: __dirname
+        cwd: __dirname,
+        env: corsEnv,
     });
 
     corsProxy.stdout.on('data', (data) => {

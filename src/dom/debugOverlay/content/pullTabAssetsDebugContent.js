@@ -2,6 +2,8 @@
  * Pull-tab theme / atlas / peel layout registry (scratch key 5 is prize sprite mapping; this is the peel equivalent).
  */
 
+import { getLastPullTabBuyDebug } from '../../../utils/game/pullTabLastBuyDebug.js';
+
 /**
  * @param {Phaser.Scene} scene
  * @returns {string[]}
@@ -55,6 +57,17 @@ export function formatPullTabAssetsDebugInfo(scene) {
 		}
 	} else {
 		lines.push('  (not loaded yet)');
+	}
+	lines.push('');
+
+	lines.push('--- last buy (debug) ---');
+	const lastBuy = getLastPullTabBuyDebug();
+	if (lastBuy && typeof lastBuy === 'object') {
+		for (const [k, v] of Object.entries(lastBuy)) {
+			lines.push(`  ${k}: ${v == null ? 'N/A' : String(v)}`);
+		}
+	} else {
+		lines.push('  (none yet)');
 	}
 
 	return lines;

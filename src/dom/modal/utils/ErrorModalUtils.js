@@ -40,12 +40,27 @@ export function showInsufficientFundsModal(scene = null) {
  * Buy API failed (network / server). Customer-facing: no charge, retry.
  *
  * @param {Phaser.Scene|null|undefined} [scene]
+ * @param {string} [detail] Optional reason (HTTP status / API message).
  * @returns {Modal}
  */
-export function showPurchaseFailedModal(scene = null) {
-	return showErrorModal(
-		'Unable to Complete Purchase',
-		'We could not process your purchase just now. You have not been charged for this round. Please try again in a few moments.',
-		scene,
-	);
+export function showPurchaseFailedModal(scene = null, detail = '') {
+	const fallback =
+		'We could not process your purchase just now. You have not been charged for this round. Please try again in a few moments.';
+	const message = detail && String(detail).trim() ? String(detail).trim() : fallback;
+	return showErrorModal('Unable to Complete Purchase', message, scene);
+}
+
+/**
+ * Game config missing required demo fields (paytableId).
+ *
+ * @param {Phaser.Scene|null|undefined} [scene]
+ * @param {string} [detail]
+ * @returns {Modal}
+ */
+export function showConfigErrorModal(scene = null, detail = '') {
+	const message =
+		detail && String(detail).trim()
+			? String(detail).trim()
+			: 'Game configuration is incomplete (missing paytableId). Reload with a valid ?config= theme or provider session.';
+	return showErrorModal('Configuration Error', message, scene);
 }

@@ -9,6 +9,7 @@ import { GameConfig } from '../../config/Global.js';
 import { normalizePullTabsBuy, resolvePullTabBuyWalletDebitMinor } from '../../utils/game/pullTabBuyDisplay.js';
 import { maxPayoutMinorFromAwardTiers } from '../../utils/game/pullTabAwardTierUtils.js';
 import { formatPullTabBannerMessage, economyMinorToWalletMinors, getDefaultCreditValueMinor } from '../../utils/formatting/FormattingUtils.js';
+import { setLastPullTabBuyDebug } from '../../utils/game/pullTabLastBuyDebug.js';
 import { warn, error as logErr } from '../../utils/logger/LoggerUtils.js';
 /* END-USER-IMPORTS */
 
@@ -41,6 +42,15 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 
 	/** @type {PullTabsService|null} */
 	pullTabsApi = null;
+
+	/** Prevents overlapping buy requests from rapid clicks. */
+	_buyInFlight = false;
+
+	/** Last buy failure for purchase-error modal detail. */
+	lastBuyError = null;
+
+	/** True when a concurrent buy was ignored (do not show purchase-failed modal). */
+	lastBuySkippedInFlight = false;
 
 	static DEFAULT_GAME_UI = {
 		type: "Normal",
@@ -104,6 +114,17 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 	{
 		const stateMgr = this.scene?.stateManager;
 
+		if (this._buyInFlight) {
+			this.lastBuySkippedInFlight = true;
+			warn('[ServerManager] Buy ignored — request already in flight', 'api');
+			return false;
+		}
+
+		this._buyInFlight = true;
+		this.lastBuySkippedInFlight = false;
+		this.lastBuyError = null;
+
+		try {
 		const gc = typeof window !== "undefined" ? window.__selectedGameConfig || {} : {};
 		const sid = typeof window !== "undefined" && window.__sessionId ? String(window.__sessionId).trim() : "";
 		const isSession = sid !== "";
@@ -122,6 +143,14 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 
 		if (!isSession && paytableId.length === 0) {
 			logErr('[ServerManager] Non-session pull-tabs buy requires paytableId in game config.', 'api');
+			this.lastBuyError = { message: 'Missing paytableId in game config', status: 0 };
+			setLastPullTabBuyDebug({
+				ok: false,
+				paytableId: '',
+				creditValueMinor: priceMinor,
+				isSessionMode: false,
+				error: 'Missing paytableId in game config',
+			});
 			stateMgr?.setState("ready", "ServerManager: missing paytableId");
 			return false;
 		}
@@ -132,6 +161,14 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 		}
 
 		stateMgr?.setState("wait", "ServerManager: awaiting pull-tabs buy");
+
+		setLastPullTabBuyDebug({
+			ok: null,
+			paytableId: isSession ? '(session)' : paytableId,
+			creditValueMinor: priceMinor,
+			isSessionMode: isSession,
+			status: 'pending',
+		});
 
 		if (!this.pullTabsApi) {
 			this.pullTabsApi = new PullTabsService();
@@ -176,6 +213,18 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 				apiRound: resp,
 			};
 
+			setLastPullTabBuyDebug({
+				ok: true,
+				paytableId: isSession ? '(session)' : paytableId,
+				creditValueMinor: priceMinor,
+				isSessionMode: isSession,
+				status: 200,
+				payoutMinor: normalized.payoutMinor,
+				outcomeTierId: resp?.outcomeTierId ?? null,
+				ticketPoolIndex: resp?.ticketPoolIndex ?? null,
+				won: normalized.won,
+			});
+
 			this.scene.registry.set(
 				"pullTabResolvedRowCount",
 				normalized.rowCount
@@ -189,12 +238,24 @@ export default class ServerManager extends Phaser.GameObjects.Container {
 
 			return true;
 		} catch (err) {
+			this.lastBuyError = err;
+			setLastPullTabBuyDebug({
+				ok: false,
+				paytableId: isSession ? '(session)' : paytableId,
+				creditValueMinor: priceMinor,
+				isSessionMode: isSession,
+				status: Number(/** @type {{ status?: number }} */ (err).status) || null,
+				error: String(/** @type {{ message?: string }} */ (err).message || err),
+			});
 			warn(`[ServerManager] pull-tabs buy failed: ${err?.message ?? err}`, 'api', err);
 			stateMgr?.setState(
 				"ready",
 				"ServerManager: buy failed"
 			);
 			return false;
+		}
+		} finally {
+			this._buyInFlight = false;
 		}
 	}
 
