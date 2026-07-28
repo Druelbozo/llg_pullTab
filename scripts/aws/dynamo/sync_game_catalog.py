@@ -124,6 +124,16 @@ def convert_decimal(obj):
     return obj
 
 
+def rtp_from_paytable_id(paytable_id):
+    """Map pull_tab_* paytableId to catalog rtp (e.g. pull_tab_5row_94_v0001 -> 0.94)."""
+    import re
+    pid = str(paytable_id or '').strip()
+    m = re.match(r'^pull_tab_\d+row_(\d+)_v', pid, re.I)
+    if not m:
+        return 0
+    return int(m.group(1)) / 100.0
+
+
 def get_existing_item(dynamodb, table_name, game_id):
     """Fetch existing GameCatalog item by gameId. Returns None if not found."""
     try:
@@ -163,13 +173,14 @@ def build_new_entry(game_id, config):
     title = game_id_to_title(game_id)
     image_url, video_url = _thumbnail_urls(game_id)
     now = int(datetime.now().timestamp())
+    catalog_rtp = rtp_from_paytable_id(config.get('paytableId'))
 
     entry = {
         'metadata': metadata,
         'productType': 'casino',
         'rules': '',
         'url': GAME_URL,
-        'rtp': 0,
+        'rtp': catalog_rtp,
         'providerId': 'LLG',
         'volatility': 1,
         'locales': ['en'],
@@ -200,6 +211,7 @@ def build_update_entry(game_id, config, existing_db_item):
     entry['metadata'] = dict(config)
     entry['category'] = CATEGORY
     entry['url'] = GAME_URL
+    entry['rtp'] = rtp_from_paytable_id(config.get('paytableId'))
     entry['imageUrl'], video_url = _thumbnail_urls(game_id)
     entry['updatedAt'] = int(datetime.now().timestamp())
     if video_url:

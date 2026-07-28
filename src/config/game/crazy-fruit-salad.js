@@ -5,7 +5,7 @@
 
 export default {
 	theme: 'crazy-fruit-salad',
-	paytableId: 'pull_tab_5row_94_v0001',
+	paytableId: 'pull_tab_5row_88_v0001',
 	creditValueMinor: 250,
 	rowCount: 5,
 };
