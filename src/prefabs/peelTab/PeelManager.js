@@ -14,13 +14,7 @@ import {
 } from '../../dom/modal/utils/ErrorModalUtils.js';
 import { resolvePullTabBuyWalletDebitMinor } from '../../utils/game/pullTabBuyDisplay.js';
 import { formatPullTabBuyErrorDetail } from '../../utils/game/pullTabLastBuyDebug.js';
-import { enablePullTabResultsResetButton } from '../../services/pulltab/PullTabControlBarBootstrap.js';
-import { getPullTabGameSpeed } from '../../utils/game/PullTabGameSpeedUtils.js';
 /* END-USER-IMPORTS */
-
-/** Wall-time after win/lose state before RESET must be enabled (matches Prefab_Results). */
-const WIN_RESULTS_PRESENTATION_MS = 500 + 800;
-const LOSE_RESULTS_PRESENTATION_MS = 350;
 
 export default class PeelManager extends Phaser.GameObjects.Container {
 
@@ -62,6 +56,11 @@ export default class PeelManager extends Phaser.GameObjects.Container {
 		{
 
 			case "ready":
+				if (this.scene._pendingBuyAfterReset) {
+					this.scene._pendingBuyAfterReset = false;
+					this.scene.time.delayedCall(0, () => this.checkBalanace());
+					return;
+				}
 				if(this.autoMode && this.autoRoundsLeft > 0)
 				{
 					this.scene.time.delayedCall(500 /this.speed, ()=> this.checkBalanace());
@@ -94,6 +93,13 @@ export default class PeelManager extends Phaser.GameObjects.Container {
 				if (this.stateManager?.state === 'wait') {
 					return;
 				}
+				if (this.scene._awaitingBuyAfterRound) {
+					this.scene._awaitingBuyAfterRound = false;
+					this.scene._pendingBuyAfterReset = true;
+					this.scene.controlBarManager?.setPlayButtonDisabled(true);
+					this.stateManager.setState("reset", "PeelManager - reset card before next buy");
+					return;
+				}
 				this.checkBalanace();
 			break;
 			case "playing":
@@ -104,10 +110,7 @@ export default class PeelManager extends Phaser.GameObjects.Container {
 			case "gameOver":
 			break;
 			case "win":
-				this.stateManager.setState("reset", "PeelManager -  Resetting Game")
-			break;
 			case "lose":
-				this.stateManager.setState("reset", "PeelManager -  Resetting Game")
 			break;
 		}		
 	}
@@ -144,6 +147,7 @@ export default class PeelManager extends Phaser.GameObjects.Container {
 
 		if(success)
 		{
+			this.scene.controlBarManager?.updateHeaderWinText(0);
 			this.stateManager.setState("playing", "PeelManager -  Player has enough currency, starting game");
 			this.scene.events.emit("onCardBuy");
 			log(`PeelManager buy ok autoMode=${this.autoMode}`, 'game');
@@ -186,21 +190,9 @@ export default class PeelManager extends Phaser.GameObjects.Container {
 		this.scene.events.emit("pulltab-win-minor-changed", winMinor);
 
 		const won = payoutMinor > 0;
-		const speed = getPullTabGameSpeed(this.scene);
-		const resultsPresentationMs = (won ? WIN_RESULTS_PRESENTATION_MS : LOSE_RESULTS_PRESENTATION_MS) / speed;
-
-		const scheduleResetFallback = () => {
-			this.scene.time.delayedCall(1000 / speed + resultsPresentationMs, () => {
-				const s = this.stateManager?.state;
-				if (s === 'win' || s === 'lose' || s === 'gameOver') {
-					enablePullTabResultsResetButton(this.scene);
-				}
-			});
-		};
 
 		if (won)
 		{
-			scheduleResetFallback();
 			this.scene.time.delayedCall(1000 / this.speed, () => {
 				this.scene.audioService?.playSfx('win');
 				const credited = this.scene.serverManager?.creditEconomyMinor(payoutMinor);
@@ -215,7 +207,6 @@ export default class PeelManager extends Phaser.GameObjects.Container {
 		}
 		else
 		{
-			scheduleResetFallback();
 			this.scene.time.delayedCall(1000 / this.speed, () => {
 				this.scene.audioService?.playSfx('lose');
 				if (GameConfig?.ui?.enableHapticFeedback !== false) {

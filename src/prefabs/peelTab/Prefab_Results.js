@@ -7,7 +7,7 @@
 import { resolvePrizeAmountTextStyle } from '../../utils/theme/ScratchLikeTextResolutionUtils.js';
 import { peelResultVideoOverridesImageAnimation, themeUsesFlatCardBackImage } from '../../utils/theme/PeelCardThemeUtils.js';
 import { getPullTabGameSpeed } from '../../utils/game/PullTabGameSpeedUtils.js';
-import { enablePullTabResultsResetButton } from '../../services/pulltab/PullTabControlBarBootstrap.js';
+import { finishPullTabRoundAwaitingBuy } from '../../services/pulltab/PullTabControlBarBootstrap.js';
 import {
 	applyResultGraphicScale,
 	layoutResultsOnPeelCard,
@@ -18,7 +18,7 @@ import {
 } from '../../utils/formatting/FormattingUtils.js';
 /* END-USER-IMPORTS */
 
-/** Scratch-aligned count-up duration before enabling RESET (ms, wall time at speed 1). */
+/** Scratch-aligned count-up duration before enabling BUY (ms, wall time at speed 1). */
 const WIN_COUNT_UP_MS = 800;
 
 export default class Prefab_Results extends Phaser.GameObjects.Container {
@@ -95,36 +95,20 @@ export default class Prefab_Results extends Phaser.GameObjects.Container {
 	/** @type {Phaser.Tweens.Tween|null} */
 	_starburstSpinTween = null;
 
-	/** @type {Phaser.Time.TimerEvent|null} */
-	_resetEnableTimer = null;
-
 	_effectiveSpeed() {
 		return getPullTabGameSpeed(this.scene);
-	}
-
-	_cancelResetEnableTimer() {
-		if (this._resetEnableTimer) {
-			this._resetEnableTimer.remove(false);
-			this._resetEnableTimer = null;
-		}
-	}
-
-	/** Wall-time delay before enabling RESET (independent of result tweens). */
-	_scheduleEnableResetButton(delayMs) {
-		this._cancelResetEnableTimer();
-		const delay = Math.max(0, Number(delayMs) || 0);
-		this._resetEnableTimer = this.scene.time.delayedCall(delay, () => {
-			this._resetEnableTimer = null;
-			this._enableResetButton();
-		});
 	}
 
 	_getTheme() {
 		return this.scene.themeData || this.scene.registry?.get?.('preloadThemeData');
 	}
 
+	/** After win/lose outro completes: enable BUY and keep peeled cards visible (manual play). */
+	_finishRoundAwaitingBuy() {
+		finishPullTabRoundAwaitingBuy(this.scene);
+	}
+
 	_killResultAnimations() {
-		this._cancelResetEnableTimer();
 		for (const tw of this._activeResultTweens) {
 			try {
 				tw?.stop?.();
@@ -167,10 +151,6 @@ export default class Prefab_Results extends Phaser.GameObjects.Container {
 			}
 			this._starburstSpinTween = null;
 		}
-	}
-
-	_enableResetButton() {
-		enablePullTabResultsResetButton(this.scene);
 	}
 
 	_refreshResultTextures() {
@@ -291,8 +271,6 @@ export default class Prefab_Results extends Phaser.GameObjects.Container {
 
 		const speed = this._effectiveSpeed();
 		const scaleInDuration = 500 / speed;
-		const countUpSpeed = WIN_COUNT_UP_MS / speed;
-		this._scheduleEnableResetButton(scaleInDuration + countUpSpeed);
 
 		this._trackTween(
 			this.scene.tweens.add({
@@ -318,6 +296,7 @@ export default class Prefab_Results extends Phaser.GameObjects.Container {
 				onComplete: () => {
 					this.starburst.visible = false;
 					this._stopStarburstSpin();
+					this._finishRoundAwaitingBuy();
 				},
 			}),
 		);
@@ -326,8 +305,6 @@ export default class Prefab_Results extends Phaser.GameObjects.Container {
 	_playWinScaleAnimation() {
 		const speed = this._effectiveSpeed();
 		const scaleInDuration = 350 / speed;
-		const countUpSpeed = WIN_COUNT_UP_MS / speed;
-		this._scheduleEnableResetButton(scaleInDuration + countUpSpeed);
 
 		this.starburst.visible = false;
 		this.animContainer.setPosition(0, 0);
@@ -354,6 +331,9 @@ export default class Prefab_Results extends Phaser.GameObjects.Container {
 				delay: 1500 / speed,
 				duration: 700 / speed,
 				ease: 'Back.In',
+				onComplete: () => {
+					this._finishRoundAwaitingBuy();
+				},
 			}),
 		);
 	}
@@ -370,7 +350,6 @@ export default class Prefab_Results extends Phaser.GameObjects.Container {
 
 	_playDropInAnimation() {
 		const speed = this._effectiveSpeed();
-		this._scheduleEnableResetButton(2000 / speed);
 
 		this.animContainer.setPosition(0, -2000);
 		this.animContainer.setScale(1, 1);
@@ -393,6 +372,7 @@ export default class Prefab_Results extends Phaser.GameObjects.Container {
 				ease: 'Back.In',
 				onComplete: () => {
 					this.starburst.visible = false;
+					this._finishRoundAwaitingBuy();
 				},
 			}),
 		);
@@ -401,7 +381,6 @@ export default class Prefab_Results extends Phaser.GameObjects.Container {
 	_playLoseScaleAnimation() {
 		const speed = this._effectiveSpeed();
 		const scaleInDuration = 350 / speed;
-		this._scheduleEnableResetButton(scaleInDuration);
 
 		this.animContainer.setPosition(0, 0);
 		this.animContainer.setScale(0, 0);
@@ -426,6 +405,7 @@ export default class Prefab_Results extends Phaser.GameObjects.Container {
 				ease: 'Back.In',
 				onComplete: () => {
 					this.starburst.visible = false;
+					this._finishRoundAwaitingBuy();
 				},
 			}),
 		);

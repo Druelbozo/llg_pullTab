@@ -522,14 +522,20 @@ function applyPeelCardLayout(scene, layoutPositions) {
 /**
  * Scratch-style play / auto labels from Peel game state (see legacy InteractButton).
  */
-/** Enable RESET after peel win/lose presentation (PNG or video). */
-export function enablePullTabResultsResetButton(scene) {
+/**
+ * After win/lose presentation: show BUY and keep peeled cards visible until the next purchase.
+ * Mirrors scratch {@link Level.finishRoundAwaitingBuy}.
+ */
+export function finishPullTabRoundAwaitingBuy(scene) {
     const mgr = scene?.peelManager;
     if (mgr?.autoMode) {
         return;
     }
-    scene?.controlBarManager?.updatePlayButtonText('RESET');
-    scene?.controlBarManager?.setPlayButtonDisabled(false);
+    if (scene._awaitingBuyAfterRound) {
+        return;
+    }
+    scene._awaitingBuyAfterRound = true;
+    scene.stateManager?.setState('ready', 'PullTab - awaiting buy after round');
 }
 
 export function attachPullTabPlayButtonAndHudSync(scene) {
@@ -570,7 +576,9 @@ export function attachPullTabPlayButtonAndHudSync(scene) {
         switch (state) {
             case 'ready':
                 cm.updatePlayButtonText('BUY');
-                cm.updateHeaderWinText(0);
+                if (!scene._awaitingBuyAfterRound) {
+                    cm.updateHeaderWinText(0);
+                }
                 cm.setPlayButtonDisabled(false);
                 cm.setAutoButtonDisabled(false);
                 break;
@@ -589,7 +597,7 @@ export function attachPullTabPlayButtonAndHudSync(scene) {
                 break;
 			case 'win':
 			case 'lose':
-				cm.updatePlayButtonText('RESET');
+				cm.updatePlayButtonText('BUY');
 				cm.setPlayButtonDisabled(true);
 				cm.setAutoButtonDisabled(false);
 				break;

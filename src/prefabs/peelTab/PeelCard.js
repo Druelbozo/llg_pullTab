@@ -22,7 +22,7 @@ import {
 	resolvePeelRowGap,
 } from "../../utils/theme/PeelCardThemeUtils.js";
 import {
-	enablePullTabResultsResetButton,
+	finishPullTabRoundAwaitingBuy,
 	syncPullTabPeelCardLayout,
 } from "../../services/pulltab/PullTabControlBarBootstrap.js";
 import { warn } from "../../utils/logger/LoggerUtils.js";
@@ -431,7 +431,7 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 			duration: fadeDuration,
 			onComplete: () => {
 				video.visible = false;
-				enablePullTabResultsResetButton(this.scene);
+				finishPullTabRoundAwaitingBuy(this.scene);
 			},
 		});
 	}
