@@ -209,7 +209,11 @@ export default class Prefab_Results extends Phaser.GameObjects.Container {
 		}
 
 		const td = this._getTheme();
-		if (peelResultVideoOverridesImageAnimation(this.scene, td, state)) {
+		if (state === 'win' && peelResultVideoOverridesImageAnimation(this.scene, td, 'win')) {
+			this._playWinWithPeelVideo();
+			return;
+		}
+		if (state === 'lose' && peelResultVideoOverridesImageAnimation(this.scene, td, 'lose')) {
 			return;
 		}
 
@@ -261,6 +265,19 @@ export default class Prefab_Results extends Phaser.GameObjects.Container {
 				},
 			}),
 		);
+	}
+
+	/** Win MP4 on the card cover; starburst + prize count-up on top (video replaces win PNG only). */
+	_playWinWithPeelVideo() {
+		this._killResultAnimations();
+		this.setDepth(25);
+		this.visible = true;
+		this.winImage.visible = false;
+		this.loseImage.visible = false;
+		this.winningsText.visible = false;
+		this.winningsText.text = '$0.00';
+		this.starburst.visible = false;
+		this.starBurstAnim();
 	}
 
 	starBurstAnim() {

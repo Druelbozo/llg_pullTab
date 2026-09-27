@@ -8,8 +8,8 @@ import { tierSymbolToFrameIndex } from '../../../utils/game/pullTabBuyDisplay.js
 import { isJunkAwardTierSymbol, payoutMinorForAwardTier } from '../../../utils/game/pullTabAwardTierUtils.js';
 import {
     formatMinorForDisplayWithSymbol,
+    formatBuyInMinorForDisplayWithSymbol,
     formatGcMinorAmount,
-    minorsToDisplayDollarStringWithSymbol,
     getActiveCurrencyCode,
     isGoldCoinsCurrency,
     getDefaultCreditValueMinor,
@@ -56,7 +56,7 @@ function formatTicketPriceSentenceFragment(creditValueMinor, currencyCode) {
     if (isGoldCoinsCurrency(currencyCode)) {
         return `${formatGcMinorAmount(minor)} coins`;
     }
-    return minorsToDisplayDollarStringWithSymbol(minor);
+    return formatBuyInMinorForDisplayWithSymbol(minor, currencyCode);
 }
 
 /**

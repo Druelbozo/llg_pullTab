@@ -63,6 +63,23 @@ export function getMinorPerDisplayUnit(currencyCode) {
     return getGcMinorPerDisplayUnit();
 }
 
+/**
+ * Wallet / operator ledger minors → display (Novalink SC uses 100 minors per $1, not legacy 1000-scale).
+ * Use for balance, buy-in, and other amounts already in wallet minors (matches backend operator ledger).
+ */
+export function getWalletMinorPerDisplayUnit(currencyCode) {
+    const code = normalizeCurrencyCode(currencyCode ?? getActiveCurrencyCode());
+    if (isSweepsCoinsCurrency(code)) {
+        const raw = GameConfig.game.OPERATOR_SC_MINOR_PER_DISPLAY_DOLLAR;
+        const n = Number(raw);
+        if (Number.isFinite(n) && n > 0) {
+            return n;
+        }
+        return 100;
+    }
+    return getMinorPerDisplayUnit(code);
+}
+
 export function getUsdMinorPerDisplayDollar() {
     const raw = GameConfig.game.USD_MINOR_PER_DISPLAY_DOLLAR ?? GameConfig.game.MINOR_PER_DISPLAY_DOLLAR;
     const n = Number(raw);
@@ -134,17 +151,25 @@ export function normalizeCreditValueMinor(value, currencyCode) {
     return getDefaultCreditValueMinor(currencyCode);
 }
 
-export function minorsToDisplayString(minor, currencyCode) {
+export function minorsToDisplayString(minor, currencyCode, divisorOverride) {
     const n = Number(minor);
     const safe = Number.isFinite(n) ? n : 0;
     const code = normalizeCurrencyCode(currencyCode ?? getActiveCurrencyCode());
-    const divisor = getMinorPerDisplayUnit(code);
+    const divisor =
+        Number.isFinite(Number(divisorOverride)) && Number(divisorOverride) > 0
+            ? Number(divisorOverride)
+            : getMinorPerDisplayUnit(code);
     const value = safe / divisor;
     const gcWhole = code === 'GC' && divisor > 0 && safe % divisor === 0;
     return value.toLocaleString('en-US', {
         minimumFractionDigits: gcWhole ? 0 : 2,
         maximumFractionDigits: gcWhole ? 0 : 2,
     });
+}
+
+export function walletMinorsToDisplayString(minor, currencyCode) {
+    const code = normalizeCurrencyCode(currencyCode ?? getActiveCurrencyCode());
+    return minorsToDisplayString(minor, code, getWalletMinorPerDisplayUnit(code));
 }
 
 export function minorsToDisplayDollarString(minor, currencyCode) {
@@ -156,11 +181,15 @@ export function minorsToDisplayDollarStringWithSymbol(minor, currencyCode) {
 }
 
 export function formatBuyInMinorForDisplay(minor, currencyCode) {
-    return formatMinorForDisplay(minor, currencyCode);
+    return walletMinorsToDisplayString(minor, currencyCode);
 }
 
 export function formatBuyInMinorForDisplayWithSymbol(minor, currencyCode) {
-    return formatMinorForDisplayWithSymbol(minor, currencyCode);
+    const code = normalizeCurrencyCode(currencyCode ?? getActiveCurrencyCode());
+    if (isGoldCoinsCurrency(code)) {
+        return formatBuyInMinorForDisplay(minor, code);
+    }
+    return '$' + formatBuyInMinorForDisplay(minor, code);
 }
 
 export function formatGcMinorAmount(minor, currencyCode) {
@@ -168,7 +197,7 @@ export function formatGcMinorAmount(minor, currencyCode) {
 }
 
 export function formatBalanceMinorForDisplay(minor, currencyCode) {
-    return minorsToDisplayString(minor, currencyCode ?? getActiveCurrencyCode());
+    return walletMinorsToDisplayString(minor, currencyCode ?? getActiveCurrencyCode());
 }
 
 export function formatBalanceMinorForDisplayWithSymbol(minor, currencyCode) {
@@ -372,8 +401,65 @@ export function migrateLegacyEconomyMinorToPennyNative(minor) {
     return n;
 }
 
-/** Stored minors are wallet pennies — no conversion at bet/payout boundaries. */
-export function economyMinorToWalletMinors(economyMinor, _currencyCode) {
+const LEGACY_MINOR_PER_DISPLAY_DOLLAR = 100_000;
+const PENNY_NATIVE_CREDIT_VALUE_THRESHOLD = 10_000;
+
+/**
+ * @param {Record<string, unknown>|null|undefined} [meta]
+ */
+export function scalesFromGameMetadata(meta) {
+    const legacy = {
+        minorPerDisplayDollar: LEGACY_MINOR_PER_DISPLAY_DOLLAR,
+        balanceMinorPerDollar: 100,
+        economyGcUnitsPerDisplayDollar: 1000,
+    };
+    if (!meta || typeof meta !== 'object') {
+        return legacy;
+    }
+    const explicitMpd = meta.minorPerDisplayDollar ?? meta.minor_per_display_dollar;
+    if (explicitMpd == null) {
+        const creditRaw = meta.creditValueMinor ?? meta.credit_value_minor;
+        const creditN = Math.round(Number(creditRaw));
+        if (Number.isFinite(creditN) && creditN > 0 && creditN < PENNY_NATIVE_CREDIT_VALUE_THRESHOLD) {
+            return {
+                minorPerDisplayDollar: 100,
+                balanceMinorPerDollar: 100,
+                economyGcUnitsPerDisplayDollar: 100,
+            };
+        }
+        return legacy;
+    }
+    return {
+        minorPerDisplayDollar: Math.max(1, Math.round(Number(explicitMpd)) || LEGACY_MINOR_PER_DISPLAY_DOLLAR),
+        balanceMinorPerDollar: Math.max(1, Math.round(Number(meta.balanceMinorPerDollar ?? meta.balance_minor_per_dollar ?? 100)) || 100),
+        economyGcUnitsPerDisplayDollar: Math.max(
+            1,
+            Math.round(Number(meta.economyGcUnitsPerDisplayDollar ?? meta.economy_gc_units_per_display_dollar ?? 1000)) || 1000,
+        ),
+    };
+}
+
+/** Economy-layer `creditValueMinor` / `payoutMinor` → wallet minors (matches backend `economy_wallet_conversion`). */
+export function economyMinorToWalletMinors(economyMinor, currencyCode) {
     const e = Math.round(Number(economyMinor));
-    return Number.isFinite(e) ? e : 0;
+    if (!Number.isFinite(e) || e === 0) {
+        return 0;
+    }
+    const code = normalizeCurrencyCode(currencyCode ?? getActiveCurrencyCode());
+    const meta =
+        typeof window !== 'undefined' && window.__selectedGameConfig && typeof window.__selectedGameConfig === 'object'
+            ? window.__selectedGameConfig
+            : null;
+    const scales = scalesFromGameMetadata(meta);
+    const mpd = scales.minorPerDisplayDollar;
+    const bmd = scales.balanceMinorPerDollar;
+    if (mpd === bmd) {
+        return e;
+    }
+    if (code === 'GC') {
+        const k = scales.economyGcUnitsPerDisplayDollar;
+        const whole = Math.trunc((e * k) / mpd);
+        return Math.round(whole * bmd);
+    }
+    return Math.round((e * bmd) / mpd);
 }

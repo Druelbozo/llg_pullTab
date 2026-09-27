@@ -15,6 +15,7 @@ import {
 	shouldShowPeelCardCover,
 	shouldShowPeelPrizeLabels,
 	shouldUsePeelResultVideo,
+	peelResultVideoOverridesImageAnimation,
 	themeDefinesPeelVideoSlot,
 	themeUsesFlatCardBackImage,
 	PEEL_RESULT_VIDEO_PLAYBACK_MS_AT_SPEED_1,
@@ -431,7 +432,10 @@ export default class PeelCard extends Phaser.GameObjects.Container {
 			duration: fadeDuration,
 			onComplete: () => {
 				video.visible = false;
-				finishPullTabRoundAwaitingBuy(this.scene);
+				const themeData = this.scene.themeData || this.scene.registry.get('preloadThemeData');
+				if (!peelResultVideoOverridesImageAnimation(this.scene, themeData, slot)) {
+					finishPullTabRoundAwaitingBuy(this.scene);
+				}
 			},
 		});
 	}

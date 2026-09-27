@@ -15,7 +15,7 @@ import { calculateControlHeight } from '../../../utils/layout/ControlBarLayoutUt
 import {
     formatBuyInMinorForDisplayWithSymbol,
     formatBalanceMinorForDisplayWithSymbol,
-    formatMinorForDisplayWithSymbol,
+    economyMinorToWalletMinors,
 } from '../../../utils/formatting/FormattingUtils.js';
 import { animateNumber } from '../../../utils/animation/AnimationUtils.js';
 import gameConfig from '../../../config/game/game-config.js';
@@ -2443,7 +2443,7 @@ export default class ControlBarManager {
                 
                 let initialText = '';
                 if (itemName === 'winText') {
-                    initialText = this._formatHeaderText('Win:', formatMinorForDisplayWithSymbol(0), lines);
+                    initialText = this._formatHeaderText('Win:', formatBalanceMinorForDisplayWithSymbol(0), lines);
                 } else if (itemName === 'betText') {
                     const creditValueMinor = this._effectiveBuyInMinor(0);
                     initialText = this._formatHeaderText('Buy:', formatBuyInMinorForDisplayWithSymbol(creditValueMinor), lines);
@@ -2615,14 +2615,17 @@ export default class ControlBarManager {
      * Update header win text with win amount
      * @param {number} winAmountPennies - Win amount in pennies
      */
-    updateHeaderWinText(winAmountPennies) {
+    updateHeaderWinText(winAmountEconomyMinor) {
         if (!this.headerWinText) {
             return;
         }
         
         const headerConfig = this._getHeaderConfig();
         const lines = headerConfig?.lines || 1;
-        this.headerWinText.setText(this._formatHeaderText('Win:', formatMinorForDisplayWithSymbol(winAmountPennies), lines));
+        const walletWin = economyMinorToWalletMinors(winAmountEconomyMinor);
+        this.headerWinText.setText(
+            this._formatHeaderText('Win:', formatBalanceMinorForDisplayWithSymbol(walletWin), lines),
+        );
     }
 }
 

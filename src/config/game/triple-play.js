@@ -6,6 +6,6 @@
 export default {
 	theme: 'triple-play',
 	paytableId: 'pull_tab_5row_92_v0001',
-	creditValueMinor: 250,
+	creditValueMinor: 25,
 	rowCount: 5,
 };

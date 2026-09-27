@@ -6,6 +6,6 @@
 export default {
 	theme: 'mega-monster',
 	paytableId: 'pull_tab_6row_92_v0001',
-	creditValueMinor: 250,
+	creditValueMinor: 25,
 	rowCount: 6,
 };

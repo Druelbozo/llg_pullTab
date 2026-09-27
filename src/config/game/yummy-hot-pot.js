@@ -6,6 +6,6 @@
 export default {
 	theme: 'yummy-hot-pot',
 	paytableId: 'pull_tab_6row_88_v0001',
-	creditValueMinor: 250,
+	creditValueMinor: 25,
 	rowCount: 6,
 };
