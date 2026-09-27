@@ -17,12 +17,20 @@
   "text": {
     "palette": {
       "primaryColor": "#25d256"
+    },
+    "score": {
+      "position": {
+        "y": 220
+      }
     }
   },
   "controlBar": {
     "palette": {
       "primaryColor": "#1ca744"
     }
+  },
+  "win": {
+    "cardHeightPercent": 0.56
   },
   "lose": {
     "cardHeightPercent": 0.7
