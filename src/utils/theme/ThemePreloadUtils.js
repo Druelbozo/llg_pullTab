@@ -16,6 +16,13 @@ export function shouldPreloadPeelResultImageSlot(themeData, slotKey) {
 		if (themeUsesFlatCardBackImage(themeData)) {
 			return true;
 		}
+		const ik = themeData?.imageKeys;
+		const stem =
+			ik && typeof ik === 'object' ? ik[slotKey] : undefined;
+		if (typeof stem === 'string' && stem.trim().length > 0) {
+			// Prefab_Results overlay art (starburst animation) even when cover-band MP4 plays.
+			return true;
+		}
 		return !themeDefinesPeelVideoSlot(themeData, slotKey);
 	}
 	return true;

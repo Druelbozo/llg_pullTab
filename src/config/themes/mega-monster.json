@@ -5,6 +5,7 @@
     "icons": "icons-mega-monster",
     "peel": "peel-crazy-banana",
     "peelBack": "peelBack-default",
+    "win": "win-mega-monster",
     "lose": "lose-mega-monster"
   },
   "videoKeys": {

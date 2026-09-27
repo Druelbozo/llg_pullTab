@@ -267,12 +267,13 @@ export default class Prefab_Results extends Phaser.GameObjects.Container {
 		);
 	}
 
-	/** Win MP4 on the card cover; starburst + prize count-up on top (video replaces win PNG only). */
+	/** Cover-band win MP4 on PeelCard; starburst + win PNG + prize count-up in Prefab_Results. */
 	_playWinWithPeelVideo() {
 		this._killResultAnimations();
+		this._refreshResultTextures();
 		this.setDepth(25);
 		this.visible = true;
-		this.winImage.visible = false;
+		this.winImage.visible = this.scene.textures.exists('win');
 		this.loseImage.visible = false;
 		this.winningsText.visible = false;
 		this.winningsText.text = '$0.00';
