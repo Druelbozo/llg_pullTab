@@ -35,6 +35,19 @@
       "stroke": {
         "color": "#be7308"
       }
+    },
+    "score": {
+      "font": {
+        "size": 170,
+        "color": "#ffd50f"
+      },
+      "stroke": {
+        "color": "#be7308",
+        "lineWidth": 12
+      },
+      "position": {
+        "y": 180
+      }
     }
   },
   "music": {
