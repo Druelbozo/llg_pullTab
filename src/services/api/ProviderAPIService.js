@@ -1,10 +1,22 @@
 import { getUrlParam } from '../../utils/browser/UrlUtils.js';
 import { fetchWithTimeout } from '../../utils/network/fetchWithTimeout.js';
 import { GameConfig } from '../../config/Global.js';
+import {
+    PRODUCTION_API_URL,
+    PROVIDER_SESSION_API_BASE_PROD,
+    PROVIDER_SESSION_API_BASE_STAGING,
+} from '../../config/ApiConfig.js';
 import { log, warn, error as logErr } from '../../utils/logger/LoggerUtils.js';
 
 const SESSION_FETCH_TIMEOUT_MS = 15000;
 const SESSION_CACHE_DURATION_MS = 5000;
+
+function syncWindowSessionApiBase(baseUrl) {
+    if (typeof window === 'undefined' || !baseUrl) {
+        return;
+    }
+    window.__sessionApiBaseUrl = String(baseUrl).replace(/\/+$/, '');
+}
 
 export default class ProviderAPIService {
     constructor() {
@@ -13,7 +25,12 @@ export default class ProviderAPIService {
         this.isSessionMode = false;
         this.providerSessionData = null;
         this.providerSessionCacheTime = null;
+        /** @type {string|null} */
+        this.sessionApiBaseUrl = null;
         this.extractSessionFromURL();
+        this.applyLaunchProviderApiBaseFromUrl();
+        this.applySessionProviderApiBaseFromEnv();
+        syncWindowSessionApiBase(this.getBaseUrl());
     }
 
     extractSessionFromURL() {
@@ -39,15 +56,79 @@ export default class ProviderAPIService {
         }
     }
 
-    _getBaseUrl() {
-        const isLocal = typeof window !== 'undefined'
+    _normalizeSessionApiBaseUrl(raw) {
+        const s = String(raw ?? '').trim().replace(/\/+$/, '');
+        if (!s) {
+            return null;
+        }
+        try {
+            new URL(s);
+        } catch {
+            warn('[ProviderAPIService] Ignoring invalid session API base URL', 'api', raw);
+            return null;
+        }
+        return s;
+    }
+
+    applyLaunchProviderApiBaseFromUrl() {
+        if (!this.sessionId) {
+            return;
+        }
+        const raw = getUrlParam('providerApiBase') ?? getUrlParam('apiBaseUrl');
+        if (!raw) {
+            return;
+        }
+        const normalized = this._normalizeSessionApiBaseUrl(raw);
+        if (!normalized) {
+            return;
+        }
+        log('[ProviderAPIService] API base from launch URL', 'api', normalized);
+        this.sessionApiBaseUrl = normalized;
+    }
+
+    applySessionProviderApiBaseFromEnv() {
+        if (!this.sessionId || this.sessionApiBaseUrl) {
+            return;
+        }
+        const env = getUrlParam('env');
+        if (env === 'staging') {
+            this.sessionApiBaseUrl = PROVIDER_SESSION_API_BASE_STAGING;
+            log('[ProviderAPIService] Session API base from env=staging', 'api', this.sessionApiBaseUrl);
+            return;
+        }
+        this.sessionApiBaseUrl = PROVIDER_SESSION_API_BASE_PROD;
+        log('[ProviderAPIService] Session API base (prod)', 'api', this.sessionApiBaseUrl);
+    }
+
+    _applySessionApiBaseUrlFromPayload(payload) {
+        const normalized = this._normalizeSessionApiBaseUrl(
+            typeof payload?.baseUrl === 'string' ? payload.baseUrl : '',
+        );
+        if (!normalized) {
+            return;
+        }
+        if (normalized !== this.sessionApiBaseUrl) {
+            log('[ProviderAPIService] Session-derived API base URL', 'api', normalized);
+        }
+        this.sessionApiBaseUrl = normalized;
+        syncWindowSessionApiBase(normalized);
+    }
+
+    _isLocalHost() {
+        return typeof window !== 'undefined'
             && (window.location.hostname === 'localhost'
                 || window.location.hostname === '127.0.0.1');
-        const fallbackLocal = `http://localhost:${typeof __CORS_PROXY_PORT__ !== 'undefined' ? __CORS_PROXY_PORT__ : '3005'}`;
-        const fallbackLive = 'https://kmz1ixsmv6.execute-api.us-east-1.amazonaws.com/staging';
-        return isLocal
-            ? (GameConfig?.api?.BASE_URL_LOCAL || fallbackLocal)
-            : (GameConfig?.api?.BASE_URL_LIVE || fallbackLive);
+    }
+
+    getBaseUrl() {
+        if (this._isLocalHost()) {
+            const fallbackLocal = `http://localhost:${typeof __CORS_PROXY_PORT__ !== 'undefined' ? __CORS_PROXY_PORT__ : '3005'}`;
+            return (GameConfig?.api?.BASE_URL_LOCAL || fallbackLocal).replace(/\/+$/, '');
+        }
+        if (this.sessionApiBaseUrl) {
+            return this.sessionApiBaseUrl;
+        }
+        return (GameConfig?.api?.BASE_URL_LIVE || PRODUCTION_API_URL).replace(/\/+$/, '');
     }
 
     async getSessionInfo() {
@@ -64,7 +145,7 @@ export default class ProviderAPIService {
             }
         }
 
-        const baseUrl = this._getBaseUrl();
+        const baseUrl = this.getBaseUrl();
         const url = `${baseUrl}/provider/session`;
 
         log(`[ProviderAPIService] Fetching session url=${url}`, 'api');
@@ -82,11 +163,15 @@ export default class ProviderAPIService {
             }
 
             const sessionData = await response.json();
+            this._applySessionApiBaseUrlFromPayload(sessionData);
+            if (sessionData.mode === 'real' || sessionData.mode === 'demo') {
+                this.mode = sessionData.mode;
+            }
             this.providerSessionData = { ...sessionData, sessionId: this.sessionId };
             this.providerSessionCacheTime = now;
 
             log(
-                `[ProviderAPIService] Session received mode=${sessionData.mode} theme=${sessionData.gameMetadata?.theme ?? ''}`,
+                `[ProviderAPIService] Session received mode=${sessionData.mode} operatorBalance=${sessionData.operatorBalance ?? 'n/a'} theme=${sessionData.gameMetadata?.theme ?? ''}`,
                 'api',
             );
 

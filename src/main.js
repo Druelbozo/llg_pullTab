@@ -217,11 +217,14 @@ class Boot extends Phaser.Scene {
 				this.registry.set('preloadSessionId', window.__sessionId);
 				this.registry.set('preloadSessionMode', mode);
 				this.registry.set('preloadUseSessionConfig', true);
-				if (mode === 'real' && operatorBalance != null) {
+				// Match video-poker: use operator wallet whenever the session returns it (Novalink often uses mode=demo with a live operator balance).
+				if (operatorBalance !== null && operatorBalance !== undefined && operatorBalance !== '') {
 					this.registry.set(
 						'preloadOperatorBalance',
 						normalizeBalance(operatorBalance, balanceCurrency)
 					);
+				} else if (mode === 'real') {
+					this.registry.set('preloadOperatorBalance', 0);
 				} else {
 					this.registry.set(
 						'preloadOperatorBalance',
