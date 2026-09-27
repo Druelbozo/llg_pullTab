@@ -68,7 +68,9 @@ export function applyResultGraphicScale(scene, image, role, resultsContainer) {
 	const theme = scene.themeData || scene.registry?.get?.('preloadThemeData');
 	const cfg = theme?.[role];
 	const cardHeightPercent =
-		typeof cfg?.cardHeightPercent === 'number' && cfg.cardHeightPercent > 0 ? cfg.cardHeightPercent : 0.8;
+		typeof cfg?.cardHeightPercent === 'number' && cfg.cardHeightPercent > 0
+			? cfg.cardHeightPercent
+			: 0.8;
 
 	const cardHeight = getPeelCardReferenceHeight(scene);
 	const parentScale = resultsContainer?.parent?.scaleY ?? resultsContainer?.scaleY ?? 1;

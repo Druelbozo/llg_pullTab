@@ -19,7 +19,15 @@
   "text": {
     "palette": {
       "primaryColor": "#ffd806"
+    },
+    "score": {
+      "position": {
+        "y": 250
+      }
     }
+  },
+  "win": {
+    "cardHeightPercent": 0.625
   },
   "controlBar": {
     "palette": {

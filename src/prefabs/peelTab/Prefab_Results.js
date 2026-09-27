@@ -179,7 +179,7 @@ export default class Prefab_Results extends Phaser.GameObjects.Container {
 		this.winningsText.setStyle(s);
 
 		const scoreCfg = td?.text?.score;
-		const yOffset = scoreCfg?.position?.y ?? 117;
+		const yOffset = scoreCfg?.position?.y ?? 132;
 		this.winningsText.y = yOffset;
 
 		this._refreshResultTextures();
@@ -271,6 +271,7 @@ export default class Prefab_Results extends Phaser.GameObjects.Container {
 	_playWinWithPeelVideo() {
 		this._killResultAnimations();
 		this._refreshResultTextures();
+		this.applyGraphicScales();
 		this.setDepth(25);
 		this.visible = true;
 		this.winImage.visible = this.scene.textures.exists('win');
