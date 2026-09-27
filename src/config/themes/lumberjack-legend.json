@@ -35,7 +35,23 @@
       "stroke": {
         "color": "#6e3101"
       }
+    },
+    "score": {
+      "font": {
+        "size": 150,
+        "color": "#fdb50f"
+      },
+      "stroke": {
+        "color": "#6e3101",
+        "lineWidth": 12
+      },
+      "position": {
+        "y": 350
+      }
     }
+  },
+  "win": {
+    "cardHeightPercent": 0.55
   },
   "music": {
     "audioKey": "lumberjack-legend.ogg"
