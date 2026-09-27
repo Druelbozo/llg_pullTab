@@ -12,7 +12,7 @@
     "iconScale": 0.95
   },
   "win": {
-    "cardHeightPercent": 0.55
+    "cardHeightPercent": 0.68
   },
   "lose": {
     "cardHeightPercent": 0.55
@@ -42,8 +42,16 @@
       }
     },
     "score": {
+      "font": {
+        "size": 170,
+        "color": "#fdb50f"
+      },
+      "stroke": {
+        "color": "#6e3101",
+        "lineWidth": 12
+      },
       "position": {
-        "y": 270
+        "y": 330
       }
     }
   },
