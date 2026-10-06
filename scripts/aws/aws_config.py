@@ -26,8 +26,8 @@ DEFAULT_PATHS = [
     'index.html',
 ]
 
-# Paths to sync for production (bundled build from dist/)
-# Used with --from-dir dist when deploying production build
+# Paths to sync for production (bundled build from dist/) when --sync-catalog is used
+# (deploy.js passes explicit minimal paths on routine deploys; empty argv + --production uses this list)
 PRODUCTION_PATHS = [
     'index.html',
     'assets',
@@ -40,3 +40,15 @@ PRODUCTION_PATHS = [
 SKIP_EXTENSIONS = {
     '.psd'  # Photoshop files - never sync to S3
 }
+
+# S3 subpath(s) where we never delete files (only upload/update).
+# Preserves server/editor uploads (thumbnails, theme art, music) not present in dist/.
+NO_DELETE_SUBPATHS = (
+    'src/config/',
+    'assets/images/',
+    'assets/audio/',
+    'assets/videos/',
+)
+
+# When False, sync only uploads/updates; never removes S3 objects missing locally.
+DELETE_ORPHANED_S3_FILES = False

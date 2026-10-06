@@ -18,6 +18,9 @@ USAGE:
 
     # Sync to DynamoDB
     python scripts/aws/dynamo/sync_game_catalog.py --yes
+
+    # Sync a single game to GameCatalog
+    python scripts/aws/dynamo/sync_game_catalog.py --game mega-monster --yes
 """
 
 import sys
@@ -302,6 +305,12 @@ def main():
     parser.add_argument('--dry-run', action='store_true', help='Build entries and print JSON, do not write to DynamoDB')
     parser.add_argument('--region', default='us-east-1', help='AWS region (default: us-east-1)')
     parser.add_argument('--yes', '-y', action='store_true', help='Skip confirmation prompt')
+    parser.add_argument(
+        '--game',
+        action='append',
+        metavar='GAME_ID',
+        help='Sync only these game IDs (repeatable). Omit to sync all discovered configs.',
+    )
     args = parser.parse_args()
 
     print("=" * 70)
@@ -320,6 +329,18 @@ def main():
 
     # Discover configs
     configs = discover_config_files()
+    if args.game:
+        game_filter = set()
+        for value in args.game:
+            for part in value.split(','):
+                part = part.strip()
+                if part:
+                    game_filter.add(part)
+        configs = [(game_id, config_path) for game_id, config_path in configs if game_id in game_filter]
+        missing = sorted(game_filter - {game_id for game_id, _ in configs})
+        for game_id in missing:
+            print(f"   Warning: no local config file for game '{game_id}' (catalog sync skipped for this ID)")
+        print(f"Filtering to {len(configs)} game config(s): {', '.join(game_id for game_id, _ in configs) or '(none)'}")
     print(f"Found {len(configs)} game config(s)")
     if not configs:
         print("No config files to sync.")

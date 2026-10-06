@@ -45,7 +45,7 @@ if _aws_dir not in sys.path:
 from sso.aws_sso_auth import ensure_sso_authenticated, get_boto3_session
 
 # Import shared AWS configuration
-from aws_config import BUCKET, S3_PREFIX, DEFAULT_PATHS, PRODUCTION_PATHS, SKIP_EXTENSIONS
+from aws_config import BUCKET, S3_PREFIX, DEFAULT_PATHS, PRODUCTION_PATHS, SKIP_EXTENSIONS, NO_DELETE_SUBPATHS, DELETE_ORPHANED_S3_FILES
 
 # Fix Windows console encoding for emoji support
 if sys.platform == 'win32':
@@ -637,24 +637,32 @@ def sync_to_s3(s3_client, bucket_name, local_dir, local_files, s3_objects, s3_pr
             else:
                 failed += 1
     
-    # Delete orphaned files (exist in S3 but not locally)
-    # Only consider files within the sync scope
-    # Also skip files with extensions we ignore (e.g., .psd files)
+    # Delete orphaned files (exist in S3 but not locally) — optional; off by default.
     orphaned_keys = []
-    for rel_path, s3_info in s3_files.items():
-        s3_key = s3_info['key']
-        
-        # Skip files with ignored extensions (never delete these from S3)
-        file_ext = os.path.splitext(rel_path)[1].lower()
-        if file_ext in SKIP_EXTENSIONS:
-            continue
-        
-        # Skip if exists locally
-        if rel_path not in local_files:
-            # Only delete files within the sync scope
-            if sync_scope_prefix is None or s3_key.startswith(sync_scope_prefix):
-                orphaned_keys.append((s3_key, rel_path, s3_info['size']))
-    
+    if DELETE_ORPHANED_S3_FILES:
+        for rel_path, s3_info in s3_files.items():
+            s3_key = s3_info['key']
+
+            # Skip files with ignored extensions (never delete these from S3)
+            file_ext = os.path.splitext(rel_path)[1].lower()
+            if file_ext in SKIP_EXTENSIONS:
+                continue
+
+            # Skip if exists locally
+            if rel_path not in local_files:
+                # Only delete files within the sync scope
+                if sync_scope_prefix is None or s3_key.startswith(sync_scope_prefix):
+                    if not any(subpath in s3_key for subpath in NO_DELETE_SUBPATHS):
+                        orphaned_keys.append((s3_key, rel_path, s3_info['size']))
+    elif s3_files and local_files:
+        remote_only = sum(
+            1 for rel_path in s3_files
+            if rel_path not in local_files
+            and os.path.splitext(rel_path)[1].lower() not in SKIP_EXTENSIONS
+        )
+        if remote_only:
+            print(f"\nℹ️  Skipping delete of {remote_only} remote-only file(s) (DELETE_ORPHANED_S3_FILES is False)")
+
     if orphaned_keys:
         print(f"\n🗑️  Deleting {len(orphaned_keys)} orphaned file(s)...")
         for s3_key, rel_path, size in orphaned_keys:
@@ -664,16 +672,15 @@ def sync_to_s3(s3_client, bucket_name, local_dir, local_files, s3_objects, s3_pr
             else:
                 failed += 1
     
-    # Handle folder markers and count folder deletions
-    # A folder is effectively deleted when we delete all files in it
-    # Delete folder markers if we deleted all files in a directory (when local_files is empty)
-    # This happens when a folder doesn't exist locally but exists on S3
-    if not local_files and len(orphaned_keys) > 0:
+    # Handle folder markers and count folder deletions (only when orphaned deletes enabled)
+    if DELETE_ORPHANED_S3_FILES and not local_files and len(orphaned_keys) > 0:
         # We deleted all files - the folder is effectively deleted
         # Delete folder markers if they exist
         if s3_folder_markers:
             print(f"\n📁 Deleting {len(s3_folder_markers)} folder marker(s)...")
             for folder_marker_key in s3_folder_markers:
+                if any(subpath in folder_marker_key for subpath in NO_DELETE_SUBPATHS):
+                    continue
                 # Extract folder name for display
                 if s3_prefix and folder_marker_key.startswith(s3_prefix):
                     # Get the folder name relative to the prefix
@@ -882,10 +889,13 @@ def sync_single_path(s3_client, project_root, project_path, bucket_override=None
     renames = {}
     
     # Only consider orphaned files within the sync scope
-    # Skip files with ignored extensions (e.g., .psd files - never delete these from S3)
-    orphaned_files = [p for p in s3_files.keys() 
-                     if p not in local_files 
-                     and os.path.splitext(p)[1].lower() not in SKIP_EXTENSIONS]
+    # Only consider orphaned files within the sync scope (when deletes enabled)
+    orphaned_files = []
+    if DELETE_ORPHANED_S3_FILES:
+        orphaned_files = [p for p in s3_files.keys()
+                         if p not in local_files
+                         and os.path.splitext(p)[1].lower() not in SKIP_EXTENSIONS
+                         and not any(subpath in (s3_prefix + p if s3_prefix else p) for subpath in NO_DELETE_SUBPATHS)]
     
     # Track folder markers for preview
     folder_markers = []
@@ -900,7 +910,7 @@ def sync_single_path(s3_client, project_root, project_path, bucket_override=None
     # 1. All files in the folder are deleted (local_files is empty and orphaned_files exist), OR
     # 2. There are folder markers that will be deleted
     folders_to_delete = []
-    if not local_files and len(orphaned_files) > 0:
+    if DELETE_ORPHANED_S3_FILES and not local_files and len(orphaned_files) > 0:
         # We're deleting all files - the folder will effectively be deleted
         # Extract folder name from project_path
         if not is_file:
@@ -911,6 +921,8 @@ def sync_single_path(s3_client, project_root, project_path, bucket_override=None
         # Also add any folder markers that will be deleted
         if folder_markers:
             for folder_marker_key in folder_markers:
+                if any(subpath in folder_marker_key for subpath in NO_DELETE_SUBPATHS):
+                    continue
                 if s3_prefix and folder_marker_key.startswith(s3_prefix):
                     folder_rel_path = folder_marker_key[len(s3_prefix):].rstrip('/')
                     folder_name = folder_rel_path.split('/')[-1] if '/' in folder_rel_path else folder_rel_path
