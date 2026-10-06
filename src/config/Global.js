@@ -23,12 +23,12 @@ const OPERATOR_SC_MINOR_PER_DISPLAY_DOLLAR = 100;
 const CREDIT_VALUE_AMOUNTS_GC = [
     10, 25, 50, 100, 200, 300, 400, 500, 1000, 2500,
 ];
-/** Credit / bet denominations (pennies) — SC and USD (25 = default pull-tab ticket). */
+/** Credit / bet denominations (pennies) — SC and USD. */
 const CREDIT_VALUE_AMOUNTS_SC_USD = [
-    25, 50, 100, 250, 500, 1000,
+    10, 25, 50, 100, 250, 500, 1000,
 ];
 const CREDIT_VALUE_MINOR_SC_USD =
-    CREDIT_VALUE_AMOUNTS_SC_USD.find((v) => v === 25) ?? CREDIT_VALUE_AMOUNTS_SC_USD[0] ?? 25;
+    CREDIT_VALUE_AMOUNTS_SC_USD.find((v) => v === 10) ?? 10;
 
 export const GameConfig = {
     api: {
@@ -56,7 +56,7 @@ export const GameConfig = {
         BALANCE_MINOR_PER_DOLLAR: USD_MINOR_PER_DISPLAY_DOLLAR,
         /** @deprecated GC display uses GC_MINOR_PER_DISPLAY_UNIT. */
         ECONOMY_GC_UNITS_PER_DISPLAY_DOLLAR: GC_MINOR_PER_DISPLAY_UNIT,
-        CREDIT_VALUE_MINOR_GC: CREDIT_VALUE_AMOUNTS_GC.find((v) => v === 25) ?? CREDIT_VALUE_AMOUNTS_GC[1] ?? 25,
+        CREDIT_VALUE_MINOR_GC: CREDIT_VALUE_AMOUNTS_GC.find((v) => v === 100) ?? 100,
         CREDIT_VALUE_MINOR_SC_USD,
         CREDIT_VALUE_AMOUNTS_GC,
         CREDIT_VALUE_AMOUNTS_SC_USD,

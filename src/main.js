@@ -11,9 +11,7 @@ import ProviderAPIService from "./services/api/ProviderAPIService.js";
 import { GameConfig } from "./config/Global.js";
 import {
 	normalizeBalance,
-	migrateLegacyEconomyMinorToPennyNative,
-	normalizeCreditValueMinor,
-	getDefaultCreditValueMinor,
+	resolveCreditValueMinor,
 } from "./utils/formatting/FormattingUtils.js";
 import { applyLoggingFromGameConfig, warn, error as logErr } from "./utils/logger/LoggerUtils.js";
 import { showConfigErrorModal } from "./dom/modal/utils/ErrorModalUtils.js";
@@ -31,18 +29,44 @@ const DEFAULT_UI_COPY = {
 	message: "OPEN THE TABS FOR WINS UP TO $250"
 };
 
+/**
+ * Local theme files have one shared creditValueMinor. Stamp universal GC/SC buy-ins
+ * when the file does not set them so demo play follows CURRENCY_CODE.
+ * @param {object} config
+ * @returns {object}
+ */
+function withLocalCurrencyBuyIns(config) {
+	const source = config && typeof config === 'object' ? config : {};
+	const gc = Math.round(Number(source.creditValueMinorGc));
+	const sc = Math.round(Number(source.creditValueMinorSc));
+	return {
+		...source,
+		creditValueMinorGc: Number.isFinite(gc) && gc > 0 ? gc : GameConfig.game.CREDIT_VALUE_MINOR_GC,
+		creditValueMinorSc: Number.isFinite(sc) && sc > 0 ? sc : GameConfig.game.CREDIT_VALUE_MINOR_SC_USD,
+	};
+}
+
+function hasExplicitStake(meta) {
+	if (!meta || typeof meta !== 'object') {
+		return false;
+	}
+	return ['creditValueMinor', 'credit_value_minor', 'creditValueMinorGc', 'creditValueMinorSc', 'credit_value_minor_gc', 'credit_value_minor_sc']
+		.some((key) => meta[key] != null && meta[key] !== '');
+}
+
 function mergePullTabConfig(base = {}, meta = {}, currencyCode) {
-	const creditRaw = meta.creditValueMinor ?? base.creditValueMinor ?? getDefaultCreditValueMinor(currencyCode);
+	const currency = currencyCode ?? GameConfig.game.CURRENCY_CODE;
+	const sourceBase = hasExplicitStake(meta) ? base : withLocalCurrencyBuyIns(base);
+	const stakeSource = { ...sourceBase, ...(meta || {}) };
 	return {
 		theme: meta.theme ?? base.theme ?? "default",
 		type: meta.type ?? base.type ?? DEFAULT_UI_COPY.type,
 		prizes: Array.isArray(meta.prizes) ? meta.prizes : (base.prizes ?? DEFAULT_UI_COPY.prizes),
 		message: meta.message ?? base.message ?? DEFAULT_UI_COPY.message,
 		paytableId: meta.paytableId ?? base.paytableId,
-		creditValueMinor: normalizeCreditValueMinor(
-			migrateLegacyEconomyMinorToPennyNative(creditRaw),
-			currencyCode
-		),
+		creditValueMinorGc: stakeSource.creditValueMinorGc,
+		creditValueMinorSc: stakeSource.creditValueMinorSc,
+		creditValueMinor: resolveCreditValueMinor(stakeSource, currency),
 		rowCount: Number.isFinite(Number(meta.rowCount)) && Number(meta.rowCount) > 0
 			? Math.round(Number(meta.rowCount))
 			: (Number.isFinite(Number(base.rowCount)) && Number(base.rowCount) > 0

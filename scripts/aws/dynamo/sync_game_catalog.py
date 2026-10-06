@@ -167,9 +167,37 @@ def _thumbnail_urls(game_id):
     return image_url, video_url
 
 
+DEFAULT_CREDIT_VALUE_MINOR_GC = 100
+DEFAULT_CREDIT_VALUE_MINOR_SC = 10
+
+
+def _positive_credit_value(value, default):
+    """Use a positive whole-number buy-in from config, otherwise the universal default."""
+    try:
+        number = int(value)
+    except (TypeError, ValueError):
+        return default
+    return number if number > 0 else default
+
+
+def apply_currency_credit_values(target, config):
+    """
+    Independent GC/SC buy-ins. JS may override; otherwise GC is 100 and SC is 10.
+    Keeps a later catalog sync from dropping metadata.creditValueMinorGc / creditValueMinorSc.
+    """
+    source = config or {}
+    target['creditValueMinorGc'] = _positive_credit_value(
+        source.get('creditValueMinorGc'), DEFAULT_CREDIT_VALUE_MINOR_GC
+    )
+    target['creditValueMinorSc'] = _positive_credit_value(
+        source.get('creditValueMinorSc'), DEFAULT_CREDIT_VALUE_MINOR_SC
+    )
+    return target
+
+
 def build_new_entry(game_id, config):
     """Build a full GameCatalog entry for a new game."""
-    metadata = dict(config)
+    metadata = apply_currency_credit_values(dict(config), config)
     title = game_id_to_title(game_id)
     image_url, video_url = _thumbnail_urls(game_id)
     now = int(datetime.now().timestamp())
@@ -208,7 +236,7 @@ def build_update_entry(game_id, config, existing_db_item):
     entry = copy.deepcopy(existing_db_item)
 
     # Overwrite syncable fields only
-    entry['metadata'] = dict(config)
+    entry['metadata'] = apply_currency_credit_values(dict(config), config)
     entry['category'] = CATEGORY
     entry['url'] = GAME_URL
     entry['rtp'] = rtp_from_paytable_id(config.get('paytableId'))

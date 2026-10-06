@@ -139,7 +139,7 @@ export function getDefaultCreditValueMinor(currencyCode) {
     if (amounts.includes(preferred)) {
         return preferred;
     }
-    return amounts[0] ?? 25;
+    return amounts[0] ?? 100;
 }
 
 export function normalizeCreditValueMinor(value, currencyCode) {
@@ -149,6 +149,65 @@ export function normalizeCreditValueMinor(value, currencyCode) {
         return n;
     }
     return getDefaultCreditValueMinor(currencyCode);
+}
+
+/**
+ * Positive penny-native stake, or null. Values at or above 10000 are legacy economy minors.
+ * @param {unknown} value
+ * @returns {number|null}
+ */
+function positivePennyNativeMinor(value) {
+    const n = Math.round(Number(value));
+    if (!Number.isFinite(n) || n <= 0) {
+        return null;
+    }
+    const migrated = migrateLegacyEconomyMinorToPennyNative(n);
+    return migrated > 0 ? migrated : null;
+}
+
+/**
+ * @param {object} meta
+ * @param {string[]} keys
+ * @returns {unknown}
+ */
+function firstStakeField(meta, keys) {
+    for (const key of keys) {
+        if (meta[key] != null && meta[key] !== '') {
+            return meta[key];
+        }
+    }
+    return undefined;
+}
+
+/**
+ * Round stake for a currency.
+ * GC reads creditValueMinorGc; SC and USD read creditValueMinorSc; then creditValueMinor.
+ * The denomination allow-list is used only when no positive stake is present.
+ * @param {object|null|undefined} metadata
+ * @param {unknown} [currencyCode]
+ * @returns {number}
+ */
+export function resolveCreditValueMinor(metadata, currencyCode) {
+    const meta = metadata && typeof metadata === 'object' ? metadata : {};
+    const code = normalizeCurrencyCode(currencyCode ?? getActiveCurrencyCode());
+    const specificKeys = code === 'GC'
+        ? ['creditValueMinorGc', 'credit_value_minor_gc']
+        : (code === 'SC' || code === 'USD')
+            ? ['creditValueMinorSc', 'credit_value_minor_sc']
+            : null;
+    if (specificKeys) {
+        const specific = positivePennyNativeMinor(firstStakeField(meta, specificKeys));
+        if (specific != null) {
+            return specific;
+        }
+    }
+    const fallback = positivePennyNativeMinor(
+        firstStakeField(meta, ['creditValueMinor', 'credit_value_minor'])
+    );
+    if (fallback != null) {
+        return fallback;
+    }
+    return getDefaultCreditValueMinor(code);
 }
 
 export function minorsToDisplayString(minor, currencyCode, divisorOverride) {
